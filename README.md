@@ -29,7 +29,7 @@ npm run dev  # Chạy server
 ### 3️⃣ Cài đặt Frontend
 ```sh
 cd ../frontend
-npm i  # Cài đặt thư viện
+npm i  # Cài đặt thư viện(nên chạy trước khi code vì có thể các bạn khác thêm thư viện)
 npm run dev  # Chạy React
 ```
 ### Cách đẩy code lên git
