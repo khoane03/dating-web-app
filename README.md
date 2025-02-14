@@ -22,7 +22,7 @@ cd your-repo
 ### 2️⃣ Cài đặt Backend
 ```sh
 cd backend
-npm install  # Cài đặt thư viện
+npm install  # Cài đặt thư viện(nên chạy trước khi code vì có thể các bạn khác thêm thư viện)
 npm run dev  # Chạy server
 ```
 
