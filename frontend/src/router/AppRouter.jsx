@@ -1,11 +1,14 @@
 import Login from "../pages/Auth/Login";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Register from "../pages/Auth/Register";
 
 function AppRouter() {
     return (
         <Router>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+
             </Routes>
         </Router>
     );
