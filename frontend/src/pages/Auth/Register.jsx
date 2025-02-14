@@ -4,7 +4,6 @@ import {
     faEyeSlash,
     faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { useState } from "react";
 
 function Register() {
