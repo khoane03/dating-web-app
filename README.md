@@ -1,4 +1,5 @@
 # REACTJS + NODEJS
+### 📎 Tài liệu dự án : https://humgedu-my.sharepoint.com/:w:/g/personal/2121050782_student_humg_edu_vn/ET31NJjB75BJkGV55f0_S1wB_O21K_v_6tiJqLMFgMTHIQ?e=DCrPDT
 
 ## 📌 Giới thiệu
 Dự án này là một ứng dụng web full-stack sử dụng **ReactJS** cho frontend và **Node.js** (Express) cho backend.
