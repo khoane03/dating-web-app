@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Login() {
     document.title = "Đăng nhập";
@@ -20,7 +21,7 @@ function Login() {
             <div className="w-[780px] h-[385px] bg-white flex justify-center items-center rounded-xl shadow-2xl">
                 <div className=" flex flex-col items-center justify-center mr-8 bg-[#FB9EC4] w-full h-full rounded-l-xl rounded-e-[90px]">
                     <span className="text-2xl font-bold text-center mb-2">Đừng để trái tim cô đơn ❤️ Hãy để chúng tôi tìm người ấy cho bạn!</span>
-                    <a className="text-xl text-center text-gray-600 cursor-pointer hover:text-gray-950">Bạn chưa có tài khoản?</a>
+                    <Link to={"/register"} className="text-xl text-center text-gray-600 cursor-pointer hover:text-gray-950">Bạn chưa có tài khoản?</Link>
                 </div>
                 <div className="flex flex-col items-center justify-center mr-8 w-full h-full">
                     <h1 className="text-2xl font-bold text-center pb-2 w-full">Đăng nhập</h1>
