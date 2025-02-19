@@ -1,7 +1,9 @@
-import Login from "../pages/Auth/Login";
+import Login from "../pages/auth/Login";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 import Register from "../pages/Auth/Register";
 import Home from "../pages/Home/Home";
+
 import Profile from "../pages/profile/Profile"
 
 function AppRouter() {
