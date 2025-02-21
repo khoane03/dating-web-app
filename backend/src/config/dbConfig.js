@@ -11,7 +11,6 @@ const pool = new Pool({
   database: process.env.DB_NAME || "dating_app",
   password: process.env.DB_PASSWORD || "khoa",
   port: process.env.DB_PORT || 5432,
-  
 });
 
 export default pool;
