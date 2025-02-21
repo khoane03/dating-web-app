@@ -20,8 +20,6 @@ function AppRouter() {
                 <Route path="*" element={<NotFound />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                
-                <Route path="/tinder" element={<Tinder/>}/>
                 <Route path="/intro" element={<IntroducePage/>}/>
 
                 <Route path="/" element={<HomePage />}>
