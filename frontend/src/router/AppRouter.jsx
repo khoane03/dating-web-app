@@ -9,6 +9,7 @@ import AccManager from "../components/admin/manager/AccManager";
 import MatchesManager from "../components/admin/manager/MatchsManager";
 import Overview from "../components/admin/manager/Overview";
 
+
 function AppRouter() {
     return (
         <Router>
@@ -16,6 +17,7 @@ function AppRouter() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile/>}/>
+                <Route path="/tider" element={<Tinder/>}/>
 
                 <Route path="/" element={<Home />}>
                     <Route index element={<Home />} />
