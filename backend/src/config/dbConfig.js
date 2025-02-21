@@ -1,18 +1,16 @@
-import { Sequelize } from 'sequelize';
+import pkg from "pg";
+import dotenv from 'dotenv';
 
-const sequelize = new Sequelize('database_name', 'username', 'password', {
-  host: 'localhost', 
-  dialect: 'postgres',
-  logging: false, 
+const { Pool } = pkg;
+dotenv.config();
+
+
+const pool = new Pool({
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_NAME || "dating_app",
+  password: process.env.DB_PASSWORD || "khoa",
+  port: process.env.DB_PORT || 5432,
 });
 
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Kết nối thành công!');
-  } catch (error) {
-    console.error('Kết nối thất bại:', error);
-  }
-})();
-
-export default sequelize;
+export default pool;
