@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const allUsers = [
   { id: 1, name: "Hằng", age: 25, distance: 2.5, avatar: "https://as1.ftcdn.net/jpg/01/16/24/44/1000_F_116244459_pywR1e0T3H7FPk3LTMjG6jsL3UchDpht.jpg" },

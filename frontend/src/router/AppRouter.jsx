@@ -1,7 +1,10 @@
-import Login from "../pages/Auth/Login";
+import Login from "../pages/auth/Login";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Register from "../pages/Auth/Register";
-import Home from "../pages/Home/Home";
+import Register from "../pages/auth/Register";
+import Home from "../pages/home/Home";
+
+import Profile from "../pages/profile/Profile"
+import Notification from "../components/Notification";
 
 function AppRouter() {
     return (
@@ -9,6 +12,8 @@ function AppRouter() {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/profile" element={<Profile/>}/>
+                <Route path="/notification" element={<Notification/>}/>
 
                 <Route path="/" element={<Home />}>
                     <Route index element={<Home />} />
