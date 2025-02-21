@@ -1,11 +1,11 @@
 import React from "react";
 import { IoClose, IoStar, IoHeart, IoArrowRedo, IoRefresh } from "react-icons/io5";
-import Reactions from "./Reactions"; // Import Reactions component
+import Reactions from "./reaction/Reactions"; // Import Reactions component
 
 const Tinder = ({ postId, userId }) => {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
-       {/* Thẻ hiển thị thông tin người dùng */}
+    <div className="flex justify-center items-center min-h-screen bg-transparent">
+      {/* Thẻ hiển thị thông tin người dùng */}
       <div className="relative w-80 bg-black text-white rounded-2xl overflow-hidden shadow-lg">
         {/* Profile Image */}
         <div className="relative">
