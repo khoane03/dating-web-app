@@ -4,7 +4,11 @@ import Register from "../pages/auth/Register";
 import HomePage from "../pages/Home/HomePage";
 
 import Profile from "../pages/profile/Profile"
-import IntroducePage from "../pages/IntroducePage/IntroducePage";
+import Dashboard from "../pages/dashboard/Dashboard";
+import AccManager from "../components/admin/manager/AccManager";
+import MatchesManager from "../components/admin/manager/MatchsManager";
+import Overview from "../components/admin/manager/Overview";
+
 
 function AppRouter() {
     return (
@@ -14,11 +18,21 @@ function AppRouter() {
 
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile/>}/>
-                <Route path="/IntroducePage" element={<IntroducePage/>}/>
+                <Route path="/tider" element={<Tinder/>}/>
+
 
                 <Route path="/" element={<HomePage />}>
                     <Route index element={<HomePage />} />
                     
+                </Route>
+
+                {/* admin */}
+
+                <Route path="/admin" element={<Dashboard />}>
+                    <Route index element={<Overview />} />
+                    <Route path="account" element={<AccManager />} />
+                    <Route path="match" element={<MatchesManager />} />
+                    <Route path="logout" element={<Dashboard />} />
                 </Route>
             </Routes>
         </Router>
