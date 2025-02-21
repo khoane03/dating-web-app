@@ -8,22 +8,25 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import AccManager from "../components/admin/manager/AccManager";
 import MatchesManager from "../components/admin/manager/MatchsManager";
 import Overview from "../components/admin/manager/Overview";
+import NotFound from "../components/404/NotFound";
+import Tinder from "../components/Tinder";
+import IntroducePage from "../pages/IntroducePage/IntroducePage";
 
 
 function AppRouter() {
     return (
         <Router>
             <Routes>
+                <Route path="*" element={<NotFound />} />
                 <Route path="/login" element={<Login />} />
-
                 <Route path="/register" element={<Register />} />
-                <Route path="/profile" element={<Profile/>}/>
-                <Route path="/tider" element={<Tinder/>}/>
-
+                
+                <Route path="/tinder" element={<Tinder/>}/>
+                <Route path="/intro" element={<IntroducePage/>}/>
 
                 <Route path="/" element={<HomePage />}>
-                    <Route index element={<HomePage />} />
-                    
+                    <Route index element={<Tinder />} />
+                    <Route path="profile" element={<Profile/>}/>
                 </Route>
 
                 {/* admin */}
