@@ -52,8 +52,3 @@ export const register = async (req, res) => {
     });
   }
 }
-
-
-export const verifyOtp = (req, res) => {
-  console.log('POST /login');
-}
