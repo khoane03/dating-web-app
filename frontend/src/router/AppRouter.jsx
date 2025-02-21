@@ -4,6 +4,7 @@ import Register from "../pages/auth/Register";
 import Home from "../pages/home/Home";
 
 import Profile from "../pages/profile/Profile"
+import Notification from "../components/Notification";
 
 function AppRouter() {
     return (
@@ -12,6 +13,7 @@ function AppRouter() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile/>}/>
+                <Route path="/notification" element={<Notification/>}/>
 
                 <Route path="/" element={<Home />}>
                     <Route index element={<Home />} />
