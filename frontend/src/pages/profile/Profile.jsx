@@ -42,7 +42,7 @@ const Profile = () => {
         {/* cài đặt*/}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Cài đặt hồ sơ</h2>
-         <p>Thay đổi mật khẩu </p>
+          <p>Thay đổi mật khẩu </p>
         </div>
 
         {/* xác minh tài khoản */}
