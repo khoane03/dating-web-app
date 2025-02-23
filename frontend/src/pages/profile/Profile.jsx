@@ -7,11 +7,11 @@ const Profile = () => {
       <div className="relative w-96 bg-white rounded-3xl overflow-hidden shadow-lg p-6">
         {/* ảnh đại diện */}
         <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
-          
-        <img src="/avatar.png" 
-        alt="Profile" 
-        className="w-full h-full object-cover" 
-        />
+
+          <img src="/avatar.png"
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
 
         </div>
 
@@ -42,7 +42,7 @@ const Profile = () => {
         {/* cài đặt*/}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Cài đặt hồ sơ</h2>
-         <p>Thay đổi mật khẩu </p>
+          <p>Thay đổi mật khẩu </p>
         </div>
 
         {/* xác minh tài khoản */}
