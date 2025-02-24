@@ -1,8 +1,7 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import Tinder from "../../components/Tinder";
-import Profile from "../profile/Profile";
+import Menu from "../../components/chat/Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faHome, faMessage } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faHome, faMagnifyingGlass, faMessage } from "@fortawesome/free-solid-svg-icons";
 const HomePage = () => {
 
 
@@ -18,7 +17,7 @@ const HomePage = () => {
         </nav>
       </header>
 
-      <div className=" bg-[#101417] flex grow justify-between gap-2 mt-14 fixed right-0 left-0 bottom-0 top-0">
+      <div className=" bg-[#101417] flex grow justify-between mt-14 fixed right-0 left-0 bottom-0 top-0">
         <div className="bg-pink-100 min-h-screen flex flex-col justify-start flex-3 border-r border-gray-300">
           <nav className="w-full h-20 flex flex-row justify-between items-center bg-gradient-to-bl from-[#FD2B75] to-[#FF5D3A] rounded-b-xl">
             <Link to={"/profile"} className="flex items-center ml-4 hover:bg-[#471F27] p-1 rounded-full">
@@ -27,6 +26,9 @@ const HomePage = () => {
               <span className="font-bold text-2xl ml-2 text-gray-200">dev</span>
             </Link>
             <div className="flex items-center gap-4 mr-4 ">
+              <NavLink to={"/search"} className="text-xl font-bold text-gray-200 hover:text-[#FD2B75] bg-[#471F27] p-2 rounded-full w-10 h-10 flex justify-center items-center">
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </NavLink>
               <NavLink to={"/chat"} className="text-xl font-bold text-gray-200 hover:text-[#FD2B75] bg-[#471F27] p-2 rounded-full w-10 h-10 flex justify-center items-center">
                 <FontAwesomeIcon icon={faMessage} />
               </NavLink>
@@ -38,14 +40,14 @@ const HomePage = () => {
           </nav>
 
           <div className="m-4">
-            
-              
+
+            <Menu />
           </div>
         </div>
 
-        
+
         <div className="flex flex-8 justify-center items-center">
-          <Outlet/>
+          <Outlet />
         </div>
 
       </div>

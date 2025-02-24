@@ -1,6 +1,6 @@
 import React from "react";
 import { IoClose, IoStar, IoHeart, IoArrowRedo, IoRefresh } from "react-icons/io5";
-import Reactions from "./reaction/Reactions"; // Import Reactions component
+import Reactions from "../reaction/Reactions"; // Import Reactions component
 
 const Tinder = ({ postId, userId }) => {
   return (

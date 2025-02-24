@@ -9,8 +9,10 @@ import AccManager from "../components/admin/manager/AccManager";
 import MatchesManager from "../components/admin/manager/MatchsManager";
 import Overview from "../components/admin/manager/Overview";
 import NotFound from "../components/404/NotFound";
-import Tinder from "../components/Tinder";
+import Tinder from "../components/card/Tinder";
 import IntroducePage from "../pages/IntroducePage/IntroducePage";
+import ListChat from "../components/chat/ListChat";
+import Search from "../components/search/Search";
 
 
 function AppRouter() {
@@ -25,7 +27,11 @@ function AppRouter() {
                 <Route path="/" element={<HomePage />}>
                     <Route index element={<Tinder />} />
                     <Route path="profile" element={<Profile/>}/>
+                    <Route path="search" element={<Search />} />
+                    <Route path="chat" element={<ListChat />} />
                 </Route>
+
+               
 
                 {/* admin */}
 
