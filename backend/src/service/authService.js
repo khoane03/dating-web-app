@@ -28,6 +28,7 @@ export const login = async (email, password) => {
 
 export const register = async (email, password, phone) => {
   try {
+    console.log(password);
     const hashedPassword = await hashPassword(password);
     const { rows } = await pool.query(
       `INSERT INTO tbl_users (email, password, phone, status, role) 
