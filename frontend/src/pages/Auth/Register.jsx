@@ -60,7 +60,7 @@ function Register() {
                     </button>
 
                 </div>
-                <div className=" flex flex-col items-center justify-center bg-[#FB9EC4] w-full h-full rounded-s-[90px] rounded-e-xl">
+                <div className=" flex flex-col items-center justify-center bg-[#FB9EC4] w-full h-full rounded-s-[90px] rounded-e-xl animate-slide-left ">
                     <span className="text-2xl font-bold text-center mb-2">Tình yêu đang chờ bạn ❤️ Đăng ký ngay hôm nay!</span>
                     <Link to={"/login"} className="text-xl text-center text-gray-600 cursor-pointer hover:text-gray-950">Bạn đã có tài khoản?</Link>
                 </div>
