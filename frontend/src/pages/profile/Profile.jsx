@@ -1,17 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 
 const Profile = () => {
+  const [image, setImage] = useState("/avatar.png");
+  const handleImageUpload = (Event) => {
+    const file = Event.target.files[0]; //Lấy file ảnh từ input
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl); // cập nhật state để hiển thị ảnh mới 
+    }
+  };
+  const fileInputRef = React.useRef(null);
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+  
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
       <div className="relative w-96 bg-white rounded-3xl overflow-hidden shadow-lg p-6">
         {/* ảnh đại diện */}
         <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
 
-          <img src="/avatar.png"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
+        <img src={image} alt="Profile" className="w-full h-full object-cover" />
+
 
         </div>
 
@@ -36,7 +48,15 @@ const Profile = () => {
         {/*ảnh & Album */}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Ảnh & Album</h2>
-          <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Tải ảnh lên</button>
+          <input type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            className="hidden" />
+          <button onClick={handleButtonClick} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+  Tải ảnh lên
+</button>
+
         </div>
 
         {/* cài đặt*/}
