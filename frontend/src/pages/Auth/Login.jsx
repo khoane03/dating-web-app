@@ -19,7 +19,7 @@ function Login() {
     return (
         <div className="bg-gradient-to-bl from-[#5158CC] to-[#C251C3] h-screen w-screen flex justify-center items-center">
             <div className="w-[780px] h-[385px] bg-white flex justify-center items-center rounded-xl shadow-2xl">
-                <div className=" flex flex-col items-center justify-center mr-8 bg-[#FB9EC4] w-full h-full rounded-l-xl rounded-e-[90px]">
+                <div className=" flex flex-col items-center justify-center mr-8 bg-[#FB9EC4] w-full h-full rounded-l-xl rounded-e-[90px] animate-slide-right">
                     <span className="text-2xl font-bold text-center mb-2">Đừng để trái tim cô đơn ❤️ Hãy để chúng tôi tìm người ấy cho bạn!</span>
                     <Link to={"/register"} className="text-xl text-center text-gray-600 cursor-pointer hover:text-gray-950">Bạn chưa có tài khoản?</Link>
                 </div>
