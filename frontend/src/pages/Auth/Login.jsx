@@ -7,14 +7,26 @@ import {
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { login as loginWithEmail, loginWithGoogle } from "../../service/authService";
 
 function Login() {
     document.title = "Đăng nhập";
     const [showPassword, setShowPassword] = useState(false);
-    
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+
     const handleShowPassword = () => {
         setShowPassword(!showPassword);
     };
+
+    const login = async () => {
+        try {
+            const response = await loginWithEmail('khoat10@gmail.com', 'khoa1234');
+            console.log(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="bg-gradient-to-bl from-[#5158CC] to-[#C251C3] h-screen w-screen flex justify-center items-center">
@@ -25,7 +37,7 @@ function Login() {
                 </div>
                 <div className="flex flex-col items-center justify-center mr-8 w-full h-full">
                     <h1 className="text-2xl font-bold text-center pb-2 w-full">Đăng nhập</h1>
-                    <FontAwesomeIcon icon={faGoogle} className="text-white cursor-pointer p-2 hover:bg-red-500 bg-red-400 rounded-xl" />
+                    <FontAwesomeIcon onClick={login} icon={faGoogle} className="text-white cursor-pointer p-2 hover:bg-red-500 bg-red-400 rounded-xl" />
                     <span className="text-sm text-gray-500 mt-2">Hoặc đăng nhập với </span>
                     <input type="text" className="bg-gray-200 rounded-xl px-4 py-2 my-2 w-full outline-none" placeholder="Tài khoản" />
 
@@ -52,7 +64,8 @@ function Login() {
                         </div>
                     </div>
 
-                    <button className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
+                    <button onClick={login}
+                    className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
                         Đăng nhập
                         <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
                     </button>

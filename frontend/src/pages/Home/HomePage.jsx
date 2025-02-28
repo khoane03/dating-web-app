@@ -1,10 +1,12 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import Menu from "../../components/chat/Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faHome, faMagnifyingGlass, faMessage } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faHome, faMagnifyingGlass, faMessage, faPlus } from "@fortawesome/free-solid-svg-icons";
+import Search from "../../components/search/Search";
+
 const HomePage = () => {
-
-
+  const location = useLocation();
+  
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <header className="w-full h-14 bg-white shadow-md z-10 p-4 flex justify-between items-center fixed">
@@ -26,6 +28,9 @@ const HomePage = () => {
               <span className="font-bold text-2xl ml-2 text-gray-200">dev</span>
             </Link>
             <div className="flex items-center gap-4 mr-4 ">
+              <NavLink to={"/add"} className="text-xl font-bold text-gray-200 hover:text-[#FD2B75] bg-[#471F27] p-2 rounded-full w-10 h-10 flex justify-center items-center">
+                <FontAwesomeIcon icon={faPlus} />
+              </NavLink>
               <NavLink to={"/search"} className="text-xl font-bold text-gray-200 hover:text-[#FD2B75] bg-[#471F27] p-2 rounded-full w-10 h-10 flex justify-center items-center">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </NavLink>
@@ -40,8 +45,9 @@ const HomePage = () => {
           </nav>
 
           <div className="m-4">
-
-            <Menu />
+            {
+              location.pathname === "/chat" ? <Menu /> : location.pathname === "/search" ? <Search /> : <></>
+            }
           </div>
         </div>
 
