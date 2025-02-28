@@ -1,21 +1,37 @@
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation
+} from "react-router-dom";
 import Menu from "../../components/chat/Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faHome, faMagnifyingGlass, faMessage, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBell,
+  faMagnifyingGlass,
+  faMessage,
+  faPlus
+} from "@fortawesome/free-solid-svg-icons";
 import Search from "../../components/search/Search";
+import { logout } from "../../service/authService";
 
 const HomePage = () => {
   const location = useLocation();
-  
+  document.title = "Trang chủ";
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <header className="w-full h-14 bg-white shadow-md z-10 p-4 flex justify-between items-center fixed">
         <Link to={"/"} className="text-2xl font-bold text-pink-600">Dating App</Link>
         <nav>
           <button className="bg-transparent hover:underline text-pink-600"></button>
-          <Link to={"/logout"}
+          <button onClick={handleLogout}
             className="border border-pink-600 text-pink-600 px-4 py-2 rounded hover:bg-pink-600 hover:text-white ml-2">
-            Đăng Xuất</Link>
+            Đăng Xuất</button>
         </nav>
       </header>
 
