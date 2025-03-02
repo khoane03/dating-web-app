@@ -2,6 +2,7 @@ const apiResponse = (res, statusCode, message, data = null) => {
     const response = {
         timestamp: new Date().toISOString(),
         message,
+        code: statusCode,
     };
     if (data) response.data = data;
     return res.status(statusCode).json(response);
