@@ -7,15 +7,15 @@ function IntroducePage() {
       <header className="w-full bg-white shadow-md p-4 flex justify-between items-center">
         <Link to={"/"} className="text-2xl font-bold text-pink-600">Dating App</Link>
         <nav>
-          <Link to={"/login"} className="border border-pink-600 text-pink-600 px-4 py-2 rounded hover:bg-pink-600 hover:text-white ml-2">Đăng nhập</Link>
-          <Link to={"/register"} className="border border-pink-600 text-pink-600 px-4 py-2 rounded hover:bg-pink-600 hover:text-white ml-2">Đăng ký</Link>
+          <Link to={"/auth"} className="border border-pink-600 text-pink-600 px-4 py-2 rounded hover:bg-pink-600 hover:text-white ml-2">Đăng nhập</Link>
+          <Link to={"/auth/register"} className="border border-pink-600 text-pink-600 px-4 py-2 rounded hover:bg-pink-600 hover:text-white ml-2">Đăng ký</Link>
         </nav>
       </header>
 
       <main className="flex flex-col items-center mt-10">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Tìm kiếm nửa kia của bạn</h2>
         <p className="text-gray-600 mb-6">Kết nối và bắt đầu hành trình tình yêu ngay hôm nay!</p>
-        <Link to={"/login"}
+        <Link to={"/auth"}
           className="bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600">
           Bắt đầu ngay</Link>
 

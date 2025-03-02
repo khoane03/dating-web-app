@@ -80,6 +80,34 @@ export const register = async (email, password, phone) => {
   }
 };
 
+export const forgotPassword = async (email, password) => {
+  try {
+    const result =  await checkEmailExist(email);
+    if (result.code !== 200) return result;
+    const hashedPassword = await hashPassword(password);
+    const updateQuery = 'UPDATE tbl_accounts SET password = $1 WHERE email = $2';
+    await pool.query(updateQuery, [hashedPassword, email]);
+
+    return { code: 200, message: "Đặt lại mật khẩu thành công!" };
+  } catch (error) {
+    return handleError("Lỗi", error);
+  }
+};
+
+export const checkEmailExist = async (email) => {
+  try {
+    const checkQuery = 'SELECT * FROM tbl_accounts WHERE email = $1 AND status = 1';
+    const { rows } = await pool.query(checkQuery, [email]);
+    if (!rows.length) {
+      return { code: 400, message: "Không tìm thấy tài khoản hoặc tài khoản đang bị khoá!" };
+    }
+    return { code: 200, message: "Email hợp lệ!" };
+  } catch (error) {
+    return handleError("Lỗi khi kiểm tra email", error);
+  }
+}
+
+
 export const refreshToken = async (token) => {
   const decoded = verifyToken(token);
   if (!decoded) return { code: 401, message: "Token không hợp lệ!" };
@@ -97,7 +125,7 @@ export const sendOtp = async (email) => {
   return { code: 200, message: "Gửi mã OTP thành công!" };
 };
 
-export const verifyOtp = async (email, otp) => {
+export const verifyOtp = (email, otp) => {
   const storedData = otpStorage.get(email);
   if (!storedData || Date.now() > storedData.expireTime) {
     otpStorage.delete(email);
