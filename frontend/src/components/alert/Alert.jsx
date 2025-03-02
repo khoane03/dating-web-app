@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleXmark, faCheckCircle, faExclamationTriangle, faBug, faInfo } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faBug, faInfo } from "@fortawesome/free-solid-svg-icons";
 
-const Alert = ({ type = "success", message, duration = 5000, onClose }) => {
+const Alert = ({ type, message, duration = 5000, onClose }) => {
+    console.log("called");
+
     const [visible, setVisible] = useState(true);
-
+    console.log(visible);
+    // const onClose = () => setVisible(true);
     useEffect(() => {
+        if (!duration) return;
         const timer = setTimeout(() => {
             setVisible(false);
             onClose && onClose();
@@ -18,13 +22,13 @@ const Alert = ({ type = "success", message, duration = 5000, onClose }) => {
     const alertStyles = {
         success: "bg-green-100 text-green-700 border-green-500",
         error: "bg-red-100 text-red-700 border-red-500",
-        warning: "bg-yellow-100 text-yellow-700 border-yellow-500",
+        info: "bg-blue-100 text-blue-700 border-blue-500",
     };
 
     const icons = {
         success: <FontAwesomeIcon icon={faCheckCircle} className="w-5 h-5 text-green-700" />,
         error: <FontAwesomeIcon icon={faBug} className="w-5 h-5 text-red-700" />,
-        warning: <FontAwesomeIcon icon={faInfo} className="w-5 h-5 text-yellow-700" />,
+        info: <FontAwesomeIcon icon={faInfo} className="w-5 h-5 text-blue-700" />,
     };
 
     return (
