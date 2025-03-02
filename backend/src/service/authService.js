@@ -63,7 +63,7 @@ export const register = async (email, password, phone) => {
       [email, phone]
     );
     if (checkQuery.rows.length > 0) {
-      return { code: 409, message: "Email/số điện thoại đã được sử dụng" };
+      return { code: 400, message: "Email/số điện thoại đã được sử dụng" };
     }
     const hashedPassword = await hashPassword(password);
     const { rows } = await pool.query(
