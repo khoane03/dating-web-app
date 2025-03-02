@@ -14,7 +14,7 @@ const Profile = () => {
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
-  
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -22,7 +22,7 @@ const Profile = () => {
         {/* ảnh đại diện */}
         <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
 
-        <img src={image} alt="Profile" className="w-full h-full object-cover" />
+          <img src={image} alt="Profile" className="w-full h-full object-cover" />
 
 
         </div>
@@ -54,8 +54,8 @@ const Profile = () => {
             onChange={handleImageUpload}
             className="hidden" />
           <button onClick={handleButtonClick} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
-  Tải ảnh lên
-</button>
+            Tải ảnh lên
+          </button>
 
         </div>
 
