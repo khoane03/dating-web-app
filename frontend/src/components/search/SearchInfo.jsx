@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SearchFilter from "./Search";
 
-const Home = () => {
+const SearchInfo = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -80,4 +80,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default SearchInfo;
