@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { refreshToken } from './authService';
-import { getAccessToken, setAccessToken, removeAccessToken } from '../utils/token';
+import { getAccessToken, setAccessToken, removeAccessToken } from '../service/localstore';
 
 export const axiosService = axios.create({
     baseURL: 'http://localhost:3000',
@@ -16,7 +16,7 @@ axiosService.interceptors.request.use(
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             } else {
-                window.location.href = '/login';
+                window.location.href = '/auth';
                 return Promise.reject(new Error('No access token'));
             }
         }
@@ -42,15 +42,16 @@ axiosService.interceptors.response.use(
                         originalRequest._retry = true;
                         try {
                             const response = await refreshToken();
-                            const newAccessToken = response.accessToken;
+                            const newAccessToken = response.data.accessToken;
                             setAccessToken(newAccessToken);
-
+                            console.log("Access token refreshed");
+                            console.log("token", newAccessToken);
                             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                             return axiosService(originalRequest);
                         } catch (refreshError) {
                             console.error("Refresh token failed:", refreshError);
                             removeAccessToken();
-                            window.location.href = '/login';
+                            window.location.href = '/auth';
                             return Promise.reject(refreshError);
                         }
                     }
