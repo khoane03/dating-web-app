@@ -111,7 +111,7 @@ export const refreshToken = async (token) => {
   return {
     code: 200,
     message: "Tạo token mới thành công!",
-    data: { accessToken: generateToken({ email: decoded.email, scope: decoded.scope }, "60s") },
+    data: { accessToken: generateToken({id:decoded.id, email: decoded.email, scope: decoded.scope }, "60s") },
   };
 };
 
