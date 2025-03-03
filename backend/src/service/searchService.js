@@ -1,6 +1,6 @@
 import pool from "../config/dbConfig.js";
 
-export const searchUsers = async ({ age, gender}) => {
+export const searchUsers = async ({ age, gender, distance, userLat, userLoong}) => {
     try {
         let query = `SELECT * FROM tbl_users WHERE 1=1`;
 
@@ -13,11 +13,15 @@ export const searchUsers = async ({ age, gender}) => {
             queryParams.push(age);
             query += ` AND age <= $${queryParams.length}`;
         }
-        // if (distance) {
-        //     queryParams.push(distance);
-        //     query += ` AND distance <= $${queryParams.length}`;
-        // }
-        console.log("Query:", query, "Params:", queryParams); // Debug query
+        if (userLat && userLong) {
+            queryParams.push(userLat, userLong);
+            if (distance) {
+                queryParams.push(distance);
+                query += ` AND (6371 * acos(cos(radians($4)) * cos(radians(latitude)) * cos(radians(longitude) - radians($5)) 
+                        + sin(radians($4)) * sin(radians(latitude)))) <= $${queryParams.length}`;
+            }
+        }
+        console.log("Query:", query, "Params:", queryParams); 
 
         const result = await pool.query(query, queryParams);
         return result.rows;

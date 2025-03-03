@@ -3,21 +3,23 @@ import { searchUsers } from "../service/searchService.js";
 export const searchUsersHandler = async (req, res) => {
   console.log("Received Query Params:", req.query); 
 
-  const { age, gender} = req.query; // Lấy dữ liệu từ query
+  const { age, gender, distance, userLat, userLong} = req.query; 
 
   if (!age || !gender) {
       return res.status(400).json({ error: "Thiếu thông tin tìm kiếm! Hãy nhập age, gender" });
   }
 
-  const ageInt = parseInt(age, 10);
-  // const distanceInt = parseInt(distance, 10);
+    const ageInt = parseInt(age, 10);
+    const distanceInt = distance ? parseInt(distance, 10) : null;
+    const userLatFloat = userLat ? parseFloat(userLat) : null;
+    const userLongFloat = userLong ? parseFloat(userLong) : null;
 
-  if (isNaN(ageInt)) {
+  if (isNaN(ageInt) || (distance && isNaN(distanceInt))) {
       return res.status(400).json({ error: "Giá trị age hoặc distance không hợp lệ!" });
   }
 
   try {
-      const users = await searchUsers({ age: ageInt, gender });
+      const users = await searchUsers({ age: ageInt, gender, distance: distanceInt, userLat: userLatFloat, userLong: userLongFloat, });
 
       if (!Array.isArray(users)) {
         console.error("Lỗi: API không trả về mảng!", users);
@@ -25,7 +27,7 @@ export const searchUsersHandler = async (req, res) => {
     }
 
     if (users.length === 0) {
-        return res.json({ message: "🙅‍♂️ Không tìm thấy kết quả.", results: [] });
+        return res.json({ message: "Không tìm thấy được kết quả.", results: [] });
     }
 
     res.json({ results: users });

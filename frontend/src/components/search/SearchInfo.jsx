@@ -3,7 +3,7 @@ import SearchFilter from "./Search";
 
 const SearchInfo = () => {
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+//   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleSearch = async (filters) => {
@@ -24,7 +24,7 @@ const SearchInfo = () => {
                 queryParams.append(key, value);
             }
         });
-        console.log("Query string gửi đi:", queryParams.toString()); // Debug xem query đúng chưa
+        console.log("Query string gửi đi:", queryParams.toString());
         const response = await fetch(`http://localhost:3000/api/search?${queryParams.toString()}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -50,16 +50,16 @@ const SearchInfo = () => {
 
   return (
       <div className="flex gap-6 p-6 bg-gray-100 min-h-screen">
-          {/* Sidebar */}
+          {/* Sidebar  */}
           <div className="w-1/3">
               <SearchFilter onSearch={handleSearch} />
           </div>
 
-          {/* Search Results */}
+          {/* Search Results  */}
           <div className="w-2/3 bg-white p-6 rounded-xl shadow-lg border">
               <h2 className="text-xl font-bold text-gray-700">Kết Quả Tìm Kiếm</h2>
 
-              {loading && <p>Đang tìm kiếm...</p>}
+              {/* {loading && <p>Đang tìm kiếm...</p>} */}
               {message && <p className="text-gray-500">{message}</p>}
 
               <div className="grid grid-cols-2 gap-4 mt-4">
@@ -67,7 +67,8 @@ const SearchInfo = () => {
         <ul>
             {results.map((user) => (
                 <li key={user.id}>
-                    <b>{user.full_name}</b> - Tuổi: {user.age}, Nghề nghiệp: {user.occupation}
+                     ID: {user.id} <b>{user.full_name}</b> - Tuổi: {user.age}, Nghề nghiệp: {user.occupation}, Bio: {user.bio}
+                     <p className="text-sm">Cách xa 8 km</p>
                 </li>
             ))}
         </ul>
