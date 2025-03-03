@@ -14,10 +14,34 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Search from "../../components/search/Search";
 import { logout } from "../../service/authService";
+import { useEffect, useState } from "react";
+import { getUserLogin } from "../../service/userService";
 
 const HomePage = () => {
   const location = useLocation();
   document.title = "Trang chủ";
+  const [info, setInfo] = useState({
+    name: "",
+    avatar: ""
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getUserLogin();
+        console.log(res);
+        setInfo({
+          name: res.data.full_name,
+          avatar: res.data.avatar_url
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    fetchUser(); 
+  }, []);
+  
 
   const handleLogout = () => {
     logout();
@@ -38,10 +62,12 @@ const HomePage = () => {
       <div className=" bg-[#101417] flex grow justify-between mt-14 fixed right-0 left-0 bottom-0 top-0">
         <div className="bg-pink-100 min-h-screen flex flex-col justify-start flex-3 border-r border-gray-300">
           <nav className="w-full h-20 flex flex-row justify-between items-center bg-gradient-to-bl from-[#FD2B75] to-[#FF5D3A] rounded-b-xl">
-            <Link to={"/profile"} className="flex items-center ml-4 hover:bg-[#471F27] p-1 rounded-full">
+            <Link to={"/profile"} className="flex items-center w-[110px] h-[50px] overflow-hidden ml-4 hover:bg-[#471F27] p-1 rounded-full">
               <img className="w-10 h-10 rounded-full"
-                src="/avatar.png" alt="" />
-              <span className="font-bold text-2xl ml-2 text-gray-200">dev</span>
+                src={info.avatar} alt="" />
+              <span className="font-bold text-sm ml-2 text-gray-200">
+                {info.name}
+              </span>
             </Link>
             <div className="flex items-center gap-4 mr-4 ">
               <NavLink to={"/add"} className="text-xl font-bold text-gray-200 hover:text-[#FD2B75] bg-[#471F27] p-2 rounded-full w-10 h-10 flex justify-center items-center">

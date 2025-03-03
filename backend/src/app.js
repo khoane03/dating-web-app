@@ -10,10 +10,14 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+})
+);
 
 app.use('/auth', authRouter);
-app.use('/user',authMiddleware, userRouter);
+app.use('/user', authMiddleware, userRouter);
 app.use('/api', searchRouter);
 
 export const viteNodeApp = app;
