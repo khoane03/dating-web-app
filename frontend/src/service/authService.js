@@ -1,20 +1,51 @@
 import { axiosService } from "./axiosService";
+import { removeAccessToken } from "./localstore";
 
 const login = async (email, password) => {
-    console.log(email, password);
-    return await axiosService.post("/auth/login",
-        {
-            email: email,
-            password: password
-        }
+    return await axiosService.post("/auth/login", { email, password }
     );
 };
 
+const check_email = async (email) => {
+    return await axiosService.post("/auth/check_email", { email });
+}
+
+const forgot_password = async (email, password) => {
+    return await axiosService.put("/auth/forgot_password", { email, password });
+}
+
 const loginWithGoogle = async () => {
-    return await axiosService.get("/auth/google");
+    window.location.href = "http://localhost:3000/auth/google";
+}
+
+const register = async (data) => {
+    return await axiosService.post("/auth/register", {
+        email: data.email,
+        password: data.password,
+        phone: data.phone
+    });
+}
+
+const logout = async () => {
+    removeAccessToken();
+    window.location.href = "/intro";
+}
+
+const sendOtp = async (email) => {
+    return await axiosService.post("/auth/send_otp", { email });
+}
+
+const verifyOtp = async (email, otp) => {
+    return await axiosService.post("/auth/verify_otp", { email, otp });
 }
 
 export {
     login,
-    loginWithGoogle
+    forgot_password,
+    check_email,
+    loginWithGoogle,
+    register,
+    logout,
+    sendOtp,
+    verifyOtp
 }

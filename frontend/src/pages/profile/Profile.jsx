@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import { useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 
 const Profile = () => {
@@ -37,15 +39,22 @@ const Profile = () => {
           <p><strong>Sở thích:</strong> Đọc sách, nghe nhạc, du lịch</p>
         </div>
 
-        {/* Hồ sơ  */}
+        {/* Hồ sơ */}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Hồ sơ chi tiết</h2>
-          <p><strong>Mô tả bản thân:</strong> Năng động, thích khám phá và yêu công nghệ.</p>
+          <p><strong>Mô tả bản thân:</strong></p>
+          <input
+            className="outline p-2 border border-gray-300 rounded-lg w-full"
+            type="text"
+            disabled={!isUpdate}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
           <p><strong>Tiêu chuẩn tìm kiếm:</strong> Chân thành, hài hước và có chí tiến thủ.</p>
           <p><strong>Vị trí hiện tại:</strong> Hà Nội. </p>
         </div>
 
-        {/*ảnh & Album */}
+        {/* ảnh & Album */}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Ảnh & Album</h2>
           <input type="file"
@@ -59,7 +68,7 @@ const Profile = () => {
 
         </div>
 
-        {/* cài đặt*/}
+        {/* cài đặt */}
         <div className="mt-4 text-gray-800">
           <h2 className="text-lg font-semibold">Cài đặt hồ sơ</h2>
           <p>Thay đổi mật khẩu </p>
@@ -70,6 +79,14 @@ const Profile = () => {
           <h2 className="text-lg font-semibold">Xác minh tài khoản</h2>
           <p>Trạng thái xác minh: <span className="text-green-500">Đã xác minh</span></p>
         </div>
+
+        {/* Nút chỉnh sửa & lưu */}
+        <button
+          onClick={() => setIsUpdate(!isUpdate)}
+          className="mt-4 w-full py-2 bg-amber-300 rounded-2xl text-lg font-semibold"
+        >
+          {isUpdate ? "Lưu" : "Chỉnh sửa"}
+        </button>
       </div>
     </div>
   );
