@@ -5,6 +5,11 @@ const login = async (email, password) => {
     return await axiosService.post("/auth/login", { email, password }
     );
 };
+const refreshToken = async () => {
+    return await axiosService.post("/auth/refresh_token",
+
+    );
+}
 
 const check_email = async (email) => {
     return await axiosService.post("/auth/check_email", { email });
@@ -47,5 +52,6 @@ export {
     register,
     logout,
     sendOtp,
-    verifyOtp
+    verifyOtp,
+    refreshToken
 }
