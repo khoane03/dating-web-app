@@ -33,7 +33,7 @@ const register = async (data) => {
 
 const logout = async () => {
     removeAccessToken();
-    window.location.href = "/intro";
+    return await axiosService.get("/auth/logout");
 }
 
 const sendOtp = async (email) => {
