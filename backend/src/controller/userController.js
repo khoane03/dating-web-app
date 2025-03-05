@@ -1,4 +1,5 @@
 import apiResponse from "../utils/apiResponse.js";
+<<<<<<< HEAD
 
 import { add } from "../service/userInfo.js";
 
@@ -20,10 +21,29 @@ export const addUserProfile = async (req, res) => {
     }
 };
 import { getUserLogin as getUserLoginService } from "../service/userService.js";
+=======
+import {
+    getUserLogin as getUserLoginService,
+    changePassword as changePasswordService
+} from "../service/userService.js";
+>>>>>>> 3bdbc2632dea5c4f8b3416dcc61c1779583b8ef4
 
 export const getUserLogin = async (req, res) => {
     const user = req.user;
     const result = await getUserLoginService(user);
     return apiResponse(res, 200, result.message, result.data);
+<<<<<<< HEAD
 }   
 
+=======
+}
+
+
+export const changePassword = async (req, res) => {
+    const { id } = req.user;
+    const { oldPassword, newPassword } = req.body;
+    const result = await changePasswordService(id, oldPassword, newPassword);
+    return apiResponse(res, result.code, result.message);
+
+}
+>>>>>>> 3bdbc2632dea5c4f8b3416dcc61c1779583b8ef4

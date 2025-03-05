@@ -4,26 +4,37 @@ import { getAccessToken, setAccessToken, removeAccessToken } from '../service/lo
 
 export const axiosService = axios.create({
     baseURL: 'http://localhost:3000',
-    withCredentials: true 
+    withCredentials: true
 });
 
 const noAuthUrls = ["/auth/"];
 
 axiosService.interceptors.request.use(
-    (config) => {
-        if (!noAuthUrls.some((url) => config.url?.includes(url))) {
-            const token = getAccessToken();
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            } else {
-                window.location.href = '/auth';
-                return Promise.reject(new Error('No access token'));
-            }
-        }
+    async (config) => {
+      if (noAuthUrls.some((url) => config.url?.includes(url))) return config;
+  
+      const token = getAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
         return config;
+      }
+  
+      try {
+        const response = await refreshToken();
+        const newAccessToken = response.data.accessToken;
+        setAccessToken(newAccessToken);
+        config.headers.Authorization = `Bearer ${newAccessToken}`;
+        return config;
+      } catch (error) {
+        console.error("Refresh token failed:", error);
+        removeAccessToken();
+        window.location.href = "/auth";
+        return Promise.reject(error);
+      }
     },
     (error) => Promise.reject(error)
-);
+  );
+  
 
 axiosService.interceptors.response.use(
     (response) => {
@@ -44,8 +55,6 @@ axiosService.interceptors.response.use(
                             const response = await refreshToken();
                             const newAccessToken = response.data.accessToken;
                             setAccessToken(newAccessToken);
-                            console.log("Access token refreshed");
-                            console.log("token", newAccessToken);
                             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                             return axiosService(originalRequest);
                         } catch (refreshError) {

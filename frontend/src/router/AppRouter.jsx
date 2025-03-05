@@ -18,6 +18,9 @@ import IntroducePage from "../pages/IntroducePage/IntroducePage";
 import ListChat from "../components/chat/ListChat";
 import Forgot from "../pages/auth/Forgot";
 import AuthForm from "../pages/auth/AuthForm";
+import AdminLogin from "../components/admin/login/AdminLogin";
+import Info from "../components/admin/manager/Info";
+import NoPermission from "../components/permission/NoPermission";
 
 
 function AppRouter() {
@@ -25,6 +28,7 @@ function AppRouter() {
         <Router>
             <Routes>
                 <Route path="*" element={<NotFound />} />
+                <Route path="/no-permission" element={<NoPermission />} />
 
                 <Route path="/auth" element={<AuthForm />}>
                     <Route index element={<Login />} />
@@ -45,11 +49,12 @@ function AppRouter() {
 
 
                 {/* admin */}
-
+                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<Dashboard />}>
                     <Route index element={<Overview />} />
                     <Route path="account" element={<AccManager />} />
                     <Route path="match" element={<MatchesManager />} />
+                    <Route path="info" element={<Info/>}/>
                     <Route path="logout" element={<Dashboard />} />
                 </Route>
             </Routes>

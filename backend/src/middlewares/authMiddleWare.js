@@ -29,7 +29,7 @@ export const authRole = (roles) => {
         if (!req.user) {
             return res.status(401).json({ code: 401, message: "Chưa xác thực! Vui lòng đăng nhập." });
         }
-        const userRole = req.user.role
+        const userRole = req.user.scope
 
         if (!userRole || !roles.includes(userRole)) {
             return res.status(403).json({ 
