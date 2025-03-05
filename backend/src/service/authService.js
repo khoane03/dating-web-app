@@ -78,7 +78,7 @@ export const register = async (email, password, phone) => {
 
 export const forgotPassword = async (email, password) => {
   try {
-    const result =  await checkEmailExist(email);
+    const result = await checkEmailExist(email);
     if (result.code !== 200) return result;
     const hashedPassword = await hashPassword(password);
     const updateQuery = 'UPDATE tbl_accounts SET password = $1 WHERE email = $2';
@@ -89,6 +89,7 @@ export const forgotPassword = async (email, password) => {
     return handleError("Lỗi", error);
   }
 };
+
 
 export const checkEmailExist = async (email) => {
   try {
@@ -111,7 +112,7 @@ export const refreshToken = async (token) => {
   return {
     code: 200,
     message: "Tạo token mới thành công!",
-    data: { accessToken: generateToken({id:decoded.id, email: decoded.email, scope: decoded.scope }, "60s") },
+    data: { accessToken: generateToken({ id: decoded.id, email: decoded.email, scope: decoded.scope }, "60s") },
   };
 };
 

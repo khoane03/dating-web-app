@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Left from "../../components/admin/menu/Left";
 function Dashboard() {
-  
+  document.title = "Quản lý hệ thống";
     return (
         <div className="flex h-screen bg-gray-100">
             <Left />

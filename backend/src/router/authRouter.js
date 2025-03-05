@@ -8,7 +8,8 @@ import {
     refreshToken,
     googleLogin, 
     googleCallback,
-    checkEmailExist
+    checkEmailExist,
+    logout
 } from "../controller/authController.js";
 const authRouter = express.Router();
 
@@ -21,5 +22,7 @@ authRouter.get("/google", googleLogin);
 authRouter.get("/google/callback",googleCallback);
 authRouter.put("/forgot_password", forgotPassword);
 authRouter.post("/check_email", checkEmailExist);
+authRouter.get("/logout", logout);
+
 
 export { authRouter };
