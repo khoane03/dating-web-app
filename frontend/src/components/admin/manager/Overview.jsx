@@ -1,73 +1,71 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../header/Header";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-
-const sampleData = [
-  { id: 1, email: "user1@example.com", phone: "0987654321", status: "Active", role: "Admin" },
-  { id: 2, email: "user2@example.com", phone: "0912345678", status: "Inactive", role: "User" },
-  { id: 3, email: "user3@example.com", phone: "0976543210", status: "Active", role: "Moderator" },
-  { id: 4, email: "user4@example.com", phone: "0967891234", status: "Pending", role: "User" },
-  { id: 5, email: "user5@example.com", phone: "0934567890", status: "Active", role: "Admin" },
-  { id: 6, email: "user6@example.com", phone: "0981111222", status: "Active", role: "User" },
-  { id: 7, email: "user7@example.com", phone: "0972222333", status: "Inactive", role: "Moderator" },
-  { id: 8, email: "user8@example.com", phone: "0963333444", status: "Pending", role: "User" },
-  { id: 9, email: "user9@example.com", phone: "0954444555", status: "Active", role: "Admin" },
-];
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock, faPersonArrowUpFromLine, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { getAllAccounts } from "../../../service/adminService";
 
 const Overview = () => {
-  const totalUsers = sampleData.length;
+  const [accounts, setAccounts] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [active, setActive] = useState(0);
+  const [block, setBlock] = useState(0);
 
-  const statusCounts = sampleData.reduce((acc, user) => {
-    acc[user.status] = (acc[user.status] || 0) + 1;
-    return acc;
-  }, {});
 
-  // Dữ liệu biểu đồ dạng ngày giả lập
-  const chartData = [
-    { day: "Mon", Active: 2, Inactive: 1, Pending: 1 },
-    { day: "Tue", Active: 3, Inactive: 1, Pending: 1 },
-    { day: "Wed", Active: 4, Inactive: 2, Pending: 1 },
-    { day: "Thu", Active: 5, Inactive: 2, Pending: 2 },
-    { day: "Fri", Active: 6, Inactive: 2, Pending: 2 },
-    { day: "Sat", Active: 6, Inactive: 3, Pending: 2 },
-    { day: "Sun", Active: 7, Inactive: 3, Pending: 3 },
-  ];
+  const getAccounts = async () => {
+    try {
+      const res = await getAllAccounts();
+      setTotal(res.total);
+      setAccounts(res.data);
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAccounts();
+  }, []);
+
+  useEffect(() => {
+    let activeCount = 0;
+    let blockCount = 0;
+
+    accounts.forEach((item) => {
+      if (item.status === 1) {
+        activeCount++;
+      } else {
+        blockCount++;
+      }
+    });
+
+    setActive(activeCount);
+    setBlock(blockCount);
+  }, [accounts]);
 
   return (
     <>
       <Header />
       <div className="p-6">
-       
-        <div className="grid grid-cols-3 gap-6">
-          <div className="bg-white p-4 shadow-lg rounded-lg text-center">
-            <p className="text-gray-500">Tổng số người dùng</p>
-            <h3 className="text-2xl font-bold">{totalUsers}</h3>
+        <h2 className="font-bold py-4 text-2xl">Thống kê người dùng</h2>
+        <div className="grid grid-cols-3 gap-6 bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-[#FEEEF2] p-4 shadow-lg rounded-lg ">
+            <FontAwesomeIcon icon={faUsers} className="bg-[#FA5A7C] p-2 rounded-full" />
+            <h3 className="text-2xl font-bold">{total}</h3>
+            <p className="text-gray-500 text-sm">Tổng số người dùng</p>
           </div>
-          <div className="bg-white p-4 shadow-lg rounded-lg text-center">
-            <p className="text-gray-500">Người dùng Active</p>
-            <h3 className="text-2xl font-bold">{statusCounts["Active"] || 0}</h3>
+          <div className="bg-[#DCFCE7] p-4 shadow-lg rounded-lg ">
+            <FontAwesomeIcon icon={faPersonArrowUpFromLine} className="bg-[#3CD856] p-2 rounded-full" />
+            <h3 className="text-2xl font-bold">{active}</h3>
+            <p className="text-gray-500 text-sm">Người dùng hoạt động</p>
           </div>
-          <div className="bg-white p-4 shadow-lg rounded-lg text-center">
-            <p className="text-gray-500">Người dùng Pending</p>
-            <h3 className="text-2xl font-bold">{statusCounts["Pending"] || 0}</h3>
+          <div className="bg-[#F4E8FF] p-4 shadow-lg rounded-lg ">
+            <FontAwesomeIcon icon={faLock} className="bg-[#C083FF] p-2 rounded-full" />
+            <h3 className="text-2xl font-bold">{block}</h3>
+            <p className="text-gray-500 text-sm">Người dùng bị khoá</p>
           </div>
         </div>
 
-       
         <div className="mt-6">
-          <h2 className="text-lg font-bold mb-4">Thống kê số lượng người dùng theo ngày</h2>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="Active" stroke="#4CAF50" strokeWidth={2} />
-              <Line type="monotone" dataKey="Inactive" stroke="#F44336" strokeWidth={2} />
-              <Line type="monotone" dataKey="Pending" stroke="#FFC107" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          
         </div>
       </div>
     </>
