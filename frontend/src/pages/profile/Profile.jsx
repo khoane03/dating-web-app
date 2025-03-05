@@ -1,23 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import { getUserLogin } from "../../service/userService";
 
 const Profile = () => {
-  const [image, setImage] = useState("/avatar.png");
+
   const [isUpdate, setIsUpdate] = useState(false);
-  const [description, setDescription] = useState(
-    "Tôi là một kỹ sư phần mềm, yêu thích công việc của mình và luôn cố gắng học hỏi để trở thành một chuyên gia trong lĩnh vực của mình."
-  );
-  const handleImageUpload = (Event) => {
-    const file = Event.target.files[0]; //Lấy file ảnh từ input
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl); // cập nhật state để hiển thị ảnh mới 
+  const [data, setData] = useState([]);
+
+  const getInfo = async () => {
+    try {
+      const res = await getUserLogin();
+      setData(res.data);
+    } catch (error) {
+
     }
-  };
-  const fileInputRef = React.useRef(null);
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
+  }
+  useEffect(() => {
+    getInfo();
+  }, []);
+
+
 
 
   return (
@@ -26,7 +28,7 @@ const Profile = () => {
         {/* ảnh đại diện */}
         <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
 
-          <img src={image} alt="Profile" className="w-full h-full object-cover" />
+          <img src={data.avatar_url} alt="Profile" className="w-full h-full object-cover" />
 
 
         </div>
@@ -34,11 +36,11 @@ const Profile = () => {
         {/* thông tin cá nhân  */}
         <div className="text-center mt-4 text-gray-800">
           <h1 className="text-2xl font-bold flex justify-center items-center gap-2">
-            Liz, 23 <FaCheckCircle className="text-blue-500" />
+            {data.full_name}, {data.age} <FaCheckCircle className="text-blue-500" />
           </h1>
-          <p><strong>Giới tính:</strong> Nữ</p>
-          <p><strong>Nghề nghiệp:</strong> Kỹ sư phần mềm</p>
-          <p><strong>Sở thích:</strong> Đọc sách, nghe nhạc, du lịch</p>
+          <p><strong>Giới tính:</strong> {data.gender}</p>
+          <p><strong>Nghề nghiệp:</strong> {data.occupation}</p>
+          <p><strong>Sở thích:</strong> {data.hobbies}</p>
         </div>
 
         {/* Hồ sơ */}
@@ -49,11 +51,11 @@ const Profile = () => {
             className="outline p-2 border border-gray-300 rounded-lg w-full"
             type="text"
             disabled={!isUpdate}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={data.bio}
+            // onChange={(e) => setDescription(e.target.value)}
           />
-          <p><strong>Tiêu chuẩn tìm kiếm:</strong> Chân thành, hài hước và có chí tiến thủ.</p>
-          <p><strong>Vị trí hiện tại:</strong> Hà Nội. </p>
+          <p><strong>Tiêu chuẩn tìm kiếm:</strong>{data.criteria}</p>
+          <p><strong>Vị trí hiện tại:</strong> {data.address} </p>
         </div>
 
         {/* ảnh & Album */}
@@ -61,10 +63,8 @@ const Profile = () => {
           <h2 className="text-lg font-semibold">Ảnh & Album</h2>
           <input type="file"
             accept="image/*"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
             className="hidden" />
-          <button onClick={handleButtonClick} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
             Tải ảnh lên
           </button>
 
