@@ -5,20 +5,20 @@ import {
     changePassword as changePasswordService
 } from "../service/userService.js";
 
-import { update } from "../service/userInfo.js";
+import { addProfile } from "../service/userInfo.js";
 
 export const addUserProfile = async (req, res) => {
     try {
-        const { fullName, gender, age, occupation, bio, avatar_url, address } = req.body; 
+        const { fullName, gender, dob, occupation, bio, avatar_url, address, hobbies, criteria } = req.body;
         const { id } = req.user
-console.log( fullName, gender, age, occupation, bio, avatar_url, address)
+        
         // Kiểm tra dữ liệu đầu vào
-        if (!fullName || !gender || !age || !occupation || !bio || !avatar_url || !address) {
+        if (!fullName || !gender || !dob || !occupation || !bio || !avatar_url || !address || !hobbies || !criteria) {
             return apiResponse(res, 400, "All fields are required");
         }
 
         // Gọi hàm add để thêm dữ liệu vào database
-        const response = await update(fullName, gender, age, occupation, bio, avatar_url, address, id);
+        const response = await addProfile(fullName, gender, dob, occupation, bio, avatar_url, address, id, hobbies, criteria);
 
         return apiResponse(res, 201, response.message, response.result);
     } catch (error) {
