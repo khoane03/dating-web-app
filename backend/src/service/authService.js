@@ -58,6 +58,9 @@ export const handleGoogleCallback = async (account) => {
 
 export const register = async (email, password, phone) => {
   try {
+
+    console.log(password);
+
     const checkQuery = await pool.query(
       "SELECT * FROM tbl_accounts WHERE email = $1 OR phone = $2",
       [email, phone]
@@ -65,6 +68,7 @@ export const register = async (email, password, phone) => {
     if (checkQuery.rows.length > 0) {
       return { code: 400, message: "Email/số điện thoại đã được sử dụng" };
     }
+
     const hashedPassword = await hashPassword(password);
     const { rows } = await pool.query(
       `INSERT INTO tbl_accounts (email, password, phone, status, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`,

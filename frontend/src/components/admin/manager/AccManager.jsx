@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+import { useState } from "react";
+
+=======
 import { useEffect, useState } from "react";
+>>>>>>> 3bdbc2632dea5c4f8b3416dcc61c1779583b8ef4
 import Pagination from "../pagination/Pagination";
 import { getAllAccounts } from "../../../service/adminService";
+
 
 function AccManager() {
   const [data, setData] = useState([]);
