@@ -3,6 +3,10 @@ import { FaCheckCircle } from "react-icons/fa";
 
 const Profile = () => {
   const [image, setImage] = useState("/avatar.png");
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [description, setDescription] = useState(
+    "Tôi là một kỹ sư phần mềm, yêu thích công việc của mình và luôn cố gắng học hỏi để trở thành một chuyên gia trong lĩnh vực của mình."
+  );
   const handleImageUpload = (Event) => {
     const file = Event.target.files[0]; //Lấy file ảnh từ input
     if (file) {
