@@ -45,6 +45,7 @@ const validateLogin = (dataInput) => {
 };
 
 export {
+    isMatch,
     validateEmail,
     validatePassword,
     validatePhoneNumber,
