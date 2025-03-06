@@ -23,7 +23,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.13.3",
-    "pg-hstore": "^2.3.4"
+    "pg-hstore": "^2.3.4",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "vite-plugin-node": "^4.0.0"
