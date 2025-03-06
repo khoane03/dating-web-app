@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const hobbiesList = ["Âm nhạc", "Du lịch", "Thể thao", "Đọc sách", "Nấu ăn", "Chơi game", "Mỹ thuật", "Xem phim"];
 
