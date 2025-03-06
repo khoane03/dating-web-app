@@ -32,7 +32,7 @@ export const googleLogin = passport.authenticate("google", {
 
 export const logout = async (req, res) => {
   res.clearCookie("refreshToken");
-  res.clearCookie("accessToken");
+ 
   return apiResponse(res, 200, "Đăng xuất thành công!");
 };
 
@@ -42,9 +42,9 @@ export const googleCallback = async (req, res) => {
       return res.redirect(process.env.CLIENT_URL + "/login");
     }
     const result = await googleLoginCallbackService(user.user);
-    const { accessToken, refreshToken } = result.data;
+    const { refreshToken } = result.data;
     setCookie(res, "refreshToken", refreshToken);
-    setCookie(res, "accessToken", accessToken);
+
     return res.redirect(process.env.CLIENT_URL);
   })(req, res);
 };
