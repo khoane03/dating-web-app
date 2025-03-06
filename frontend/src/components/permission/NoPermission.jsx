@@ -8,7 +8,7 @@ const NoPermission = () => {
                     Xin lỗi, bạn không có quyền truy cập vào trang này. Vui lòng liên hệ quản trị viên nếu bạn nghĩ đây là lỗi.
                 </p>
                 <a
-                    href="/"
+                    href="/admin/login"
                     className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
                 >
                     Quay lại trang chủ

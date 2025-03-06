@@ -8,6 +8,9 @@ import cookieParser from "cookie-parser";
 import { adminRouter } from './router/adminRouter.js';
 import { ROLES } from './utils/appConstants.js';
 import { initAdmin } from './service/adminService.js';
+import { chatRouter } from './router/chatRouter.js';
+import http from 'http';
+import {setupWebSocket} from './controller/chatController.js';
 
 const app = express();
 
@@ -26,5 +29,7 @@ app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter)
 app.use('/auth', authRouter);
 app.use('/user', authMiddleware, userRouter);
 app.use('/api', searchRouter);
-
+app.use('/chat', authMiddleware, chatRouter);
+const server = http.createServer(app);
+setupWebSocket(server);
 export const viteNodeApp = app;

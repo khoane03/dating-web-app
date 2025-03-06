@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { getMatchedUsers } from "../../../service/adminService";
+import { deleteMatchById, getMatchedUsers } from "../../../service/adminService";
 import Pagination from "../pagination/Pagination";
+import { Accept } from "../../popup/Accept";
+import Alert from "../../alert/Alert";
 
 
 function MatchesManager() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [popup, setPopup] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
 
   const getMatches = async () => {
     try {
@@ -19,13 +25,14 @@ function MatchesManager() {
       const totalPages = Math.ceil(res.total / 10);
       setTotalPages(totalPages);
     } catch (error) {
-      console.log(error);
+      setError(error.response.data.message);
     }
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -34,12 +41,26 @@ function MatchesManager() {
     return `${day}/${month}/${year}`;
   };
 
+  const handleDelete = async (id) => {
+    try {
+      console.log('called');
+      await deleteMatchById(id);
+      setData(data.filter((item) => item.id !== id));
+      setSuccess("Xoá match thành công");
+      setPopup(false);
+    } catch (error) {
+      setError("Lỗi khi xoá match");
+    }
+  };
 
   useEffect(() => {
     getMatches();
   }, [])
   return (
     <div className="flex flex-col min-h-screen p-6 bg-gray-100">
+      {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
+      {success && <Alert type={'success'} message={success} onClose={() => setSuccess('')} />}
+      {popup && <Accept action={"xoá"}/>}
       <div className="flex-1">
         <h1 className="pb-6 font-bold text-3xl text-center text-gray-800">
           Quản Lý Tài Khoản
@@ -70,10 +91,11 @@ function MatchesManager() {
                     <td className="border p-3">{formatDate(row.updated_at)}</td>
                     <td className="border p-3">
                       <div className="flex gap-4 justify-center">
-                        <button className="text-blue-600 hover:text-blue-800 font-medium">
-                          Edit
-                        </button>
-                        <button className="text-red-600 hover:text-red-800 font-medium">
+                        <button onClick={()=>{
+                          setPopup(true);
+                          handleDelete(row.id);
+                        }}
+                         className="text-white font-medium p-2 hover:bg-red-200 bg-red-500 rounded-xl">
                           Delete
                         </button>
                       </div>
