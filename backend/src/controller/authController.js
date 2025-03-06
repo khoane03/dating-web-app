@@ -1,59 +1,101 @@
-import bcrypt from 'bcrypt';
+import apiResponse from "../utils/apiResponse.js";
+import dotenv from 'dotenv';
+import {
+  login as loginService,
+  register as registerService,
+  forgotPassword as forgotPasswordService,
+  checkEmailExist as checkEmailExistService,
+  sendOtp as sendOtpService,
+  verifyOtp as verifyOtpService,
+  refreshToken as refreshTokenService,
+  handleGoogleCallback as googleLoginCallbackService
+} from "../service/authService.js";
+import passport from "../config/googleConfig.js";
 
+dotenv.config();
 
-const hashPassword = async (password) => {
-    try {
-      const hash = await bcrypt.hash(password, 10);
-      console.log('Mật khẩu đã mã hóa:', hash);
-      return hash;
-    } catch (error) {
-      console.error('Lỗi mã hóa mật khẩu:', error);
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  const result = await loginService(email, password);
+
+  if (result.code !== 200) {
+    return apiResponse(res, result.code, result.message);
+  }
+  const { accessToken, refreshToken } = result.data;
+  setCookie(res, "refreshToken", refreshToken);
+  return apiResponse(res, result.code, result.message, { accessToken });
+};
+
+export const googleLogin = passport.authenticate("google", {
+  scope: ["profile", "email"]
+});
+
+export const logout = async (req, res) => {
+  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken");
+  return apiResponse(res, 200, "Đăng xuất thành công!");
+};
+
+export const googleCallback = async (req, res) => {
+  passport.authenticate("google", { session: false }, async (err, user) => {
+    if (err || !user) {
+      return res.redirect(process.env.CLIENT_URL + "/login");
     }
-  };
+    const result = await googleLoginCallbackService(user.user);
+    const { accessToken, refreshToken } = result.data;
+    setCookie(res, "refreshToken", refreshToken);
+    setCookie(res, "accessToken", accessToken);
+    return res.redirect(process.env.CLIENT_URL);
+  })(req, res);
+};
 
-  const verifyPassword = async (password, hash) => {
-    try {
-      const isMatch = await bcrypt.compare(password, hash);
-      if (isMatch) {
-        console.log('Mật khẩu chính xác!');
-      } else {
-        console.log('Mật khẩu không chính xác!');
-      }
-    } catch (error) {
-      console.error('Lỗi khi kiểm tra mật khẩu:', error);
-    }
-  };
-
-  export const login = async (req, res) => {
-        const { email, password } = req.body;
-       const matchPass = await verifyPassword(password, '$2b$10$bqsSAZF8VA3e2U.EBM4dy.IfaHg9kXO2mg/Np84lIhO.4X9TDh/6G');
-        if (matchPass) {
-          res.status(200).json({ message: 'Đăng nhập thành công!' });
-        } else {
-          res.status(401).json({ message: 'Đăng nhập thất bại!' });
-        }
-  };
-
+const setCookie = (res, key, value ) => {
+  res.cookie(key, value, {
+    httpOnly: false,
+    secure: true,
+    sameSite: "strict",
+    path: "/",
+    maxAge: 15 * 24 * 60 * 60 * 1000,
+  });
+};
 
 export const register = async (req, res) => {
-    try {
-        // Lấy thông tin từ request body
-        const { password } = req.body;
-    
-        // Mã hóa mật khẩu
-        const hashedPassword = await hashPassword(password);
-    
-        // Trả về response (chỉ ví dụ, không nên trả hash thực tế cho client)
-        res.status(200).json({
-          message: 'Mật khẩu đã được mã hóa thành công!',
-          hashedPassword,
-        });
-      } catch (error) {
-        // Xử lý lỗi
-        res.status(500).json({ message: 'Có lỗi xảy ra!', error: error.message });
-      }
+  const { email, password, phone } = req.body;
+  const result = await registerService(email, password, phone);
+  return apiResponse(res, result.code, result.message, result.data);
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email, password } = req.body;
+  const result = await forgotPasswordService(email, password);
+  return apiResponse(res, result.code, result.message);
 }
 
-export const verifyOtp = (req, res) => {
-    console.log('POST /login');
+export const checkEmailExist = async (req, res) => {
+  const { email } = req.body;
+  const result = await checkEmailExistService(email);
+  return apiResponse(res, result.code, result.message);
 }
+
+export const refreshToken = async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) {
+    return apiResponse(res, 401, "Token không hợp lệ!");
+  }
+  const result = await refreshTokenService(refreshToken);
+  return apiResponse(res, result.code, result.message, result.data);
+}
+
+export const sendOtp = async (req, res) => {
+  const { email } = req.body;
+  const result = await sendOtpService(email);
+  return apiResponse(res, result.code, result.message);
+}
+
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  const result = await verifyOtpService(email, otp);
+  return apiResponse(res, result.code, result.message);
+}
+
+

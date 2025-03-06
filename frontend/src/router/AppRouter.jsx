@@ -1,23 +1,72 @@
 import Login from "../pages/auth/Login";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+    BrowserRouter as Router,
+    Route,
+    Routes
+} from "react-router-dom";
 import Register from "../pages/auth/Register";
-import Home from "../pages/home/Home";
+import HomePage from "../pages/Home/HomePage";
 
 import Profile from "../pages/profile/Profile"
+<<<<<<< HEAD
 import Notification from "../components/Notification";
+=======
+import Dashboard from "../pages/dashboard/Dashboard";
+import AccManager from "../components/admin/manager/AccManager";
+import MatchesManager from "../components/admin/manager/MatchsManager";
+import Overview from "../components/admin/manager/Overview";
+import NotFound from "../components/404/NotFound";
+import Tinder from "../components/card/Tinder";
+import IntroducePage from "../pages/IntroducePage/IntroducePage";
+import ListChat from "../components/chat/ListChat";
+import Forgot from "../pages/auth/Forgot";
+import AuthForm from "../pages/auth/AuthForm";
+import AdminLogin from "../components/admin/login/AdminLogin";
+import Info from "../components/admin/manager/Info";
+import NoPermission from "../components/permission/NoPermission";
+
+>>>>>>> 0459c256cc60a2f92a69ee7ac0fe0d236247e9d2
 
 function AppRouter() {
     return (
         <Router>
             <Routes>
+<<<<<<< HEAD
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/notification" element={<Notification/>}/>
+=======
+                <Route path="*" element={<NotFound />} />
+                <Route path="/no-permission" element={<NoPermission />} />
+>>>>>>> 0459c256cc60a2f92a69ee7ac0fe0d236247e9d2
 
-                <Route path="/" element={<Home />}>
-                    <Route index element={<Home />} />
-                    
+                <Route path="/auth" element={<AuthForm />}>
+                    <Route index element={<Login />} />
+                    <Route path="forgot" element={<Forgot />} />
+                    <Route path="register" element={<Register />} />
+                </Route>
+
+
+                <Route path="/intro" element={<IntroducePage />} />
+
+                <Route path="/" element={<HomePage />}>
+                    <Route index element={<Tinder />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="search" element={<Tinder />} />
+                    <Route path="chat" element={<ListChat />} />
+                </Route>
+
+
+
+                {/* admin */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<Dashboard />}>
+                    <Route index element={<Overview />} />
+                    <Route path="account" element={<AccManager />} />
+                    <Route path="match" element={<MatchesManager />} />
+                    <Route path="info" element={<Info/>}/>
+                    <Route path="logout" element={<Dashboard />} />
                 </Route>
             </Routes>
         </Router>

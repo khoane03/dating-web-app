@@ -1,2 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300&display=swap');
 @import "tailwindcss";
+
+body {
+    @apply font-be-vn
+}
+
+@theme {
+    --font-be-vn: "Be Vietnam Pro", sans-serif;
+
+    --animate-slide-right: slide-right 1s ease-in-out forwards;
+    --animate-slide-left: slide-left 1s ease-in-out forwards;
+
+    @keyframes slide-right {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(0%);
+      }
+    }
+
+    @keyframes slide-left {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(0%);
+      }
+    }
+  }
