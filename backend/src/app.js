@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-import express from "express";
-import { authRouter } from "./router/authRouter.js";
-import { chatRouter } from "./router/chatRouter.js";
-import http from "http";
-import { Server } from "socket.io";
-import { setupSocket } from "./utils/socket.js";
-
-const app = express();
-const server = http.createServer(app); // Tạo HTTP server
-
-app.use(express.json());
-
-// Routes
-app.use("/auth", authRouter);
-app.use("/chat", chatRouter);
-=======
 import express from 'express';
 import cors from 'cors';
 import { authRouter } from './router/authRouter.js';
@@ -43,12 +26,5 @@ app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter)
 app.use('/auth', authRouter);
 app.use('/user', authMiddleware, userRouter);
 app.use('/api', searchRouter);
->>>>>>> 0459c256cc60a2f92a69ee7ac0fe0d236247e9d2
 
-// Thiết lập WebSocket
-const io = new Server(server, {
-  cors: { origin: "*" },
-});
-setupSocket(io);
-
-export { server, app };
+export const viteNodeApp = app;
