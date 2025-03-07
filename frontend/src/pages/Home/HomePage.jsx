@@ -62,8 +62,8 @@ const HomePage = () => {
     <>
       {error && <Alert type={"error"} message={error} onClose={() => setError("")} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
-      <div className="h-full flex flex-col overflow-hidden">
-        <header className="w-full h-14 bg-white shadow-md z-10 p-4 flex justify-between items-center fixed">
+      <div className="h-full flex flex-col ">
+        <header className="w-full h-14 bg-white shadow-md p-4 flex justify-between items-center fixed">
           <Link to={"/"} className="text-2xl font-bold text-pink-600">Dating App</Link>
           <nav>
             <button className="bg-transparent hover:underline text-pink-600"></button>
