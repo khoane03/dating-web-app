@@ -21,7 +21,7 @@ export const login = async (req, res) => {
   if (result.code !== 200) {
     return apiResponse(res, result.code, result.message);
   }
-  const { accessToken, refreshToken } = result.data;
+  const { accessToken } = result.data;
   setCookie(res, "refreshToken", refreshToken);
   return apiResponse(res, result.code, result.message, { accessToken });
 };
