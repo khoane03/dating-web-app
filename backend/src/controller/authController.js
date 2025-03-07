@@ -21,7 +21,7 @@ export const login = async (req, res) => {
   if (result.code !== 200) {
     return apiResponse(res, result.code, result.message);
   }
-  const { accessToken } = result.data;
+  const { accessToken, refreshToken } = result.data;
   setCookie(res, "refreshToken", refreshToken);
   return apiResponse(res, result.code, result.message, { accessToken });
 };
@@ -78,11 +78,11 @@ export const checkEmailExist = async (req, res) => {
 }
 
 export const refreshToken = async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken;
-  if (!refreshToken) {
+  const token = req.cookies?.refreshToken;
+  if (!token) {
     return apiResponse(res, 401, "Token không hợp lệ!");
   }
-  const result = await refreshTokenService(refreshToken);
+  const result = await refreshTokenService(token);
   return apiResponse(res, result.code, result.message, result.data);
 }
 
