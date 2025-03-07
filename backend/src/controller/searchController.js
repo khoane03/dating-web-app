@@ -19,7 +19,7 @@ export const searchUsersHandler = async (req, res) => {
   }
 
   try {
-      const users = await searchUsers({ age: ageInt, gender, distance: distanceInt, userLat: userLatFloat, userLong: userLongFloat, });
+      const users = await searchUsers({ age: ageInt, gender: gender || null, distance: distanceInt, userLat: userLatFloat, userLong: userLongFloat, });
 
       if (!Array.isArray(users)) {
         console.error("Lỗi: API không trả về mảng!", users);

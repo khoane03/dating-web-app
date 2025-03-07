@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const hobbiesList = ["Âm nhạc", "Du lịch", "Thể thao", "Đọc sách", "Nấu ăn", "Chơi game", "Mỹ thuật", "Xem phim"];
 
@@ -34,7 +34,7 @@ const Search = ({ onSearch }) => {
       };
     const handleSearch = async () => {
       const filters = {
-          gender: gender !== "Tất cả" ? gender : "", 
+          gender: gender, 
           age: age || "", 
           distance: distance || "",
           userLat: userLat || "",
