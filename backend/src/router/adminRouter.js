@@ -5,7 +5,8 @@ import {
     getMatchedUsers,
     deleteAccountById,
     deleteMatchById,
-    updateAccount
+    updateAccount,
+    searchAccount
 } from "../controller/adminController.js";
 
 export const adminRouter = express.Router();
@@ -16,4 +17,5 @@ adminRouter.get("/match", getMatchedUsers);
 adminRouter.delete("/acc/:id", deleteAccountById);
 adminRouter.delete("/match/:id", deleteMatchById);
 adminRouter.put("/acc", updateAccount);
+adminRouter.get("/acc/search", searchAccount);
 

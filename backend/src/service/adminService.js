@@ -28,17 +28,23 @@ export const getAccById = async (id) => {
     }
 };
 
-export const getAllAccounts = async () => {
+export const getAllAccounts = async (pageIndex, pageSize) => {
     try {
-        const { rows } = await pool.query(`SELECT * FROM tbl_accounts OFFSET 0 `);
-        return handleSuccess(200, 'Danh sách tài khoản', rows);
+        const totalRecords = await countRecord('tbl_accounts');
+        if (!pageSize) {
+            const { rows } = await pool.query(`SELECT * FROM tbl_accounts`);
+            return handleSuccess(200, 'Danh sách tài khoản', rows, totalRecords);
+        }
+        const { rows } = await pool.query(`SELECT * FROM tbl_accounts OFFSET $1 LIMIT $2`, [(pageIndex - 1) * pageSize, pageSize]);
+        return handleSuccess(200, 'Danh sách tài khoản', rows, totalRecords);
     } catch (error) {
         return handleError(error);
     }
 };
 
-export const getAllMatches = async () => {
+export const getAllMatches = async (pageIndex, pageSize) => {
     try {
+        const totalRecords = await countRecord('tbl_matches');
         const query = `SELECT
                             match.id,
                             user_a.full_name as user_a,
@@ -53,10 +59,10 @@ export const getAllMatches = async () => {
                         
                         ORDER BY
                             matched_at DESC
-                        OFFSET 0 LIMIT 10;`;
+                        OFFSET $1 LIMIT $2;`;
 
-        const { rows } = await pool.query(query);
-        return handleSuccess(200, 'Danh sách matches', rows);
+        const { rows } = await pool.query(query, [(pageIndex - 1) * pageSize, pageSize]);
+        return handleSuccess(200, 'Danh sách matches', rows, totalRecords);
     } catch (error) {
         return handleError(error);
     }
@@ -70,7 +76,7 @@ export const updatStatusAccount = async (id, status) => {
     } catch (error) {
         return handleError(error);
     }
-}; 
+};
 
 export const deleteAccountById = async (id) => {
     try {
@@ -78,7 +84,7 @@ export const deleteAccountById = async (id) => {
         await pool.query(query, [id]);
         return handleSuccess(200, 'Xóa tài khoản thành công');
     } catch (error) {
-       return handleError(error);
+        return handleError(error);
     }
 };
 
@@ -92,15 +98,37 @@ export const deleteMatchById = async (id) => {
     }
 };
 
+export const searchAccount = async (keyword) => {
+    try {
+        let query = `SELECT * FROM tbl_accounts
+                         WHERE email LIKE $1
+                            OR role LIKE $1 `;
+        const values = [`%${keyword}%`];
 
+        if (!isNaN(keyword)) {
+            query += ` OR status = $2 `;
+            values.push(parseInt(keyword, 10));
+        }
+        const { rows } = await pool.query(query, values);
+        return handleSuccess(200, 'Danh sách tài khoản', rows);
+    } catch (error) {
+        return handleError(error);
+    }
+};
 
-const handleSuccess = (code, message, data) => {
+const countRecord = async (table) => {
+    const { rows } = await pool.query(`SELECT COUNT(*) FROM ${table}`);
+    return rows[0].count;
+};
+
+const handleSuccess = (code, message, data, totalRecords) => {
     return {
-        code: code,
+        code,
         message,
+        totalRecords,
         data
     }
-}   
+}
 const handleError = (error) => {
     return {
         code: 500,
