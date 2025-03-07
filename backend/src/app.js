@@ -30,6 +30,5 @@ app.use('/auth', authRouter);
 app.use('/user', authMiddleware, userRouter);
 app.use('/api', searchRouter);
 app.use('/chat', authMiddleware, chatRouter);
-const server = http.createServer(app);
-setupWebSocket(server);
+
 export const viteNodeApp = app;
