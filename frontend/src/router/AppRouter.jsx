@@ -7,7 +7,7 @@ import {
 import Register from "../pages/auth/Register";
 import HomePage from "../pages/Home/HomePage";
 
-import Profile from "../pages/profile/Profile"
+import Profile from "../pages/profile/Profile";
 import Dashboard from "../pages/dashboard/Dashboard";
 import AccManager from "../components/admin/manager/AccManager";
 import MatchesManager from "../components/admin/manager/MatchsManager";
@@ -21,6 +21,7 @@ import AuthForm from "../pages/auth/AuthForm";
 import AdminLogin from "../components/admin/login/AdminLogin";
 import Info from "../components/admin/manager/Info";
 import NoPermission from "../components/permission/NoPermission";
+
 
 
 function AppRouter() {
