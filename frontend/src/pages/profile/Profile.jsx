@@ -5,22 +5,31 @@ import { getUserLogin } from "../../service/userService";
 const Profile = () => {
 
   const [isUpdate, setIsUpdate] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({
+    full_name: "",
+    age: "",
+    gender: "",
+    occupation: "",
+    hobbies: "",
+    bio: "",
+    criteria: "",
+    address: "",
+    avatar_url: "",
+  });
 
   const getInfo = async () => {
     try {
       const res = await getUserLogin();
+      console.log(res.data); // Kiểm tra dữ liệu API trả về
       setData(res.data);
     } catch (error) {
-
+      console.error("Lỗi lấy dữ liệu:", error);
     }
-  }
+  };
+
   useEffect(() => {
     getInfo();
   }, []);
-
-
-
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -28,8 +37,12 @@ const Profile = () => {
         {/* ảnh đại diện */}
         <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
 
-          <img src={data.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-
+          <img
+            src={data.avatar_url || "/default.jpg"}
+            alt="Profile"
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.src = "/default.jpg"; }} // Nếu ảnh lỗi, dùng ảnh mặc định
+          />
 
         </div>
 
@@ -51,9 +64,9 @@ const Profile = () => {
             className="outline p-2 border border-gray-300 rounded-lg w-full"
             type="text"
             disabled={!isUpdate}
-            value={data.bio}
-            // onChange={(e) => setDescription(e.target.value)}
+            value={data.bio || ""}
           />
+
           <p><strong>Tiêu chuẩn tìm kiếm:</strong>{data.criteria}</p>
           <p><strong>Vị trí hiện tại:</strong> {data.address} </p>
         </div>
