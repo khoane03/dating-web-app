@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
-import { changePassword, getUserLogin } from "../../service/userService";
+import { changePassword, getUserLogin, updateUserProfile } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
 
@@ -26,13 +26,27 @@ const Profile = () => {
     address: "",
     avatar_url: "",
   });
+  // Thêm state để lưu dữ liệu chỉnh sửa
+  const [editData, setEditData] = useState({ ...data });
 
   const getInfo = async () => {
     try {
       const res = await getUserLogin();
       setData(res.data);
+      setEditData(res.data);
     } catch (error) {
       console.error("Lỗi lấy dữ liệu:", error);
+    }
+  };
+  // Hàm xử lý cập nhật thông tin
+  const handleUpdateProfile = async () => {
+    try {
+      const res = await updateUserProfile(data); // Gửi editdata lên server
+      setSuccess("Hồ sơ đã được cập nhật!");
+      setData(editData); //cập nhật lại data sau khi lưu
+      setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
+    } catch (error) {
+      setError("Lỗi khi cập nhật hồ sơ: " + error.response?.data?.message || error.message);
     }
   };
 
@@ -79,11 +93,75 @@ const Profile = () => {
           {/* Thông tin cá nhân */}
           <div className="text-center mt-4 text-gray-800">
             <h1 className="text-2xl font-bold flex justify-center items-center gap-2">
-              {data.full_name}, {data.age} <FaCheckCircle className="text-blue-500" />
+              {isUpdate ? (
+                <input
+                  type="text"
+                  className="border p-1 rounded"
+                  value={editData.full_name}
+                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                />
+              ) : (
+                data.full_name
+              )}
+
+              ,{" "}
+              {isUpdate ? (
+                <input
+                  type="number"
+                  className="border p-1 rounded w-16"
+                  value={editData.age}
+                  onChange={(e) => setEditData({ ...editData, age: e.target.value })}
+                />
+              ) : (
+                data.age
+              )}
+              <FaCheckCircle className="text-blue-500" />
             </h1>
-            <p><strong>Giới tính:</strong> {data.gender}</p>
-            <p><strong>Nghề nghiệp:</strong> {data.occupation}</p>
-            <p><strong>Sở thích:</strong> {data.hobbies}</p>
+
+            <p>
+              <strong>Giới tính:</strong>{" "}
+              {isUpdate ? (
+                <select
+                  className="border p-1 rounded"
+                  value={editData.gender}
+                  onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+                >
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              ) : (
+                data.gender
+              )}
+            </p>
+
+            <p>
+              <strong>Nghề nghiệp:</strong>{" "}
+              {isUpdate ? (
+                <input
+                  type="text"
+                  className="border p-1 rounded w-full"
+                  value={editData.occupation}
+                  onChange={(e) => setEditData({ ...editData, occupation: e.target.value })}
+                />
+              ) : (
+                data.occupation
+              )}
+            </p>
+
+            <p>
+              <strong>Sở thích:</strong>{" "}
+              {isUpdate ? (
+                <input
+                  type="text"
+                  className="border p-1 rounded w-full"
+                  value={editData.hobbies}
+                  onChange={(e) => setEditData({ ...editData, hobbies: e.target.value })}
+                />
+              ) : (
+                data.hobbies
+              )}
+            </p>
           </div>
 
           {/* Hồ sơ */}
@@ -94,10 +172,27 @@ const Profile = () => {
               className="outline p-2 border border-gray-300 rounded-lg w-full"
               type="text"
               disabled={!isUpdate}
-              value={data.bio || ""}
+              value={editData.bio || ""}
+              onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
             />
-            <p><strong>Tiêu chuẩn tìm kiếm:</strong>{data.criteria}</p>
-            <p><strong>Vị trí hiện tại:</strong> {data.address} </p>
+
+            <p><strong>Tiêu chuẩn tìm kiếm:</strong></p>
+            <input
+              className="outline p-2 border border-gray-300 rounded-lg w-full"
+              type="text"
+              disabled={!isUpdate}
+              value={editData.criteria || ""}
+              onChange={(e) => setEditData({ ...editData, criteria: e.target.value })}
+            />
+
+            <p><strong>Vị trí hiện tại:</strong></p>
+            <input
+              className="outline p-2 border border-gray-300 rounded-lg w-full"
+              type="text"
+              disabled={!isUpdate}
+              value={editData.address || ""}
+              onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+            />
           </div>
 
           {/* Ảnh & Album */}
@@ -157,10 +252,14 @@ const Profile = () => {
                 className="p-2 bg-red-300 hover:bg-red-200 rounded-xl font-semibold" >
                 {isChangePassword ? "Cập nhật" : "Đổi mật khẩu"}
               </button>
-              <button onClick={() => setIsUpdate(!isUpdate)}
-                className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold" >
+              <button onClick={() => {
+                if (isUpdate) handleUpdateProfile(); // Lưu thông tin khi bấm Lưu
+                setIsUpdate(!isUpdate);
+              }}
+                className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold">
                 {isUpdate ? "Lưu" : "Chỉnh sửa"}
               </button>
+
             </div>
           </div>
         </div>
@@ -170,4 +269,4 @@ const Profile = () => {
 
 };
 
-export default Profile;
+export default Profile;   
