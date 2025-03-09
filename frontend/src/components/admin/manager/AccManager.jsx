@@ -15,9 +15,9 @@ const AccManager = () => {
 
   const getAccounts = async () => {
     try {
-      const res = await getAllAccounts();
+      const res = await getAllAccounts(currentPage, 10);
       setData(res.data);
-      setTotalPages(Math.ceil(res.total / 10));
+      setTotalPages(Math.ceil(res.totalRecords / 10));
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -93,25 +93,27 @@ const AccManager = () => {
                   <td className={row.status === 1 ? 'text-green-500 border p-3 border-black' : ' border-black text-red-500 border p-3'}>{row.status === 1 ? "Active" : "Blocked"}</td>
                   <td className="border p-3">{row.role}</td>
                   <td className="border p-3">
-                    <div className="flex gap-4 justify-center">
-                      <button
-                        onClick={() => handleUpdateStatus(row.id, row.status)}
-                        className={`font-medium p-2 rounded-xl transition-colors duration-200 ${row.status === 1
+                    {!row.role.includes("role_admin") &&
+                      <div className="flex gap-4 justify-center">
+                        <button
+                          onClick={() => handleUpdateStatus(row.id, row.status)}
+                          className={`font-medium p-2 rounded-xl transition-colors duration-200 ${row.status === 1
                             ? "bg-amber-500 hover:bg-amber-200 text-white"
                             : "bg-green-500 hover:bg-green-200 text-white"
-                          }`
-                        }
-                      >
-                        {row.status === 1 ? "Block" : "Unblock"}
-                      </button>
+                            }`
+                          }
+                        >
+                          {row.status === 1 ? "Block" : "Unblock"}
+                        </button>
 
-                      <button onClick={() => {
-                        setPopup(true),
-                          setSelectedId(row.id)
-                      }} className="text-white hover:text-red-800 font-medium p-2 hover:bg-red-200 bg-red-500 rounded-xl">
-                        Delete
-                      </button>
-                    </div>
+                        <button onClick={() => {
+                          setPopup(true),
+                            setSelectedId(row.id)
+                        }} className="text-white hover:text-red-800 font-medium p-2 hover:bg-red-200 bg-red-500 rounded-xl">
+                          Delete
+                        </button>
+                      </div>
+                    }
                   </td>
                 </tr>
               ))

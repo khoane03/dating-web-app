@@ -1,5 +1,4 @@
 import apiResponse from "../utils/apiResponse.js";
-import { getUserLogin as getUserLoginService } from "../service/userService.js";
 import {
     getUserLogin as getUserLoginService,
     changePassword as changePasswordService
@@ -11,7 +10,7 @@ export const addUserProfile = async (req, res) => {
     try {
         const { fullName, gender, dob, occupation, bio, avatar_url, address, hobbies, criteria } = req.body;
         const { id } = req.user
-        
+
         // Kiểm tra dữ liệu đầu vào
         if (!fullName || !gender || !dob || !occupation || !bio || !avatar_url || !address || !hobbies || !criteria) {
             return apiResponse(res, 400, "All fields are required");

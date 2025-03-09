@@ -21,6 +21,7 @@ import AuthForm from "../pages/auth/AuthForm";
 import AdminLogin from "../components/admin/login/AdminLogin";
 import Info from "../components/admin/manager/Info";
 import NoPermission from "../components/permission/NoPermission";
+import AddImages from "../components/addImages/AddImages";
 
 
 
@@ -45,6 +46,7 @@ function AppRouter() {
                     <Route path="profile" element={<Profile />} />
                     <Route path="search" element={<Tinder />} />
                     <Route path="chat" element={<ListChat />} />
+                    <Route path="add" element={<AddImages/>} />
                 </Route>
 
 

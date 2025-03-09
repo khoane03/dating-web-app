@@ -1,19 +1,35 @@
 import { axiosService } from "./axiosService";
 
-const getAllAccounts = async () => {
-    return await axiosService.get("/admin");
+const getAllAccounts = async (pageIndex, pageSize) => {
+    return await axiosService.get("/admin",
+        {
+            params: {
+                pageIndex,
+                pageSize
+            }
+        });
 }
 
 const getAccount = async () => {
-    return await axiosService.get("/admin/info");
+    return await axiosService.get("/admin/info", );
 }
 
-const getMatchedUsers = async () => {
-    return await axiosService.get("/admin/match");
+const getMatchedUsers = async (pageIndex, pageSize) => {
+    return await axiosService.get("/admin/match",
+        {
+            params: {
+                pageIndex,
+                pageSize
+            }
+        });
 }
 
 const updatStatusAccount = async (id, status) => {
     return await axiosService.put("/admin/acc", {id, status});
+}
+
+const searchByKeyword = async (keyword) => {
+    return await axiosService.get(`/admin/acc/search?keyword=${keyword}`);
 }
 
 const deleteAccountById = async (id) => {
@@ -30,5 +46,6 @@ export {
     getMatchedUsers,
     updatStatusAccount,
     deleteAccountById,
-    deleteMatchById
+    deleteMatchById,
+    searchByKeyword
 }

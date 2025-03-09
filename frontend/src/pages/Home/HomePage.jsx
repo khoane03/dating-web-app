@@ -17,6 +17,7 @@ import { logout } from "../../service/authService";
 import { useEffect, useState } from "react";
 import { getUserLogin } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
+import ListMatched from "../../components/matched/ListMatched";
 
 const HomePage = () => {
   const location = useLocation();
@@ -27,12 +28,18 @@ const HomePage = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [matched, setMatched] = useState(
+    {
+      id: "1",
+      avatar_url: "hinh1.png",
+      full_name: "Dev"
+    }
+  );
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await getUserLogin();
-        console.log(res);
         setInfo({
           name: res.data.full_name,
           avatar: res.data.avatar_url
@@ -62,8 +69,8 @@ const HomePage = () => {
     <>
       {error && <Alert type={"error"} message={error} onClose={() => setError("")} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
-      <div className="h-full flex flex-col overflow-hidden">
-        <header className="w-full h-14 bg-white shadow-md z-10 p-4 flex justify-between items-center fixed">
+      <div className="h-full flex flex-col ">
+        <header className="w-full h-14 bg-white shadow-md p-4 flex justify-between items-center fixed">
           <Link to={"/"} className="text-2xl font-bold text-pink-600">Dating App</Link>
           <nav>
             <button className="bg-transparent hover:underline text-pink-600"></button>
@@ -102,7 +109,9 @@ const HomePage = () => {
 
             <div className="m-4">
               {
-                location.pathname === "/chat" ? <Menu /> : location.pathname === "/search" ? <Search /> : <></>
+                location.pathname === "/chat" ? <Menu /> 
+                : location.pathname === "/search" ? <Search /> 
+                : location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name}/> :<></>
               }
             </div>
           </div>
