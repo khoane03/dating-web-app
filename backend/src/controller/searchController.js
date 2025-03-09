@@ -1,7 +1,6 @@
 import { searchUsers } from "../service/searchService.js";
 
 export const searchUsersHandler = async (req, res) => {
-  console.log("Received Query Params:", req.query); 
 
   const { age, gender, distance, userLat, userLong} = req.query; 
 

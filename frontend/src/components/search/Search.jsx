@@ -1,16 +1,21 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import ProfileLocation from './Location';
 
-const hobbiesList = ["Âm nhạc", "Du lịch", "Thể thao", "Đọc sách", "Nấu ăn", "Chơi game", "Mỹ thuật", "Xem phim"];
+// const hobbiesList = ["Âm nhạc", "Du lịch", "Thể thao", "Đọc sách", "Nấu ăn", "Chơi game", "Mỹ thuật", "Xem phim"];
 
 const Search = ({ onSearch }) => {
     const [gender, setGender] = useState("Nam");
     const [age, setAge] = useState(25);
     const [distance, setDistance] = useState(20);
-    const [hobbies, setHobbies] = useState([]);
+    // const [hobbies, setHobbies] = useState([]);
     const [userLat, setUserLat] = useState(null);
     const [userLong, setUserLong] = useState(null);
-
+    const [currentUser] = useState({
+        id: "1",
+        lat: 10.7769,
+        long: 106.7009, 
+      });
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -28,11 +33,11 @@ const Search = ({ onSearch }) => {
         }
     }, []);
 
-    const toggleHobby = (hobby) => {
-        setHobbies((prev) =>
-          prev.includes(hobby) ? prev.filter((h) => h !== hobby) : [...prev, hobby]
-        );
-      };
+    // const toggleHobby = (hobby) => {
+    //     setHobbies((prev) =>
+    //       prev.includes(hobby) ? prev.filter((h) => h !== hobby) : [...prev, hobby]
+    //     );
+    //   };
     const handleSearch = async () => {
       const filters = {
           gender: gender, 
@@ -48,7 +53,15 @@ const Search = ({ onSearch }) => {
     };
   
     return (
+        
         <div className="bg-white p-6 rounded-lg shadow-lg w-80 border border-pink-300">
+            <ProfileLocation
+              userId={currentUser.id}
+              currentUserLat={currentUser.lat}
+              currentUserLong={currentUser.long}
+              targetLat={10.7769} 
+              targetLong={106.7009} 
+            /><br></br>
         <h2 className="text-lg font-bold text-pink-500">Bộ Lọc Tìm Kiếm</h2>
         {/* Giới tính */}
         <div className="mt-4">
@@ -72,7 +85,7 @@ const Search = ({ onSearch }) => {
             <input type="range" min="2" max="50" value={distance} onChange={(e) => setDistance(e.target.value)} className="w-full accent-pink-500"/>
         </div>
 
-        {/* Sở thích */}
+        {/* Sở thích
         <div className="mt-4">
             <label className="font-semibold text-gray-700">Sở thích</label>
             <div className="grid grid-cols-2 gap-2 mt-2"> {hobbiesList.map((hobby) => (
@@ -81,7 +94,7 @@ const Search = ({ onSearch }) => {
             </button>
             ))}
             </div>
-        </div>
+        </div> */}
         
         {/* Nút Tìm Kiếm */}
             <button onClick={handleSearch} className="w-full mt-4 p-2 bg-pink-500 text-white rounded-xl hover:bg-pink-600 cursor-pointer">

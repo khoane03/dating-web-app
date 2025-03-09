@@ -58,6 +58,51 @@ const HomePage = () => {
     }
   };
 
+  const [results, setResults] = useState([]);
+  const [message, setMessage] = useState("");
+  // Handle search logic
+  const handleSearch = async (filters) => {
+    setMessage("");
+    setResults([]);
+
+    try {
+      console.log("Filters gửi đi:", filters);
+
+      if (!filters || typeof filters !== "object") {
+        throw new Error("Dữ liệu tìm kiếm không hợp lệ!");
+      }
+      const queryParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "" && value !== "Tất cả") {
+          queryParams.append(key, value);
+        }
+      });
+      console.log("Query string gửi đi:", queryParams.toString());
+      const response = await fetch(`http://localhost:3000/api/search?${queryParams.toString()}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error("Lỗi từ server");
+      }
+      const data = await response.json();
+      console.log("Dữ liệu từ API:", data);
+      if (Array.isArray(data.results) && data.results.length > 0) {
+        setResults(data.results);
+      } else {
+        setMessage("Dữ liệu không hợp lệ từ server!");
+        setResults([]);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi request:", error);
+      setMessage("Lỗi kết nối server!");
+    }
+
+    setLoading(false);
+  };
+  // Debug the context being passed to Outlet
+  console.log("Context being passed to Outlet:", { results, message});
+
   return (
     <>
       {error && <Alert type={"error"} message={error} onClose={() => setError("")} />}
@@ -102,14 +147,14 @@ const HomePage = () => {
 
             <div className="m-4">
               {
-                location.pathname === "/chat" ? <Menu /> : location.pathname === "/search" ? <Search /> : <></>
+                location.pathname === "/chat" ? <Menu /> : location.pathname === "/search" ? <Search onSearch={handleSearch} /> : <></>
               }
             </div>
           </div>
 
 
           <div className="flex flex-8 justify-center items-center">
-            <Outlet />
+            <Outlet context={{ results, message}}/>
           </div>
 
         </div>
