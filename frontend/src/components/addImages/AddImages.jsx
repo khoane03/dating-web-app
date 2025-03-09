@@ -1,13 +1,17 @@
 
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaPlus } from "react-icons/fa";
 import { getUserLogin } from "../../service/userService";
 import { IoClose } from "react-icons/io5";
+import { Accept } from "../popup/Accept";
 
 
 const AddImages = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [infoUser, setInfoUser] = useState([]);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const avatar_url = ['hinh1.png', 'hinh2.png', 'avatar.png', 'default.jpg'];
+    const [isAccept, setIsAccept] = useState(false);
 
     const getUser = async () => {
         try {
@@ -18,6 +22,25 @@ const AddImages = () => {
         }
     };
 
+    const handleButton = (action) => {
+        if (action === "preview") {
+            if (selectedIndex === 0) return setSelectedIndex(avatar_url.length - 1);
+            setSelectedIndex(selectedIndex - 1);
+
+        } else {
+            if (selectedIndex === avatar_url.length - 1) return setSelectedIndex(0);
+            setSelectedIndex(selectedIndex + 1);
+        }
+    };
+
+    const handleDeleteImageById = async () => {
+        console.log("Xoá ảnh có id");
+        setTimeout(() => {
+            setIsAccept(false);
+        }
+            , 1000);
+    }
+
     useEffect(() => {
         getUser();
     }
@@ -25,16 +48,38 @@ const AddImages = () => {
 
     return (
         <div className="flex flex-col w-99 h-160 bg-transparent rounded-xl shadow-lg border border-black">
+            {isAccept && <Accept action={"xoá"} isAccept={handleDeleteImageById} isReject={() => setIsAccept(false)} />}
             {!isEdit ? <>
                 <div className="w-full pl-6 py-4 flex bg-[#21272b] items-center rounded-tr-xl rounded-tl-xl">
                     <p className="text-2xl font-bold text-pink-500 mr-3">{infoUser.full_name}</p>
                     <p className="text-gray-300 text-xl mr-3">{infoUser.age}</p>
                     <FaCheckCircle className="text-gray-500" />
                 </div>
-                <div className=" w-full h-140 bg-cover bg-center flex items-end"
-                    style={{ backgroundImage: `url(hinh2.png)` }}>
+                <div className="w-full h-140 bg-cover bg-center flex flex-col items-center group/button"
+                    style={{ backgroundImage: `url(${avatar_url[selectedIndex]})` }}>
 
+                    <div className="mt-2 flex justify-around w-full h-2 bg-[#434B54] rounded-3xl pl-2">
+                        {avatar_url.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setSelectedIndex(index)}
+                                className={`w-full h-2 border rounded-3xl mr-2 transition ${selectedIndex === index ? "bg-white" : "bg-gray-500 hover:bg-white"
+                                    }`}
+                            />
+                        ))}
+
+                    </div>
+                    <div className=" justify-between w-full p-2 mt-10 hidden group-hover/button:flex">
+                        <button onClick={() => handleButton('preview')}>
+                            <FaArrowLeft className="text-2xl text-black hover:text-gray-200" />
+                        </button>
+                        <button onClick={() => handleButton('next')}>
+                            <FaArrowRight className="text-2xl text-black hover:text-gray-200" />
+                        </button>
+                    </div>
                 </div>
+
+
             </> :
                 <>
                     <div className="w-full pl-6 py-4 flex justify-center bg-[#21272b] items-center rounded-tr-xl rounded-tl-xl">
@@ -50,14 +95,23 @@ const AddImages = () => {
 
                             />
                             <div className="absolute top-0 right-0 flex gap-2 p-2">
-
-                                <IoClose className="text-gray-300 cursor-pointer hover:text-red-500" />
+                                <IoClose onClick={() => setIsAccept(true)}
+                                    className="text-gray-300 text-2xl cursor-pointer hover:text-red-500" />
                             </div>
                         </div>
 
                         <div className="w-28 h-32 mx-auto rounded-xl relative bg-gray-600">
                             <div className="absolute top-0 right-0 flex gap-2 p-2">
-                                <FaPlus className="text-red-500 cursor-pointer hover:text-gray-300" />
+                                <label htmlFor="file">
+                                    <FaPlus className="text-red-500 cursor-pointer hover:text-gray-300 text-2xl" />
+                                </label>
+                                <input
+                                    type="file"
+                                    id="file"
+                                    className="hidden"
+
+                                />
+
                             </div>
                         </div>
 
