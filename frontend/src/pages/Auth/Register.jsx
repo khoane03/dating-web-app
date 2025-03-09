@@ -4,7 +4,7 @@ import {
     faEyeSlash,
     faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { validateRegister } from "../../validator/appValidate";
 import Alert from "../../components/alert/Alert";
@@ -22,6 +22,8 @@ const Register = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showOtp, setShowOtp] = useState(false);
+    const [reSend, setReSend] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(60);
     const [dataInput, setDataInput] = useState({
         email: "",
         otp: "",
@@ -40,11 +42,6 @@ const Register = () => {
                 setError(validateRegister(dataInput));
                 return;
             }
-            // const res = await check_email(dataInput.email);
-            // if (res.code === 200) {
-            //     setError("Email đã được sử dụng");
-            //     return;
-            // }
             await handleSendOtp();
         } catch (error) {
             setShowOtp(false);
@@ -59,6 +56,8 @@ const Register = () => {
             setLoading(true);
             await sendOtp(dataInput.email);
             setShowOtp(true);
+            setTimeLeft(60);
+            setReSend(false);
         } catch (error) {
             setError(error.response?.data?.message);
         } finally {
@@ -78,11 +77,20 @@ const Register = () => {
         }
     };
 
-
-
     const handleShowPassword = () => {
         setShowPassword(!showPassword);
     };
+
+    useEffect(() => {
+        if (timeLeft === 0) {
+            setReSend(true);
+            return;
+        }
+        const timer = setTimeout(() => {
+            setTimeLeft(timeLeft - 1);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [timeLeft]);
 
     return (
         <>
@@ -96,6 +104,15 @@ const Register = () => {
                             onChange={(e) => setDataInput({ ...dataInput, otp: e.target.value })}
                             onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
                             className="bg-gray-200 rounded-xl px-4 py-2 my-2 w-full outline-none" type="text" />
+                        {reSend ? (
+                            <button onClick={handleSendOtp}
+                                className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
+                                Gửi lại
+                            </button>
+                        ) : (
+                            <p className="text-center text-gray-500">Gửi lại sau {timeLeft}s</p>
+                        )}
+                        
                         <button onClick={handleVerifyOtp}
                             className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
                             Xác thực

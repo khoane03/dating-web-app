@@ -50,7 +50,8 @@ const Info = () => {
 
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+        <div className="flex justify-center items-center bg-gray-100 min-h-screen">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md ">
             {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
             {success && <Alert type={'success'} message={success} onClose={() => setSuccess('')} />}
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b pb-3 border-gray-200">
@@ -158,6 +159,7 @@ const Info = () => {
                     </button>
                 }
             </div>
+        </div>
         </div>
     );
 
