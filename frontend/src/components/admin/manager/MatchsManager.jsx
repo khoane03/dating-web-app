@@ -16,13 +16,13 @@ function MatchesManager() {
 
   const getMatches = async () => {
     try {
-      const res = await getMatchedUsers();
+      const res = await getMatchedUsers(currentPage, 10);
       setData(
         res.data.map((item) => ({
           ...item,
         }))
       );
-      const totalPages = Math.ceil(res.total / 10);
+      const totalPages = Math.ceil(res.totalRecords / 10);
       setTotalPages(totalPages);
     } catch (error) {
       setError(error.response.data.message);
@@ -43,7 +43,6 @@ function MatchesManager() {
 
   const handleDelete = async (id) => {
     try {
-      console.log('called');
       await deleteMatchById(id);
       setData(data.filter((item) => item.id !== id));
       setSuccess("Xoá match thành công");
@@ -56,6 +55,8 @@ function MatchesManager() {
   useEffect(() => {
     getMatches();
   }, [])
+
+
   return (
     <div className="flex flex-col min-h-screen p-6 bg-gray-100">
       {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}

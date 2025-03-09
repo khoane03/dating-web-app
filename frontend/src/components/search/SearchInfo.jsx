@@ -67,8 +67,10 @@ const SearchInfo = () => {
         <ul>
             {results.map((user) => (
                 <li key={user.id}>
-                     ID: {user.id} <b>{user.full_name}</b> - Tuổi: {user.age}, Nghề nghiệp: {user.occupation}, Bio: {user.bio}
-                     <p className="text-sm">Cách xa 8 km</p>
+                     <h3 className="text-lg font-semibold">{user.full_name}, {user.age}</h3>
+                    <p>Giới tính: {user.gender === "Nam" ? "Nam" : "Nữ"}</p>
+                    <p>Nghề nghiệp: {user.occupation}</p>
+                    <p>Khoảng cách: {user.distance ? user.distance.toFixed(2) : "N/A"} km</p>
                 </li>
             ))}
         </ul>
