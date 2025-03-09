@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { changePassword, getUserLogin, updateUserProfile } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+
 
 const Profile = () => {
 
@@ -17,17 +21,26 @@ const Profile = () => {
   const [success, setSuccess] = useState("");
   const [data, setData] = useState({
     full_name: "",
+    dob: "",
     age: "",
     gender: "",
     occupation: "",
     hobbies: "",
     bio: "",
     criteria: "",
-    address: "",
     avatar_url: "",
   });
   // Thêm state để lưu dữ liệu chỉnh sửa
   const [editData, setEditData] = useState({ ...data });
+  
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
 
   const getInfo = async () => {
     try {
@@ -41,7 +54,7 @@ const Profile = () => {
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
-      const res = await updateUserProfile(data); // Gửi editdata lên server
+      await updateUserProfile(editData);
       setSuccess("Hồ sơ đã được cập nhật!");
       setData(editData); //cập nhật lại data sau khi lưu
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
@@ -69,9 +82,40 @@ const Profile = () => {
     }
   };
 
+  const getAddress = async (lat, lng) => {
+    try {
+      const res = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const address = res.data.display_name;
+      console.log("Địa chỉ:", address); 
+      
+    } catch (error) {
+      console.error("Lỗi khi lấy địa chỉ:", error);
+    }
+  }
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Vị trí hiện tại:", latitude, longitude);
+          getAddress(latitude, longitude);
+          
+        },
+        (error) => {
+          console.error("Lỗi khi lấy vị trí:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation không được hỗ trợ bởi trình duyệt này.");
+    }
+  };
+
   useEffect(() => {
     getInfo();
-  }, []);
+  }, [isUpdate]);
 
   return (
     <>
@@ -92,108 +136,105 @@ const Profile = () => {
 
           {/* Thông tin cá nhân */}
           <div className="text-center mt-4 text-gray-800">
-            <h1 className="text-2xl font-bold flex justify-center items-center gap-2">
-              {isUpdate ? (
-                <input
-                  type="text"
-                  className="border p-1 rounded"
-                  value={editData.full_name}
-                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                />
-              ) : (
-                data.full_name
-              )}
+            <div className="flex items-center justify-center ">
+              {isUpdate ? <input
+                type="text"
+                className="font-semibold text-center focus:ring focus:ring-blue-300 "
+                value={editData.full_name || ""}
+                onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+              /> : <span className="text-3xl font-semibold">{data.full_name}</span>}
+              <div className="flex items-center ">
+                <span className="mr-2 text-2xl font-bold">, {data.age}</span>
+                <FaCheckCircle className="text-green-500 text-2xl" />
+              </div>
+            </div>
 
-              ,{" "}
-              {isUpdate ? (
-                <input
-                  type="number"
-                  className="border p-1 rounded w-16"
-                  value={editData.age}
-                  onChange={(e) => setEditData({ ...editData, age: e.target.value })}
-                />
-              ) : (
-                data.age
-              )}
-              <FaCheckCircle className="text-blue-500" />
-            </h1>
 
-            <p>
-              <strong>Giới tính:</strong>{" "}
-              {isUpdate ? (
-                <select
-                  className="border p-1 rounded"
-                  value={editData.gender}
-                  onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
-                >
-                  <option value="Nam">Nam</option>
-                  <option value="Nữ">Nữ</option>
-                  <option value="Khác">Khác</option>
-                </select>
-              ) : (
-                data.gender
-              )}
-            </p>
+            <div className="mt-2 space-y-2">
+              <p className="flex justify-center items-center gap-2">
+                <strong>Giới tính:</strong>
+                {isUpdate ? (
+                  <select
+                    className="border p-1 rounded focus:ring focus:ring-blue-300"
+                    value={editData.gender}
+                    onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+                  >
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+                ) : (
+                  <span>{data.gender}</span>
+                )}
+              </p>
 
-            <p>
-              <strong>Nghề nghiệp:</strong>{" "}
-              {isUpdate ? (
-                <input
-                  type="text"
-                  className="border p-1 rounded w-full"
-                  value={editData.occupation}
-                  onChange={(e) => setEditData({ ...editData, occupation: e.target.value })}
-                />
-              ) : (
-                data.occupation
-              )}
-            </p>
+              <p>
+                <strong>Nghề nghiệp:</strong>{" "}
+                {isUpdate ? (
+                  <input
+                    type="text"
+                    className="border p-1 rounded w-full focus:ring focus:ring-blue-300"
+                    value={editData.occupation}
+                    onChange={(e) => setEditData({ ...editData, occupation: e.target.value })}
+                  />
+                ) : (
+                  <span>{data.occupation}</span>
+                )}
+              </p>
 
-            <p>
-              <strong>Sở thích:</strong>{" "}
-              {isUpdate ? (
-                <input
-                  type="text"
-                  className="border p-1 rounded w-full"
-                  value={editData.hobbies}
-                  onChange={(e) => setEditData({ ...editData, hobbies: e.target.value })}
-                />
-              ) : (
-                data.hobbies
-              )}
-            </p>
+              <p>
+                <strong>Sở thích:</strong>{" "}
+                {isUpdate ? (
+                  <input
+                    type="text"
+                    className="border p-1 rounded w-full focus:ring focus:ring-blue-300"
+                    value={editData.hobbies}
+                    onChange={(e) => setEditData({ ...editData, hobbies: e.target.value })}
+                  />
+                ) : (
+                  <span>{data.hobbies}</span>
+                )}
+              </p>
+            </div>
           </div>
 
-          {/* Hồ sơ */}
+          {/* Hồ sơ chi tiết */}
           <div className="mt-4 text-gray-800">
-            <h2 className="text-lg font-semibold">Hồ sơ chi tiết</h2>
-            <p><strong>Mô tả bản thân:</strong></p>
+            <h2 className="text-lg font-semibold mb-2">Hồ sơ chi tiết</h2>
+
+            <p className="mb-1"><strong>Ngày sinh:</strong></p>
             <input
-              className="outline p-2 border border-gray-300 rounded-lg w-full"
-              type="text"
+              type="date"
+              className="outline p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
+              disabled={!isUpdate}
+              value={formatDate(editData.dob) || ""}
+              onChange={(e) => setEditData({ ...editData, dob: e.target.value })}
+            />
+
+            <p className="mb-1"><strong>Mô tả bản thân:</strong></p>
+            <textarea
+              className="outline p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
               disabled={!isUpdate}
               value={editData.bio || ""}
               onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
             />
 
-            <p><strong>Tiêu chuẩn tìm kiếm:</strong></p>
-            <input
-              className="outline p-2 border border-gray-300 rounded-lg w-full"
-              type="text"
+            <p className="mt-2 mb-1"><strong>Tiêu chuẩn tìm kiếm:</strong></p>
+            <textarea
+              className="outline p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
               disabled={!isUpdate}
               value={editData.criteria || ""}
               onChange={(e) => setEditData({ ...editData, criteria: e.target.value })}
             />
 
-            <p><strong>Vị trí hiện tại:</strong></p>
-            <input
-              className="outline p-2 border border-gray-300 rounded-lg w-full"
-              type="text"
-              disabled={!isUpdate}
-              value={editData.address || ""}
-              onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-            />
+            <div className="flex items-center mt-2">
+              <span className="font-bold mr-2">Vị trí hiện tại: {data.address}</span>
+              <FontAwesomeIcon onClick={() => { getLocation(); }}
+                icon={faLocationDot} className="hover:text-blue-400 cursor-pointer text-2xl" />
+            </div>
+
           </div>
+
 
           {/* Ảnh & Album */}
           <div className="mt-4 text-gray-800">

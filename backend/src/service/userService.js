@@ -1,11 +1,6 @@
 import pool from "../config/dbConfig.js";
 import { hashPassword, comparePassword } from "../utils/hash.js";
 
-const handleError = (error) => ({
-    code: 500,
-    message: error.message || error || "Lỗi server!",
-});
-
 export const getUserLogin = async (user) => {
     try {
         if (!user || !user.id) {
@@ -17,7 +12,6 @@ export const getUserLogin = async (user) => {
         const { rows } = await pool.query(query, [id]);
 
         if (!rows.length) return { code: 404, message: "Không tìm thấy người dùng!" };
-
         return { code: 200, message: "Thành công!", data: rows[0] };
     } catch (error) {
         return handleError(error);
@@ -45,24 +39,60 @@ export const changePassword = async (id, oldPassword, newPassword) => {
         return handleError(error);
     }
 };
-export const updateUserProfile = async (id, data) => {
+export const addOrUpdateProfile = async (id, data) => {
     try {
         if (!id || !data) {
             return { code: 400, message: "Thiếu thông tin cần thiết!" };
         }
 
-        const { full_name, age, gender, occupation, hobbies, bio, criteria, address, avatar_url } = data;
-        
-        // Cập nhật thông tin người dùng
-        await pool.query(`
-            UPDATE tbl_users 
-            SET full_name = $1, age = $2, gender = $3, occupation = $4, 
-                hobbies = $5, bio = $6, criteria = $7, address = $8, avatar_url = $9
-            WHERE acc_id = $10
-        `, [full_name, age, gender, occupation, hobbies, bio, criteria, address, avatar_url, id]);
+        const { full_name, dob, gender, occupation, hobbies, bio, criteria, avatar_url } = data;
+        const age = calculateAge(dob);
+
+        // Kiểm tra xem user đã tồn tại chưa
+        const query = `SELECT * FROM tbl_users WHERE acc_id = $1`;
+        const { rows } = await pool.query(query, [id]);
+
+        const value = [full_name, dob, gender, occupation, hobbies, bio, criteria, age, avatar_url, id];
+
+        if (rows.length) {
+
+            await pool.query(`
+                UPDATE tbl_users 
+                SET full_name = $1, dob = $2, gender = $3, occupation = $4, 
+                    hobbies = $5, bio = $6, criteria = $7, age = $8, avatar_url = $9
+                WHERE acc_id = $10
+            `, value);
+        } else {
+            await pool.query(`
+                INSERT INTO tbl_users (full_name, dob, gender, occupation, hobbies, bio, criteria, age, avatar_url, acc_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `, value);
+        }
 
         return { code: 200, message: "Cập nhật hồ sơ thành công!" };
     } catch (error) {
         return handleError(error);
     }
 };
+
+
+
+//hàm tính tuổi
+function calculateAge(birthdate) {
+    const birthDate = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    if (today.getMonth() < birthDate.getMonth() ||
+        (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    return age;
+}
+
+
+const handleError = (error) => ({
+    code: 500,
+    message: error.message || error || "Lỗi server!",
+});

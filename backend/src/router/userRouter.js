@@ -1,11 +1,8 @@
 import express from "express";
 import { 
-    addUserProfile, 
     getUserLogin, 
-    updateUserProfile, 
-    deleteUserProfile, 
-    getUserProfile, 
-    changePassword 
+    changePassword, 
+    addOrUpdateProfile 
 } from "../controller/userController.js";
 import multer from "multer";
 
@@ -32,10 +29,6 @@ userRouter.post("/upload-avatar", upload.single("avatar"), (req, res) => {
     res.json({ url: fileUrl }); // Trả về URL ảnh
 });
 
-
-userRouter.post("/add-profile", addUserProfile);
-userRouter.put("/update-profile", updateUserProfile);
-userRouter.delete("/delete-profile", deleteUserProfile);
-userRouter.get("/profile", getUserProfile);
+userRouter.post("/add_profile", addOrUpdateProfile);
 userRouter.get("/info", getUserLogin);
 userRouter.put("/change-password", changePassword);

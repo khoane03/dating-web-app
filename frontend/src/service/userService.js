@@ -12,7 +12,8 @@ const changePassword = async (data) => {
 };
 
 const updateUserProfile = async (data) => {
-    return await axiosService.put("/user/update_profile", data);
+    console.log(data);
+    return await axiosService.post("/user/add_profile", data);
 };
 
 export {
