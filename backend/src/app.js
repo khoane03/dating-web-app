@@ -21,14 +21,18 @@ app.use(cors({
     credentials: true,
 })
 );
+app.use("/uploads", express.static("uploads")); // Cho phép truy cập ảnh trực tiếp
 
-// init admin account if not exist
-await initAdmin();
+const startServer = async () => {
+    // Khởi tạo admin trước khi chạy server
+    await initAdmin();
 
-app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter)
-app.use('/auth', authRouter);
-app.use('/user', authMiddleware, userRouter);
-app.use('/api', searchRouter);
-app.use('/chat', authMiddleware, chatRouter);
+    app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter);
+    app.use('/auth', authRouter);
+    app.use('/user', authMiddleware, userRouter);
+    app.use('/api', searchRouter);
+    app.use('/chat', authMiddleware, chatRouter);
+};
 
+startServer();
 export const viteNodeApp = app;
