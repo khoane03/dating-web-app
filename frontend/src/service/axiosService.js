@@ -73,7 +73,7 @@ axiosService.interceptors.response.use(
 
                 case 404:
                     console.error("Not Found: Redirecting to 404 page");
-                    window.location.href = '/404';
+                    // window.location.href = '/404';
                     break;
 
                 default:
