@@ -44,15 +44,18 @@ export const googleCallback = async (req, res) => {
     const result = await googleLoginCallbackService(user.user);
     const { refreshToken } = result.data;
     setCookie(res, "refreshToken", refreshToken);
-
-    return res.redirect(process.env.CLIENT_URL);
+    setTimeout(() => {
+      res.redirect(process.env.CLIENT_URL);
+    }
+      , 2000
+    );
   })(req, res);
 };
 
-const setCookie = (res, key, value ) => {
+const setCookie = (res, key, value) => {
   res.cookie(key, value, {
-    httpOnly: false,
-    secure: true,
+    httpOnly: true,
+    secure: false,
     sameSite: "strict",
     path: "/",
     maxAge: 15 * 24 * 60 * 60 * 1000,
