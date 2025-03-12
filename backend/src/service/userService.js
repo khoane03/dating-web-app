@@ -75,6 +75,16 @@ export const addOrUpdateProfile = async (id, data) => {
     }
 };
 
+export const updateAvatar = async (id, avatarUrl) => {
+    try {
+        await pool.query("UPDATE tbl_users SET avatar_url = $1 WHERE id = $2", [avatarUrl, id]);
+
+        return { code: 200, message: "Cập nhật ảnh đại diện thành công!" };
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
 
 
 //hàm tính tuổi

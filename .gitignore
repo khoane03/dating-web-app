@@ -28,6 +28,8 @@ dist-ssr
 # Bỏ qua thư mục node_modules trong cả BE và FE
 backend/node_modules/
 frontend/node_modules/
+backend/uploads/
+frontend/uploads/
 
 # Bỏ qua tệp môi trường (nếu có)
 backend/.env
