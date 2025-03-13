@@ -16,8 +16,14 @@ const updateUserProfile = async (data) => {
     return await axiosService.post("/user/add_profile", data);
 };
 
+const avatarUpdate = async (formData) => {
+    console.log(formData);
+    return await axiosService.post("/user/upload_avatar", formData);
+};
+
 export {
     getUserLogin,
     changePassword,
-    updateUserProfile
+    updateUserProfile,
+    avatarUpdate
 };
