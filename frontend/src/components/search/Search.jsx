@@ -13,8 +13,8 @@ const Search = ({ onSearch }) => {
     const [userLong, setUserLong] = useState(null);
     const [currentUser] = useState({
         id: "1",
-        lat: 10.7769,
-        long: 106.7009, 
+        lat: null,
+        long: null, 
       });
     useEffect(() => {
         if (navigator.geolocation) {
@@ -40,7 +40,7 @@ const Search = ({ onSearch }) => {
     //   };
     const handleSearch = async () => {
       const filters = {
-          gender: gender, 
+          gender: gender === "Tất cả" ? null : gender, 
           age: age || "", 
           distance: distance || "",
           userLat: userLat || "",
@@ -59,8 +59,7 @@ const Search = ({ onSearch }) => {
               userId={currentUser.id}
               currentUserLat={currentUser.lat}
               currentUserLong={currentUser.long}
-              targetLat={10.7769} 
-              targetLong={106.7009} 
+              
             /><br></br>
         <h2 className="text-lg font-bold text-pink-500">Bộ Lọc Tìm Kiếm</h2>
         {/* Giới tính */}

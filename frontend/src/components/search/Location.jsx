@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radius of the Earth in kilometers
+    const R = 6371; 
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -12,8 +12,8 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in kilometers
-    return distance.toFixed(2); // Return distance rounded to 2 decimal places
+    const distance = R * c; // Đổi sang Km
+    return distance.toFixed(2); 
   };
 
 const ProfileLocation = ({ userId, currentUserLat, currentUserLong, targetLat, targetLong }) => {
@@ -24,7 +24,7 @@ const ProfileLocation = ({ userId, currentUserLat, currentUserLong, targetLat, t
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Function to get address from latitude and longitude
+  // Hàm lấy địa chỉ từ kinh độ và vĩ độ
   const getAddress = async (lat, lng) => {
     try {
       const res = await axios.get(
@@ -39,125 +39,111 @@ const ProfileLocation = ({ userId, currentUserLat, currentUserLong, targetLat, t
       return null;
     }
   };
-
-  // Function to calculate distance using OSRM
-  const getDistanceFromOSM = async (lat1, lon1, lat2, lon2) => {
-    const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
-
-    try {
-      const res = await axios.get(url);
-      const distanceInKm = res.data.routes[0].distance / 1000; // Convert meters to km
-      setDistance(`${distanceInKm.toFixed(2)} km`);
-      return distanceInKm;
-    } catch (error) {
-      console.error("Lỗi khi lấy khoảng cách:", error);
-      setDistance("Không tìm thấy đường đi");
-      return null;
-    }
+ 
+  // Hàm lấy kinh độ và vĩ độ
+  const getLocation = (setUserLat, setUserLong, setError) => {
+    return new Promise((resolve, reject) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords; // Corrected typo from 'longtitude' to 'longitude'
+            console.log("Vị trí hiện tại:", latitude, longitude);
+            setUserLat(latitude);
+            setUserLong(longitude);
+            resolve({ latitude, longitude });
+          },
+          (error) => {
+            console.error("Lỗi khi lấy vị trí:", error);
+            setError("Lỗi khi lấy vị trí: " + error.message);
+            reject(error);
+          }
+        );
+      } else {
+        console.error("Geolocation không hỗ trợ trình duyệt này");
+        setError("Geolocation không được hỗ trợ bởi trình duyệt này.");
+        reject(new Error("Geolocation not supported"));
+      }
+    });
   };
 
-  // Function to fetch a user's location
-  const fetchUserLocation = async (userId) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/api/users/${userId}/location`
-      );
-      return response.data; // Returns { latitude, longitude }
-    } catch (error) {
-      console.error(`Lỗi khi lấy vị trí của người dùng ${userId}:`, error);
-      throw error;
-    }
-  };
+  
 
-  // Function to update location and calculate distance
+  // Hàm cập nhật vị trí và tính khoảng cách
   const updateLocation = async () => {
     setLoading(true);
     setError("");
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const newLat = position.coords.latitude;
-          const newLong = position.coords.longitude;
+    try {
+      
+      const locationData = await getLocation(setUserLat, setUserLong, setError);
 
-          // Get the new address using Nominatim API
-          const newAddress = await getAddress(newLat, newLong);
+      if (locationData.latitude && locationData.longitude) {
+        const newAddress = await getAddress(locationData.latitude, locationData.longitude, setAddress);
 
-          // Update the database with new latitude, longitude, and address
-          if (newAddress && newLat && newLong) {
-            try {
-              const response = await axios.put(
-                `http://localhost:3000/api/users/${userId}/location`,
-                {
-                  address: newAddress,
-                  latitude: newLat,
-                  longitude: newLong,
-                }
-              );
-
-              if (response.status === 200) {
-                // Update local state to reflect the new values
-                setUserLat(newLat);
-                setUserLong(newLong);
-                setAddress(newAddress);
-                console.log("Vị trí đã được cập nhật trong database:", {
-                  latitude: newLat,
-                  longitude: newLong,
-                  address: newAddress,
-                });
-
-                // Calculate distance to target user if targetUserId is provided
-                if (targetUserId) {
-                  try {
-                    const currentLocation = { latitude: newLat, longitude: newLong };
-                    const targetLocation = await fetchUserLocation(targetUserId);
-
-                    if (
-                      currentLocation.latitude &&
-                      currentLocation.longitude &&
-                      targetLocation.latitude &&
-                      targetLocation.longitude
-                    ) {
-                      const calculatedDistance = calculateDistance(
-                        currentLocation.latitude,
-                        currentLocation.longitude,
-                        targetLocation.latitude,
-                        targetLocation.longitude
-                      );
-                      setDistance(`${calculatedDistance} km`);
-                    } else {
-                      setDistance("Không đủ dữ liệu để tính khoảng cách");
-                    }
-                  } catch (error) {
-                    setDistance("Lỗi khi lấy vị trí người dùng mục tiêu");
-                  }
-                } else {
-                  setDistance("Không có người dùng mục tiêu để tính khoảng cách");
-                }
-              }
-            } catch (error) {
-              console.error("Lỗi khi gửi request:", error);
-              if (error.code === "ERR_NETWORK") {
-                setError("Không thể kết nối đến server. Vui lòng kiểm tra backend!");
-              } else {
-                setError(
-                //   error.response?.data?.error || "Lỗi khi cập nhật vị trí"
-                );
-              }
+        if (newAddress && locationData.latitude && locationData.longitude) {
+          const response = await axios.put(
+            `http://localhost:3000/api/users/${userId}/location`,
+            {
+              address: newAddress,
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
             }
-          } else {
-            setError("Không thể lấy địa chỉ từ tọa độ mới");
+          );
+
+          if (response.status === 200) {
+            // Update local state and parent component state
+            setUserLat(locationData.latitude);
+            setUserLong(locationData.longitude);
+            setCurrentUser((prev) => ({
+              ...prev,
+              lat: locationData.latitude,
+              long: locationData.longitude,
+            }));
+            console.log("Vị trí đã được cập nhật trong database:", {
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
+              address: newAddress,
+            });
+
+            // Calculate distance to target user if targetUserId is provided
+            if (targetUserId) {
+              try {
+                const targetLocation = await fetchUserLocation(targetUserId);
+
+                if (
+                  locationData.latitude &&
+                  locationData.longitude &&
+                  targetLocation.latitude &&
+                  targetLocation.longitude
+                ) {
+                  const calculatedDistance = calculateDistance(
+                    locationData.latitude,
+                    locationData.longitude,
+                    targetLocation.latitude,
+                    targetLocation.longitude
+                  );
+                  setDistance(`${calculatedDistance} km`);
+                } else {
+                  setDistance("Không đủ dữ liệu để tính khoảng cách");
+                }
+              } catch (error) {
+                setDistance("Lỗi khi lấy vị trí người dùng mục tiêu");
+              }
+            } else {
+              setDistance("Không có người dùng mục tiêu để tính khoảng cách");
+            }
           }
-        },
-        (error) => {
-          console.error("Lỗi khi lấy vị trí:", error);
-          setError("Không thể lấy vị trí");
-          setLoading(false);
+        } else {
+          setError("Không thể lấy địa chỉ từ tọa độ mới");
         }
-      );
-    } else {
-      setError("Geolocation không được hỗ trợ bởi trình duyệt này.");
-      setLoading(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật vị trí:", error);
+      if (error.code === "ERR_NETWORK") {
+        setError("Không thể kết nối đến server. Vui lòng kiểm tra backend!");
+      } else {
+        // setError("Lỗi khi cập nhật vị trí");
+      }
     }
 
     setLoading(false);

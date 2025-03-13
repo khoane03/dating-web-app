@@ -63,7 +63,7 @@ return (
             results.map((user) => (
               <div
                 key={user.id}
-                className="relative w-96 h-[700px] bg-black text-white rounded-2xl overflow-hidden shadow-2xl"
+                className="relative w-96 h-[600px] bg-black text-white rounded-2xl overflow-hidden shadow-2xl"
               >
                 {/* Profile Image */}
                 <div className="relative w-full h-full">

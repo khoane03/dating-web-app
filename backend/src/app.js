@@ -28,7 +28,7 @@ await initAdmin();
 app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter)
 app.use('/auth', authRouter);
 app.use('/user', authMiddleware, userRouter);
-app.use('/api', searchRouter);
+app.use('/api', authMiddleware, searchRouter);
 app.use('/chat', authMiddleware, chatRouter);
 
 export const viteNodeApp = app;
