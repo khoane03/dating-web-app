@@ -30,7 +30,7 @@ const Alert = ({ type, message, duration = 5000, onClose }) => {
     };
 
     return (
-        <div className={`animate-slide-left fixed top-5 right-5 z-1000 flex items-center p-3 border-l-4 rounded-md shadow-md ${alertStyles[type]}`}>
+        <div className={`animate-slide-left fixed top-5 right-5 z-50 flex items-center p-3 border-l-4 rounded-md shadow-md ${alertStyles[type]}`}>
             {icons[type]}
             <span className="ml-2">{message}</span>
             <button className="ml-4 text-gray-700 hover:text-gray-900" onClick={() => setVisible(false)}>✖</button>

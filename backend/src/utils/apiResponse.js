@@ -1,9 +1,10 @@
-const apiResponse = (res, statusCode, message, data = null) => {
+const apiResponse = (res, statusCode, message, data = null, totalRecords) => {
     const response = {
         timestamp: new Date().toISOString(),
         message,
         code: statusCode,
-        total: data ? data.length : 0,
+        totalPages: data ? data.length : 0,
+        totalRecords: totalRecords ? totalRecords : 0,
     };
     if (data) response.data = data;
     return res.status(statusCode).json(response);

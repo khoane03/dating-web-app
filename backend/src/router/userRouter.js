@@ -1,13 +1,18 @@
 import express from "express";
-import { addUserProfile } from "../controller/userController.js";
-import {
-    getUserLogin,
-    changePassword
-} from "../controller/userController";
-import { getUserLogin } from "../controller/userController";
+import { 
+    getUserLogin, 
+    changePassword, 
+    addOrUpdateProfile, 
+    updateAvatar
+} from "../controller/userController.js";
+import { upload } from "../config/cloudinaryConfig.js";
+
 
 export const userRouter = express.Router();
 
-userRouter.post("/add-profile", addUserProfile);
+// Route upload ảnh
+userRouter.post("/upload_avatar", upload.single("avatar"), updateAvatar);
+
+userRouter.post("/add_profile", addOrUpdateProfile);
 userRouter.get("/info", getUserLogin);
-userRouter.put("/change_password", changePassword);
+userRouter.put("/change-password", changePassword);
