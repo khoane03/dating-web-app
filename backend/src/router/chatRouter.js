@@ -1,4 +1,7 @@
 import express from "express";
-import { addMess } from "../controller/chatController";
+import { saveMessage, getHistory } from "../controller/chatController";
+
 export const chatRouter = express.Router();
-chatRouter.post('/', addMess)
+
+chatRouter.post('/', saveMessage)
+chatRouter.get('/', getHistory)
