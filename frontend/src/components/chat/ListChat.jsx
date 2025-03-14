@@ -50,58 +50,9 @@ function ListChat() {
     // Tải lịch sử tin nhắn
     getHistory();
 
-    // Kết nối WebSocket
-    // const websocket = new WebSocket("ws://localhost:5000");
-
-    // websocket.onopen = () => {
-    //   console.log("Connected to WebSocket server");
-    //   // Gửi tin nhắn join khi kết nối
-    //   websocket.send(
-    //     JSON.stringify({
-    //       type: "join",
-    //       userId: currentUserId,
-    //     })
-    //   );
-    // };
-
-    // websocket.onmessage = (event) => {
-    //   const data = JSON.parse(event.data);
-    //   switch (data.type) {
-    //     case "receiveMessage":
-    //       // Thêm tin nhắn mới vào danh sách
-    //       setMessages((prev) => [...prev, data.data]);
-    //       break;
-    //     case "error":
-    //       console.error("WebSocket error:", data.data.message);
-    //       alert(data.data.message);
-    //       break;
-    //     default:
-    //       console.log("Unknown message type:", data.type);
-    //   }
-    // };
-
-    // websocket.onerror = (error) => {
-    //   console.error("WebSocket error:", error);
-    //   alert("Failed to connect to WebSocket server");
-    // };
-
-    // websocket.onclose = () => {
-    //   console.log("Disconnected from WebSocket server");
-    //   alert("Connection closed. Please refresh the page to reconnect.");
-    // };
-
-    // setWs(websocket);
-
-    // // Cleanup khi component unmount
-    // return () => {
-    //   if (websocket) {
-    //     websocket.close();
-    //   }
-    // };
   }, [currentUserId]);
-
-  // Cuộn xuống cuối danh sách tin nhắn khi có tin nhắn mới
-  useEffect(() => {
+// Cuộn xuống cuối danh sách tin nhắn khi có tin nhắn mới
+useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -125,7 +76,8 @@ function ListChat() {
                 : "bg-gray-200 text-gray-800"
             }`}
           >
-            {msg.message}
+            {msg.message} 
+            <span>{msg.sent_at}</span>
           </div>
         ))}
         <div ref={messagesEndRef} />
