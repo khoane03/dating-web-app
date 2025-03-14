@@ -1,13 +1,12 @@
 import pool from "../config/dbConfig";
 export const saveMess = async (id, receiverId, message) => {
+    const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
+    const sender_id = res.rows[0].id;
     try {
-
-        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
-        const sender_id = res.rows[0].id;
         const query = `
-                INSERT INTO tbl_message (sender_id, receiver_id, message) 
-                VALUES ($1, $2, $3) RETURNING *;
-        `;
+    INSERT INTO tbl_message (sender_id, receiver_id, message) 
+    VALUES ($1, $2, $3) RETURNING *;
+  `;
         const values = [sender_id, receiverId, message];
 
         const { rows } = await pool.query(query, values);
@@ -33,10 +32,11 @@ export const getMess = async (id, receiver_id) => {
             JOIN tbl_users as user_a ON user_a.id = chat.sender_id
             JOIN tbl_users as user_b ON user_b.id = chat.receiver_id
         WHERE
-            chat.receiver_id = $1 AND chat.sender_id = $2
-        ORDER BY sent_at DESC;
+            (chat.sender_id = $1 AND chat.receiver_id = $2)
+            OR (chat.sender_id = $2 AND chat.receiver_id = $1)
+        ORDER BY sent_at ASC;
         `;
-        const values = [receiver_id, sender_id];
+        const values = [receiver_id, sender_id];  
         const { rows } = await pool.query(query, values);
         return handleSuccess(200, "Thành công", rows);
     } catch (error) {
@@ -45,6 +45,8 @@ export const getMess = async (id, receiver_id) => {
 
 
 }
+
+
 const handleSuccess = (code, message, data) => {
     return {
         code: code,
