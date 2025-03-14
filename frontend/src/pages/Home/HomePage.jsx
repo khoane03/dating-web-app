@@ -40,10 +40,12 @@ const HomePage = () => {
     const fetchUser = async () => {
       try {
         const res = await getUserLogin();
-        setInfo({
-          name: res.data.full_name,
-          avatar: res.data.avatar_url
-        });
+        if (res.message !== 'Không tìm thấy người dùng!') {
+          setInfo({
+            name: res.data.full_name,
+            avatar: res.data.avatar_url
+          });
+        }
       } catch (error) {
         setError(error.response.data.message);
       }
@@ -85,7 +87,7 @@ const HomePage = () => {
             <nav className="w-full h-20 flex flex-row justify-between items-center bg-gradient-to-bl from-[#FD2B75] to-[#FF5D3A] rounded-b-xl">
               <Link to={"/profile"} className="flex items-center w-[110px] h-[50px] overflow-hidden ml-4 hover:bg-[#471F27] p-1 rounded-full">
                 <img className="w-10 h-10 rounded-full"
-                  src={info.avatar} alt="" />
+                  src={info.avatar || "/default.jpg"} alt="" />
                 <span className="font-bold text-sm ml-2 text-gray-200">
                   {info.name}
                 </span>
@@ -108,10 +110,11 @@ const HomePage = () => {
             </nav>
 
             <div className="m-4">
+              {location.pathname.startsWith("/chat") && <Menu />}
               {
-                location.pathname === "/chat" ? <Menu /> 
-                : location.pathname === "/search" ? <Search /> 
-                : location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name}/> :<></>
+                location.pathname === "/search" ? <Search /> :
+                  location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name} /> :
+                    <></>
               }
             </div>
           </div>

@@ -45,6 +45,7 @@ function AppRouter() {
                     <Route index element={<Tinder />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="search" element={<Tinder />} />
+                    <Route path="chat/:id" element={<ListChat />} />
                     <Route path="chat" element={<ListChat />} />
                     <Route path="add" element={<AddImages/>} />
                 </Route>
