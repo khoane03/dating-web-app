@@ -46,8 +46,11 @@ const Profile = () => {
   const getInfo = async () => {
     try {
       const res = await getUserLogin();
-      setData(res.data);
-      setEditData(res.data);
+      if (res.message !== 'Không tìm thấy người dùng!') {
+
+        setData(res.data);
+        setEditData(res.data);
+      }
     } catch (error) {
       console.error("Lỗi lấy dữ liệu:", error);
     }
@@ -56,8 +59,8 @@ const Profile = () => {
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
-      await handleUploadImage(); // Tải ảnh lên trước khi cập nhật thông tin
       await updateUserProfile(editData);
+      if(avatar) await handleUploadImage();
       setSuccess("Hồ sơ đã được cập nhật!");
       setData(editData); //cập nhật lại data sau khi lưu
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
@@ -89,7 +92,6 @@ const Profile = () => {
       const res = await avatarUpdate(formData);
       console.log("Kết quả tải ảnh lên:", res);
       setSuccess("Tải ảnh lên thành công!");
-      setData({ ...data, avatar_url: res.data.avatar_url }); //  Cập nhật lại ảnh mới
     } catch (error) {
       setError("Lỗi khi tải ảnh lên: " + error.response?.data?.message || error.message);
     }
@@ -152,7 +154,7 @@ const Profile = () => {
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">
 
-        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto ">
           {/* ảnh đại diện */}
           <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
             <img
