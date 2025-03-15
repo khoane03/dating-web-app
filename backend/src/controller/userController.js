@@ -1,6 +1,6 @@
 import apiResponse from "../utils/apiResponse.js";
 import {
-    getUserLogin as getUserLoginService,
+    getInfoUser as getUserService,
     changePassword as changePasswordService,
     addOrUpdateProfile as addUserProfileService,
     updateAvatar as updateAvatarService
@@ -27,9 +27,17 @@ export const updateAvatar = async (req, res) => {
 };
 
 
-export const getUserLogin = async (req, res) => {
-    const user = req.user;
-    const result = await getUserLoginService(user);
+export const getUserById = async (req, res) => {
+    let id = null;
+    let type = null;
+    if (req.query.id) {
+        id = req.query.id;
+        type = 'id';
+    } else {
+        id = req.user.id;
+        type = 'acc_id';
+    }
+    const result = await getUserService(id, type);
     return apiResponse(res, 200, result.message, result.data);
 }
 

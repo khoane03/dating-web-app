@@ -1,17 +1,15 @@
 import pool from "../config/dbConfig.js";
 import { hashPassword, comparePassword } from "../utils/hash.js";
 
-export const getUserLogin = async (user) => {
+export const getInfoUser = async (id, type) => {
     try {
-        if (!user || !user.id) {
-            return { code: 400, message: "Thiếu thông tin người dùng!" };
+        let query = null;
+        if (type === 'id') {
+            query = `SELECT * FROM tbl_users WHERE id = $1`;
+        } else {
+            query = `SELECT * FROM tbl_users WHERE acc_id = $1`;
         }
-
-        const { id } = user;
-        const query = `SELECT * FROM tbl_users WHERE acc_id = $1`;
         const { rows } = await pool.query(query, [id]);
-
-        if (!rows.length) return { code: 404, message: "Không tìm thấy người dùng!" };
         return { code: 200, message: "Thành công!", data: rows[0] };
     } catch (error) {
         return handleError(error);
