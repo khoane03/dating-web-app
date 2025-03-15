@@ -1,7 +1,8 @@
 import { axiosService } from "./axiosService";
 
-const getUserLogin = async () => {
-    return await axiosService.get("/user/info");
+const getUserLogin = async (id) => {
+    const endpoint = id ? `/user/info?id=${id}` : "/user/info";
+    return await axiosService.get(endpoint);
 };
 
 const changePassword = async (data) => {
