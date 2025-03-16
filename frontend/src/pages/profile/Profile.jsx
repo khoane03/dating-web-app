@@ -55,8 +55,10 @@ const Profile = () => {
   const checkUserLogin = async () => {
     try {
       const response = await getUserLogin();
-      if (response.data.id === Number(userId) || location.pathname === "/profile") {
-        setIsUserLogin(true);
+      if (res?.message !== "Không tìm thấy người dùng!") {
+        if (response.data.id === Number(userId) || location.pathname === "/profile") {
+          setIsUserLogin(true);
+        }
       }
     } catch (error) {
       console.error("Lỗi kiểm tra đăng nhập:", error);
@@ -140,7 +142,7 @@ const Profile = () => {
   const getLocation = async () => {
     try {
       setLoading(true);
-      const { latitude, longitude } = await getLocationService();  
+      const { latitude, longitude } = await getLocationService();
       const address = await getAddressService(latitude, longitude);
       console.log("Vị trí hiện tại:", latitude, longitude, address);
 
