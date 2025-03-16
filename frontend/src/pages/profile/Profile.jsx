@@ -170,8 +170,8 @@ const Profile = () => {
       {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">
-
-        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto ">
+  <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-hidden">
+    <div className="scroll-container">
           {/* ảnh đại diện */}
           <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
             <img
@@ -363,6 +363,7 @@ const Profile = () => {
           }
         </div>
       </div>
+    </div>
     </>
   );
 };

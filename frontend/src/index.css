@@ -28,4 +28,12 @@ body {
         transform: translateX(0%);
       }
     }
-  }
+}
+
+.scroll-container {
+  max-height: 90vh; /* Giới hạn chiều cao để thanh cuộn chỉ nằm trong container */
+  overflow-y: auto; /* Cho phép cuộn dọc */
+  padding: 1rem;
+  border-radius: 1.5rem; /* Bo góc cho container */
+  background-color: white; /* Đảm bảo nền đẹp khi bo góc */
+}
