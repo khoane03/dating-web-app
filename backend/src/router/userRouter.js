@@ -1,6 +1,6 @@
 import express from "express";
 import { 
-    getUserLogin, 
+    getUserById, 
     changePassword, 
     addOrUpdateProfile, 
     updateAvatar
@@ -14,5 +14,5 @@ export const userRouter = express.Router();
 userRouter.post("/upload_avatar", upload.single("avatar"), updateAvatar);
 
 userRouter.post("/add_profile", addOrUpdateProfile);
-userRouter.get("/info", getUserLogin);
+userRouter.get("/info", getUserById);
 userRouter.put("/change-password", changePassword);
