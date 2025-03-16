@@ -16,9 +16,9 @@ export const searchUsers = async ({ age, gender, distance, userLat, userLong}) =
         }
 
         if (userLat && userLong) {
-            queryParams.push(parseFloat(userLat)); // Add userLat
+            queryParams.push(parseFloat(userLat)); 
             const latIndex = queryParams.length;
-            queryParams.push(parseFloat(userLong)); // Add userLong
+            queryParams.push(parseFloat(userLong)); 
             const longIndex = queryParams.length;
 
             query = query.replace(
@@ -48,3 +48,4 @@ export const searchUsers = async ({ age, gender, distance, userLat, userLong}) =
         throw error;
     }
 };
+    

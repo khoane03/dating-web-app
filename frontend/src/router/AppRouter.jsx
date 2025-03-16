@@ -16,6 +16,7 @@ import NotFound from "../components/404/NotFound";
 import Tinder from "../components/card/Tinder";
 import IntroducePage from "../pages/IntroducePage/IntroducePage";
 import ListChat from "../components/chat/ListChat";
+import SearchInfo from "../components/search/SearchInfo";
 import Forgot from "../pages/auth/Forgot";
 import AuthForm from "../pages/auth/AuthForm";
 import AdminLogin from "../components/admin/login/AdminLogin";
@@ -44,8 +45,8 @@ function AppRouter() {
                 <Route path="/" element={<HomePage />}>
                     <Route index element={<Tinder />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="search" element={<SearchInfo />} />
                     <Route path="profile/:id" element={<Profile />} />
-                    <Route path="search" element={<Tinder />} />
                     <Route path="chat/:id" element={<ListChat />} />
                     <Route path="chat" element={<ListChat />} />
                     <Route path="add" element={<AddImages/>} />
