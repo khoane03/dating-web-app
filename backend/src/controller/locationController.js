@@ -8,7 +8,7 @@ export const updateUserLocation = async (req, res) => {
     const updatedUser = await LocationService.updateUserLocation(id, { address, latitude, longitude });
     res.status(200).json({
       message: 'Location updated successfully',
-      user: updatedUser,
+      user: updatedUser.data,
     });
   } catch (error) {
     console.error('Error updating location:', error);
@@ -20,10 +20,11 @@ export const updateUserLocation = async (req, res) => {
 };
 
 export const getUserLocation = async (req, res) => {
-  const { userId } = req.params;
+
+  const { id } = req.user;
 
   try {
-    const userLocation = await LocationService.getUserLocation(userId);
+    const userLocation = await LocationService.getUserLocation(id);
     res.status(200).json(userLocation);
   } catch (error) {
     console.error('Error fetching user location:', error);
