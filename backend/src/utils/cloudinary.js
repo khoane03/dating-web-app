@@ -2,7 +2,6 @@ import { cloudinary } from "../config/cloudinaryConfig";
 
 const handleCloudinaryUpload = async (file) => {
     const {secure_url} = await cloudinary.uploader.upload(file.path, {
-        folder: "avatar",
         public_id: file.filename,
         overwrite: true,
     });
