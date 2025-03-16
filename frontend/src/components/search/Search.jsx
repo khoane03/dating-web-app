@@ -54,7 +54,7 @@ const Search = ({ onSearch }) => {
   
     return (
         
-        <div className="bg-white p-6 rounded-lg shadow-lg w-80 border border-pink-300">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-80 border border-pink-300 overflow-y-auto scrollbar-left" style={{ maxHeight: 'calc(100vh - 150px)' }}>
             <ProfileLocation
               userId={currentUser.id}
               currentUserLat={currentUser.lat}

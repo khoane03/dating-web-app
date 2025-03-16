@@ -40,6 +40,7 @@ const HomePage = () => {
     const fetchUser = async () => {
       try {
         const res = await getUserLogin();
+        console.log(res);
         setInfo({
           name: res.data.full_name,
           avatar: res.data.avatar_url

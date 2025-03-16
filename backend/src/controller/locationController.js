@@ -5,7 +5,7 @@ export const updateUserLocation = async (req, res) => {
   const { address, latitude, longitude } = req.body;
 
   try {
-    const updatedUser = await LocationService.updateUserLocation(userId, { address, latitude, longitude });
+    const updatedUser = await LocationService.updateUserLocation(id, { address, latitude, longitude });
     res.status(200).json({
       message: 'Location updated successfully',
       user: updatedUser,

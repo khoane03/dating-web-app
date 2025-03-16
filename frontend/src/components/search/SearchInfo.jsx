@@ -53,7 +53,7 @@ const SearchInfo = () => {
 //   };
 
 return (
-      <div className="w-2/3  p-6 rounded-xl shadow-lg border">
+      <div>
         <h2 className="text-xl font-bold text-gray-700 mb-4">Kết Quả Tìm Kiếm</h2>
 
         {message && <p className="text-gray-500">{message}</p>}

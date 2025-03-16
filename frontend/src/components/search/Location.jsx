@@ -105,7 +105,7 @@ const ProfileLocation = ({ userId, currentUserLat, currentUserLong, targetLat, t
               address: newAddress,
             });
 
-            // Calculate distance to target user if targetUserId is provided
+            // Tính khoảng cách khi xác nhận id
             if (targetUserId) {
               try {
                 const targetLocation = await fetchUserLocation(targetUserId);
