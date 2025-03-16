@@ -1,10 +1,9 @@
-// src/routes/locationRouter.js
 import express from 'express';
-import { updateUserLocation, getUserLocation } from '../controllers/locationController.js';
+import { getUserLocation, updateUserLocation } from '../controller/locationController';
 
-const router = express.Router();
+const locationRoute = express.Router();
 
-router.put('/users/:userId/location', updateUserLocation);
-router.get('/users/:userId/location', getUserLocation);
+locationRoute.put('', updateUserLocation);
+locationRoute.get('', getUserLocation);
 
-export default router;
+export default locationRoute;

@@ -11,6 +11,7 @@ import { initAdmin } from './service/adminService.js';
 import { chatRouter } from './router/chatRouter.js';
 import http from 'http';
 import {setupWebSocket} from './controller/chatController.js';
+import locationRoute from './router/locationRouter.js';
 
 const app = express();
 
@@ -31,8 +32,9 @@ const startServer = async () => {
     app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter);
     app.use('/auth', authRouter);
     app.use('/user', authMiddleware, userRouter);
-    app.use('/api', searchRouter);
+    app.use('/api',authMiddleware, searchRouter);
     app.use('/chat', authMiddleware, chatRouter);
+    app.use('/location', authMiddleware, locationRoute);
 };
 
 
