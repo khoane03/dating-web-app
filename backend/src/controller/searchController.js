@@ -1,11 +1,10 @@
 import { searchUsers } from "../service/searchService.js";
 
 export const searchUsersHandler = async (req, res) => {
-  console.log("Received Query Params:", req.query); 
 
   const { age, gender, distance, userLat, userLong} = req.query; 
 
-  if (!age || !gender) {
+  if (!age) {
       return res.status(400).json({ error: "Thiếu thông tin tìm kiếm! Hãy nhập age, gender" });
   }
 
@@ -19,7 +18,7 @@ export const searchUsersHandler = async (req, res) => {
   }
 
   try {
-      const users = await searchUsers({ age: ageInt, gender: gender || null, distance: distanceInt, userLat: userLatFloat, userLong: userLongFloat, });
+      const users = await searchUsers({ age: ageInt, gender: gender === "Tất cả" ? null : gender, distance: distanceInt, userLat: userLatFloat, userLong: userLongFloat, });
 
       if (!Array.isArray(users)) {
         console.error("Lỗi: API không trả về mảng!", users);

@@ -5,10 +5,16 @@ import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import {
+  getLocation as getLocationService,
+  getAddress as getAddressService,
+  updateLocationUser
+} from "../../service/location";
 
 const Profile = () => {
 
+  const [isUserLogin, setIsUserLogin] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [dataUpdate, setDataUpdate] = useState({
@@ -32,7 +38,10 @@ const Profile = () => {
   // Thêm state để lưu dữ liệu chỉnh sửa
   const [editData, setEditData] = useState({ ...data });
   const [avatar, setAvatar] = useState(null);
-  
+  const userId = useParams().id;
+  const [loading, setLoading] = useState(false);
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -41,13 +50,27 @@ const Profile = () => {
     const year = date.getFullYear();
     return `${year}-${month}-${day}`;
   };
-  
+
+
+  const checkUserLogin = async () => {
+    try {
+      const response = await getUserLogin();
+      if (res?.message !== "Không tìm thấy người dùng!") {
+        if (response.data.id === Number(userId) || location.pathname === "/profile") {
+          setIsUserLogin(true);
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi kiểm tra đăng nhập:", error);
+    }
+  };
+
   // Fetch user info from API
   const getInfo = async () => {
     try {
-      const res = await getUserLogin();
-      if (res.message !== 'Không tìm thấy người dùng!') {
-
+      checkUserLogin();
+      const res = await getUserLogin(userId);
+      if (res?.message !== "Không tìm thấy người dùng!") {
         setData(res.data);
         setEditData(res.data);
       }
@@ -56,11 +79,12 @@ const Profile = () => {
     }
   };
 
+
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
       await updateUserProfile(editData);
-      if(avatar) await handleUploadImage();
+      if (avatar) await handleUploadImage();
       setSuccess("Hồ sơ đã được cập nhật!");
       setData(editData); //cập nhật lại data sau khi lưu
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
@@ -88,7 +112,7 @@ const Profile = () => {
     formData.append("id", data.id); // Thêm id vào form data
     formData.append("avatar", avatar); //  Thêm ảnh vào form data
     try {
-      
+
       const res = await avatarUpdate(formData);
       console.log("Kết quả tải ảnh lên:", res);
       setSuccess("Tải ảnh lên thành công!");
@@ -115,38 +139,25 @@ const Profile = () => {
     }
   };
 
-  const getAddress = async (lat, lng) => {
+  const getLocation = async () => {
     try {
-      const res = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-      );
-      const address = res.data.display_name;
-      console.log("Địa chỉ:", address);
-    } catch (error) {
-      console.error("Lỗi khi lấy địa chỉ:", error);
-    }
-  };
+      setLoading(true);
+      const { latitude, longitude } = await getLocationService();
+      const address = await getAddressService(latitude, longitude);
+      console.log("Vị trí hiện tại:", latitude, longitude, address);
 
-  const getLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log("Vị trí hiện tại:", latitude, longitude);
-          getAddress(latitude, longitude);
-        },
-        (error) => {
-          console.error("Lỗi khi lấy vị trí:", error);
-        }
-      );
-    } else {
-      console.error("Geolocation không được hỗ trợ bởi trình duyệt này.");
+      await updateLocationUser(address, latitude, longitude);
+      setSuccess("Cập nhật vị trí thành công!");
+    } catch (error) {
+      console.error("Lỗi khi lấy vị trí:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     getInfo();
-  }, [isUpdate]);
+  }, [isUpdate, userId]);
 
   return (
     <>
@@ -164,7 +175,7 @@ const Profile = () => {
               onError={(e) => { e.target.src = "/default.jpg"; }}
             />
           </div>
-       {/* Thêm nút chọn ảnh */}
+          {/* Thêm nút chọn ảnh */}
           {
             isUpdate && (
               <div className="mt-2">
@@ -276,10 +287,13 @@ const Profile = () => {
               onChange={(e) => setEditData({ ...editData, criteria: e.target.value })}
             />
 
-            <div className="flex items-center mt-2">
-              <span className="font-bold mr-2">Vị trí hiện tại: {data.address}</span>
-              <FontAwesomeIcon onClick={() => { getLocation(); }}
-                icon={faLocationDot} className="hover:text-blue-400 cursor-pointer text-2xl" />
+            <div className="flex  flex-col mx-2">
+              <span className="font-bold mr-2 mb-2">Vị trí hiện tại: </span>
+              <p>{data.address}</p>
+              {isUserLogin && <button onClick={getLocation} className="p-2 bg-green-300 hover:bg-green-200 rounded-2xl mt-2">
+                {!loading ? "Cập nhật vị trí" : "Đang cập nhật..."}
+                <FontAwesomeIcon icon={faLocationDot} className="hover:text-blue-400 cursor-pointer text-xl ml-2" />
+              </button>}
             </div>
 
           </div>
@@ -291,61 +305,63 @@ const Profile = () => {
             <p>Trạng thái xác minh: <span className="text-green-500">Đã xác minh</span></p>
           </div>
           {/*Cài đặt hồ sơ*/}
-          <div className="mt-4 text-gray-800">
-            <h2 className="text-lg font-semibold pb-2 border-b border-gray-200">Cài đặt hồ sơ</h2>
-            {isChangePassword && (
-              <>
-                <div className="mt-2 mb-6 border-gray-200">
-                  <label className="block text-gray-700 font-semibold mb-1">Mật khẩu cũ</label>
-                  <input
-                    type="text"
-                    onChange={(e) => setDataUpdate({ ...dataUpdate, oldPassword: e.target.value })}
-                    placeholder={'Nhập mật khẩu cũ'}
-                    className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-6 border-gray-200">
-                  <label className="block text-gray-700 font-semibold mb-1">Mật khẩu mới</label>
-                  <input
-                    type="text"
-                    onChange={(e) => setDataUpdate({ ...dataUpdate, newPassword: e.target.value })}
-                    placeholder={'Nhập mật khẩu mới'}
-                    className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-6 border-gray-200">
-                  <label className="block text-gray-700 font-semibold mb-1">Xác nhận mật khẩu</label>
-                  <input
-                    type="text"
-                    onChange={(e) => setDataUpdate({ ...dataUpdate, confirmPassword: e.target.value })}
-                    placeholder={'Nhập lại mật khẩu mới'}
-                    className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
-                  />
-                </div>
-              </>
-            )}
+          {isUserLogin &&
+            <div className="mt-4 text-gray-800">
+              <h2 className="text-lg font-semibold pb-2 border-b border-gray-200">Cài đặt hồ sơ</h2>
+              {isChangePassword && (
+                <>
+                  <div className="mt-2 mb-6 border-gray-200">
+                    <label className="block text-gray-700 font-semibold mb-1">Mật khẩu cũ</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDataUpdate({ ...dataUpdate, oldPassword: e.target.value })}
+                      placeholder={'Nhập mật khẩu cũ'}
+                      className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
+                    />
+                  </div>
+                  <div className="mb-6 border-gray-200">
+                    <label className="block text-gray-700 font-semibold mb-1">Mật khẩu mới</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDataUpdate({ ...dataUpdate, newPassword: e.target.value })}
+                      placeholder={'Nhập mật khẩu mới'}
+                      className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
+                    />
+                  </div>
+                  <div className="mb-6 border-gray-200">
+                    <label className="block text-gray-700 font-semibold mb-1">Xác nhận mật khẩu</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDataUpdate({ ...dataUpdate, confirmPassword: e.target.value })}
+                      placeholder={'Nhập lại mật khẩu mới'}
+                      className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
+                    />
+                  </div>
+                </>
+              )}
 
-            <div className="flex justify-between border-t pt-4 border-gray-200">
-              <button onClick={() => {
-                isChangePassword ? handleChangePassword() : setIsChangePassword(true);
-              }}
-                className="p-2 bg-red-300 hover:bg-red-200 rounded-xl font-semibold" >
-                {isChangePassword ? "Cập nhật" : "Đổi mật khẩu"}
-              </button>
-              <button onClick={() => {
-                if (isUpdate) handleUpdateProfile(); // Lưu thông tin khi bấm Lưu
-                setIsUpdate(!isUpdate);
-              }}
-                className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold">
-                {isUpdate ? "Lưu" : "Chỉnh sửa"}
-              </button>
+              <div className="flex justify-between border-t pt-4 border-gray-200">
+                <button onClick={() => {
+                  isChangePassword ? handleChangePassword() : setIsChangePassword(true);
+                }}
+                  className="p-2 bg-red-300 hover:bg-red-200 rounded-xl font-semibold" >
+                  {isChangePassword ? "Cập nhật" : "Đổi mật khẩu"}
+                </button>
+                <button onClick={() => {
+                  if (isUpdate) handleUpdateProfile(); // Lưu thông tin khi bấm Lưu
+                  setIsUpdate(!isUpdate);
+                }}
+                  className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold">
+                  {isUpdate ? "Lưu" : "Chỉnh sửa"}
+                </button>
 
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
     </>
   );
 };
 
-export default Profile;   
+export default Profile;
