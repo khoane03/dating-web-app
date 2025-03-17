@@ -1,8 +1,19 @@
 import { axiosService } from "./axiosService";
 
 const getChat = async (receiver_id) => {
-    console.log(receiver_id);
-    return await axiosService.get(`/chat`, { params: { receiver_id }});
+    return await axiosService.get(`/chat`, { params: { receiver_id } });
 };
 
-export { getChat };
+const getListChat = async () => {
+    return await axiosService.get(`/chat/list-chat`);
+};
+
+const getInfoUserChat = async (receiver_id) => {
+    return await axiosService.get(`/chat/info-chat`,  { params: { receiver_id } });
+};
+
+export {
+    getChat,
+    getListChat,
+    getInfoUserChat
+};

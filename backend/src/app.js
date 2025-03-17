@@ -10,29 +10,36 @@ import { ROLES } from './utils/appConstants.js';
 import { initAdmin } from './service/adminService.js';
 import { chatRouter } from './router/chatRouter.js';
 import http from 'http';
-import {setupWebSocket} from './controller/chatController.js';
+import { setupWebSocket } from './config/websocketConfig.js';
 
 const app = express();
+const server = http.createServer(app);
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
-})
-);
-app.use("/uploads", express.static("uploads")); // Cho phép truy cập ảnh trực tiếp
+}));
+app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter);
+app.use('/auth', authRouter);
+app.use('/user', authMiddleware, userRouter);
+app.use('/api',authMiddleware, searchRouter);
+app.use('/chat', authMiddleware, chatRouter);
+
+const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
-    // Khởi tạo admin trước khi chạy server
     await initAdmin();
-
-    app.use('/admin', authMiddleware, authRole(ROLES.ADMIN), adminRouter);
-    app.use('/auth', authRouter);
-    app.use('/user', authMiddleware, userRouter);
-    app.use('/api', searchRouter);
-    app.use('/chat', authMiddleware, chatRouter);
+    
+    server.listen(PORT, () => {
+        console.log(`✅ Server is running on port ${PORT}`);
+        
+        setupWebSocket(server);
+        console.log("✅ WebSocket Server Initialized");
+    });
 };
 
 startServer();
+
 export const viteNodeApp = app;

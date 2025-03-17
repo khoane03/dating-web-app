@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
-import { changePassword, getUserLogin, updateUserProfile } from "../../service/userService";
+import { changePassword, getUserLogin, updateUserProfile, avatarUpdate } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-
 
 const Profile = () => {
 
@@ -32,6 +31,7 @@ const Profile = () => {
   });
   // Thêm state để lưu dữ liệu chỉnh sửa
   const [editData, setEditData] = useState({ ...data });
+  const [avatar, setAvatar] = useState(null);
   
 
   const formatDate = (dateString) => {
@@ -41,25 +41,59 @@ const Profile = () => {
     const year = date.getFullYear();
     return `${year}-${month}-${day}`;
   };
-
+  
+  // Fetch user info from API
   const getInfo = async () => {
     try {
       const res = await getUserLogin();
-      setData(res.data);
-      setEditData(res.data);
+      if (res.message !== 'Không tìm thấy người dùng!') {
+
+        setData(res.data);
+        setEditData(res.data);
+      }
     } catch (error) {
       console.error("Lỗi lấy dữ liệu:", error);
     }
   };
+
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
       await updateUserProfile(editData);
+      if(avatar) await handleUploadImage();
       setSuccess("Hồ sơ đã được cập nhật!");
       setData(editData); //cập nhật lại data sau khi lưu
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
     } catch (error) {
       setError("Lỗi khi cập nhật hồ sơ: " + error.response?.data?.message || error.message);
+    }
+  };
+
+  // Hàm chọn ảnh
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setEditData({ ...editData, avatar_url: URL.createObjectURL(file) }); // Hiển thị ảnh đã chọn
+    }
+  };
+
+  // Hàm tải ảnh lên
+  const handleUploadImage = async () => {
+    if (!avatar) {
+      setError("Vui lòng chọn ảnh cần tải lên!");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("id", data.id); // Thêm id vào form data
+    formData.append("avatar", avatar); //  Thêm ảnh vào form data
+    try {
+      
+      const res = await avatarUpdate(formData);
+      console.log("Kết quả tải ảnh lên:", res);
+      setSuccess("Tải ảnh lên thành công!");
+    } catch (error) {
+      setError("Lỗi khi tải ảnh lên: " + error.response?.data?.message || error.message);
     }
   };
 
@@ -78,7 +112,6 @@ const Profile = () => {
       setSuccess(res.message);
     } catch (error) {
       setError(error.response.data.message);
-
     }
   };
 
@@ -88,12 +121,11 @@ const Profile = () => {
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
       );
       const address = res.data.display_name;
-      console.log("Địa chỉ:", address); 
-      
+      console.log("Địa chỉ:", address);
     } catch (error) {
       console.error("Lỗi khi lấy địa chỉ:", error);
     }
-  }
+  };
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -102,7 +134,6 @@ const Profile = () => {
           const { latitude, longitude } = position.coords;
           console.log("Vị trí hiện tại:", latitude, longitude);
           getAddress(latitude, longitude);
-          
         },
         (error) => {
           console.error("Lỗi khi lấy vị trí:", error);
@@ -123,7 +154,7 @@ const Profile = () => {
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">
 
-        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto ">
           {/* ảnh đại diện */}
           <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
             <img
@@ -133,22 +164,40 @@ const Profile = () => {
               onError={(e) => { e.target.src = "/default.jpg"; }}
             />
           </div>
-
+       {/* Thêm nút chọn ảnh */}
+          {
+            isUpdate && (
+              <div className="mt-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="avatar"
+                  onChange={handleImageChange}
+                />
+                <label
+                  htmlFor="avatar"
+                  className="block text-center bg-blue-500 text-white p-2 rounded-lg cursor-pointer hover:bg-blue-400"
+                >
+                  Chọn ảnh
+                </label>
+              </div>
+            )
+          }
           {/* Thông tin cá nhân */}
           <div className="text-center mt-4 text-gray-800">
-            <div className="flex items-center justify-center ">
+            <div className="flex items-center justify-center">
               {isUpdate ? <input
                 type="text"
-                className="font-semibold text-center focus:ring focus:ring-blue-300 "
+                className="font-semibold text-center focus:ring focus:ring-blue-300"
                 value={editData.full_name || ""}
                 onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
               /> : <span className="text-3xl font-semibold">{data.full_name}</span>}
-              <div className="flex items-center ">
+              <div className="flex items-center">
                 <span className="mr-2 text-2xl font-bold">, {data.age}</span>
                 <FaCheckCircle className="text-green-500 text-2xl" />
               </div>
             </div>
-
 
             <div className="mt-2 space-y-2">
               <p className="flex justify-center items-center gap-2">
@@ -236,22 +285,12 @@ const Profile = () => {
           </div>
 
 
-          {/* Ảnh & Album */}
-          <div className="mt-4 text-gray-800">
-            <h2 className="text-lg font-semibold">Ảnh & Album</h2>
-            <input type="file" accept="image/*" className="hidden" />
-            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
-              Tải ảnh lên
-            </button>
-          </div>
-
           {/* Xác minh tài khoản */}
           <div className="mt-4 text-gray-800">
             <h2 className="text-lg font-semibold">Xác minh tài khoản</h2>
             <p>Trạng thái xác minh: <span className="text-green-500">Đã xác minh</span></p>
           </div>
-
-          {/* Cài đặt */}
+          {/*Cài đặt hồ sơ*/}
           <div className="mt-4 text-gray-800">
             <h2 className="text-lg font-semibold pb-2 border-b border-gray-200">Cài đặt hồ sơ</h2>
             {isChangePassword && (
@@ -307,7 +346,6 @@ const Profile = () => {
       </div>
     </>
   );
-
 };
 
 export default Profile;   

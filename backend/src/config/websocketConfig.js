@@ -7,25 +7,36 @@ export const setupWebSocket = (server) => {
   const wss = new WebSocketServer({ server });
 
   wss.on('connection', (ws, req) => {
-    console.log('User connected via WebSocket');
-
     ws.on('message', async (data) => {
       try {
-        const message = JSON.parse(data);
+        const parsedData = JSON.parse(data);
+        const type = parsedData.type;
 
-        switch (message.type) {
+        switch (type) {
+
           case 'join':
-            const userId = message.userId;
+            const userId = parsedData.userId;
+            if (!userId) {
+              throw new Error('User ID is missing in join message');
+            }
             users.set(userId, ws);
             ws.userId = userId;
             console.log(`User ${userId} joined`);
             break;
 
           case 'sendMessage':
-            const { sender_id, receiver_id, message } = message.data;
-            const savedMessage = await saveMess(sender_id, receiver_id, message);
 
-            const receiverWs = users.get(receiver_id);
+            const messageData = parsedData.data;
+            if (!messageData) {
+              throw new Error('Message data is missing');
+            }
+            const { sender_id, receiver_id, message } = messageData;
+
+            // Lưu tin nhắn vào CSDL
+            const savedMessage = await saveMess(sender_id, receiver_id, message);
+            
+            // Gửi tin nhắn đến người nhận
+            const receiverWs = users.get(Number(receiver_id));
             if (receiverWs) {
               receiverWs.send(
                 JSON.stringify({
@@ -35,6 +46,7 @@ export const setupWebSocket = (server) => {
               );
             }
 
+            // Gửi lại tin nhắn cho người gửi (để xác nhận)
             ws.send(
               JSON.stringify({
                 type: 'receiveMessage',
@@ -44,14 +56,14 @@ export const setupWebSocket = (server) => {
             break;
 
           default:
-            console.log('Unknown message type:', message.type);
+            console.log('Unknown message type:', type);
         }
       } catch (error) {
-        console.error('Error processing WebSocket message:', error);
+        console.error('WebSocket error:', error);
         ws.send(
           JSON.stringify({
             type: 'error',
-            data: { message: 'Failed to process message' },
+            data: { message: 'Failed to process message', error: error.message },
           })
         );
       }
@@ -62,6 +74,7 @@ export const setupWebSocket = (server) => {
       users.forEach((value, key) => {
         if (value === ws) users.delete(key);
       });
+      console.log('users online:', users.size);
     });
 
     ws.on('error', (error) => {
