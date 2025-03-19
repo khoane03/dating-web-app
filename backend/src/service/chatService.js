@@ -1,7 +1,5 @@
 import pool from "../config/dbConfig";
-export const saveMess = async (id, receiverId, message) => {
-    const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
-    const sender_id = res.rows[0].id;
+export const saveMess = async (sender_id, receiverId, message) => {
     try {
         const query = `
     INSERT INTO tbl_message (sender_id, receiver_id, message) 
@@ -18,33 +16,78 @@ export const saveMess = async (id, receiverId, message) => {
 
 export const getMess = async (id, receiver_id) => {
     try {
-        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
-        const sender_id = res.rows[0].id;
-        const query = `
-                SELECT
-            chat.sender_id,
-            chat.receiver_id,
-            chat.message,
-            user_b.full_name as receiver_name,
-            user_b.avatar_url as receiver_avatar
+        const sender_id = await getUserIdByAccId(id);
+        const query = `SELECT *
         FROM
-            tbl_message as chat
-            JOIN tbl_users as user_a ON user_a.id = chat.sender_id
-            JOIN tbl_users as user_b ON user_b.id = chat.receiver_id
+            tbl_message
         WHERE
-            (chat.sender_id = $1 AND chat.receiver_id = $2)
-            OR (chat.sender_id = $2 AND chat.receiver_id = $1)
-        ORDER BY sent_at ASC;
-        `;
-        const values = [receiver_id, sender_id];  
+            (sender_id = $1 AND receiver_id = $2)
+            OR (sender_id = $2 AND receiver_id = $1)
+        ORDER BY sent_at ASC; `;
+        const values = [receiver_id, sender_id];
         const { rows } = await pool.query(query, values);
         return handleSuccess(200, "Thành công", rows);
     } catch (error) {
         return handleError(error);
     }
-
-
 }
+
+export const getInfoChat = async (receiver_id) => {
+    try {
+        const { rows } = await pool.query("SELECT id, full_name, avatar_url FROM tbl_users WHERE id = $1",
+            [receiver_id]);
+        return handleSuccess(200, "Thành công", rows[0]);
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+export const getListChat = async (id) => {
+    try {
+        const sender_id = await getUserIdByAccId(id);
+        const { rows } = await pool.query(`
+            SELECT DISTINCT ON (chat_partner.user_id) 
+                chat_partner.user_id AS chat_id,
+                chat_partner.full_name,
+                chat_partner.avatar_url
+            FROM (
+                SELECT 
+                    receiver.id AS user_id, 
+                    receiver.full_name, 
+                    receiver.avatar_url,
+                    msg.sent_at
+                FROM tbl_message msg
+                JOIN tbl_users receiver ON msg.receiver_id = receiver.id
+                WHERE msg.sender_id = $1 
+
+                UNION
+
+                SELECT 
+                    sender.id AS user_id, 
+                    sender.full_name, 
+                    sender.avatar_url,
+                    msg.sent_at
+                FROM tbl_message msg
+                JOIN tbl_users sender ON msg.sender_id = sender.id
+                WHERE msg.receiver_id = $1 
+            ) AS chat_partner
+            ORDER BY chat_partner.user_id, chat_partner.sent_at DESC;
+`, [sender_id]);
+        return handleSuccess(200, "Thành công", rows);
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+const getUserIdByAccId = async (id) => {
+    try {
+        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
+        const sender_id = res.rows[0].id;
+        return sender_id;
+    } catch (error) {
+        return handleError(error);
+    }
+};
 
 
 const handleSuccess = (code, message, data) => {

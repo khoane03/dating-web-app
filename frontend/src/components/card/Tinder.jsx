@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import TinderCard from "react-tinder-card";
 import { IoClose, IoHeart, IoStar, IoArrowRedo, IoRefresh } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { axiosService } from '../../service/axiosService'; 
 
 
 // Danh sách hồ sơ mẫu
