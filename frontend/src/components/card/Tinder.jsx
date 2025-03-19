@@ -3,6 +3,7 @@ import TinderCard from "react-tinder-card";
 import { IoClose, IoHeart, IoStar, IoArrowRedo, IoRefresh } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
+
 // Danh sách hồ sơ mẫu
 const profiles = [
   { id: 1, name: "Vie, 19", distance: "Cách xa 8 km", image: "/hinh1.png" },
@@ -10,8 +11,8 @@ const profiles = [
   { id: 3, name: "Linh, 22", distance: "Cách xa 3 km", image: "/hinh3.png" },
 ];
 
-// Ensure the path to your image is correct
-const currentUser = { id: 0, name: "You", image: "/your_image.png" };
+// Đảm bảo đường dẫn hình ảnh của bạn chính xác
+const currentUser = { id: 0, name: "Bạn", image: "/your_image.png" };
 
 const TinderSwipe = () => {
   const navigate = useNavigate();
@@ -49,18 +50,18 @@ const TinderSwipe = () => {
       setSuperLikeVisible(true);
       setSuperLikedProfile(profiles[currentIndex]);
       setTimeout(() => setSuperLikeVisible(false), 2000);
-      // Handle super like logic here
+      // Xử lý logic Super Like tại đây
     } else if (direction === "down") {
       navigate('/chat'); // Chuyển hướng đến trang chat
     }
   };
 
-  // Hàm xử lý khi nhấn nút làm mới (refresh button)
+  // Hàm xử lý khi nhấn nút làm mới (nút refresh)
   const handleRefresh = () => {
     if (currentIndex < profiles.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      setCurrentIndex(0); // Reset to the first profile if at the end
+      setCurrentIndex(0); // Quay lại hồ sơ đầu tiên nếu đã đến cuối danh sách
     }
   };
 
@@ -80,7 +81,7 @@ const TinderSwipe = () => {
               {/* Hình ảnh hồ sơ */}
               <img
                 src={profile.image}
-                alt="Profile"
+                alt="Hồ sơ"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               
@@ -107,7 +108,7 @@ const TinderSwipe = () => {
                 >
                   <IoHeart className="text-green-500" size={28} />
                 </button>
-                {/* Nút ưu tiên (siêu like) */}
+                {/* Nút ưu tiên (siêu thích) */}
                 <button
                   onClick={() => handleSwipe("up")}
                   className="p-3 bg-gray-700 rounded-full"
@@ -133,6 +134,8 @@ const TinderSwipe = () => {
           </TinderCard>
         ))}
       </div>
+
+      {/* Hiển thị thông báo Super Like */}
       {superLikeVisible && superLikedProfile && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded-lg shadow-lg text-center relative">
@@ -140,9 +143,8 @@ const TinderSwipe = () => {
             <div className="flex justify-center items-center mb-4">
               <img
                 src={superLikedProfile.image}
-                alt="Profile"
+                alt="Hồ sơ"
                 className="w-48 h-48 rounded-full border-4 border-blue-500"
-                onError={(e) => { e.target.src = "/default.jpg"; }} // Fallback image
               />
             </div>
             <p className="text-lg">{superLikedProfile.name}, {superLikedProfile.distance}</p>
@@ -150,36 +152,25 @@ const TinderSwipe = () => {
               onClick={() => setSuperLikeVisible(false)}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
             >
-              Close
+              Đóng
             </button>
           </div>
         </div>
       )}
+
+      {/* Hiển thị thông báo trùng khớp (Match) */}
       {match && matchedProfile && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-            <h2 className="text-2xl font-bold mb-4">It's a Match!</h2>
+            <h2 className="text-2xl font-bold mb-4">Bạn đã ghép đôi!</h2>
             <div className="flex justify-center items-center mb-4">
-              <img
-                src={currentUser.image}
-                alt="Your Profile"
-                className="w-24 h-24 rounded-full border-4 border-green-500"
-                onError={(e) => { e.target.src = "/default.jpg"; }} // Fallback image
-              />
+              <img src={currentUser.image} alt="Hồ sơ của bạn" className="w-24 h-24 rounded-full border-4 border-green-500" />
               <span className="mx-4 text-4xl font-bold text-green-500">❤️</span>
-              <img
-                src={matchedProfile.image}
-                alt="Matched Profile"
-                className="w-24 h-24 rounded-full border-4 border-green-500"
-                onError={(e) => { e.target.src = "/default.jpg"; }} // Fallback image
-              />
+              <img src={matchedProfile.image} alt="Hồ sơ ghép đôi" className="w-24 h-24 rounded-full border-4 border-green-500" />
             </div>
-            <p className="text-lg">You and {matchedProfile.name} have liked each other.</p>
-            <button
-              onClick={() => setMatch(false)}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              Close
+            <p className="text-lg">Bạn và {matchedProfile.name} đã thích nhau.</p>
+            <button onClick={() => setMatch(false)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+              Đóng
             </button>
           </div>
         </div>

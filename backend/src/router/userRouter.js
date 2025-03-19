@@ -16,3 +16,4 @@ userRouter.post("/upload_avatar", upload.single("avatar"), updateAvatar);
 userRouter.post("/add_profile", addOrUpdateProfile);
 userRouter.get("/info", getUserById);
 userRouter.put("/change-password", changePassword);
+router.post('/reaction', saveUserReaction);

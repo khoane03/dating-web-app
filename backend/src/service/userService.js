@@ -82,6 +82,19 @@ export const updateAvatar = async (id, avatarUrl) => {
         return handleError(error);
     }
 };
+// lưu phản ứng
+export const saveReaction = async (userId, targetUserId, reactionType) => {
+    try {
+      const query = `
+        INSERT INTO tbl_reaction (reaction_type, target_user_id, user_id)
+        VALUES ($1, $2, $3)
+      `;
+      await pool.query(query, [reactionType, targetUserId, userId]);
+      return { code: 200, message: "Phản ứng đã được lưu thành công!" };
+    } catch (error) {
+      throw new Error('Lỗi khi lưu phản ứng: ' + error.message);
+    }
+  };
 
 
 
