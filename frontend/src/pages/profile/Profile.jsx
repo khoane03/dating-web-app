@@ -55,8 +55,10 @@ const Profile = () => {
   const checkUserLogin = async () => {
     try {
       const response = await getUserLogin();
+      console.log("Kiểm tra đăng nhập:", response);
+      if (location.pathname === "/profile") setIsUserLogin(true);
       if (response?.message !== "Không tìm thấy người dùng!") {
-        if (response.data.id === Number(userId) || location.pathname === "/profile") {
+        if (response.data.id === Number(userId)) {
           setIsUserLogin(true);
         }
       }
