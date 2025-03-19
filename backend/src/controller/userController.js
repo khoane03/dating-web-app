@@ -39,7 +39,7 @@ export const getUserById = async (req, res) => {
     }
     const result = await getUserService(id, type);
     return apiResponse(res, 200, result.message, result.data);
-}
+};
 
 
 
@@ -49,5 +49,16 @@ export const changePassword = async (req, res) => {
     const result = await changePasswordService(id, oldPassword, newPassword);
     return apiResponse(res, result.code, result.message);
 
-}
+};
+
+export const saveUserReaction = async (req, res) => {
+    try {
+      const { userId, targetUserId, reactionType } = req.body;
+      const result = await saveReaction(userId, targetUserId, reactionType);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Lỗi khi lưu phản ứng:', error);
+      res.status(500).json({ message: 'Lỗi khi lưu phản ứng.' });
+    }
+  };
 

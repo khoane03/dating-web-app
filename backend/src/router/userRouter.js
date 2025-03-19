@@ -3,7 +3,9 @@ import {
     getUserById, 
     changePassword, 
     addOrUpdateProfile, 
-    updateAvatar
+    updateAvatar,
+    saveUserReaction
+
 } from "../controller/userController.js";
 import { upload } from "../config/cloudinaryConfig.js";
 
@@ -16,3 +18,4 @@ userRouter.post("/upload_avatar", upload.single("avatar"), updateAvatar);
 userRouter.post("/add_profile", addOrUpdateProfile);
 userRouter.get("/info", getUserById);
 userRouter.put("/change-password", changePassword);
+userRouter.post('/reaction', saveUserReaction);

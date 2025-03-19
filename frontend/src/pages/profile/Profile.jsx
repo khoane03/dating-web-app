@@ -5,12 +5,8 @@ import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import { useParams } from "react-router-dom";
-import {
-  getLocation as getLocationService,
-  getAddress as getAddressService,
-  updateLocationUser
-} from "../../service/location";
 
 const Profile = () => {
 
@@ -39,7 +35,6 @@ const Profile = () => {
   const [editData, setEditData] = useState({ ...data });
   const [avatar, setAvatar] = useState(null);
   const userId = useParams().id;
-  const [loading, setLoading] = useState(false);
 
 
 
@@ -55,12 +50,14 @@ const Profile = () => {
   const checkUserLogin = async () => {
     try {
       const response = await getUserLogin();
+
       console.log("Kiểm tra đăng nhập:", response);
       if (location.pathname === "/profile") setIsUserLogin(true);
       if (response?.message !== "Không tìm thấy người dùng!") {
         if (response.data.id === Number(userId)) {
           setIsUserLogin(true);
         }
+
       }
     } catch (error) {
       console.error("Lỗi kiểm tra đăng nhập:", error);
@@ -141,19 +138,32 @@ const Profile = () => {
     }
   };
 
-  const getLocation = async () => {
+  const getAddress = async (lat, lng) => {
     try {
-      setLoading(true);
-      const { latitude, longitude } = await getLocationService();
-      const address = await getAddressService(latitude, longitude);
-      console.log("Vị trí hiện tại:", latitude, longitude, address);
-
-      await updateLocationUser(address, latitude, longitude);
-      setSuccess("Cập nhật vị trí thành công!");
+      const res = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const address = res.data.display_name;
+      console.log("Địa chỉ:", address);
     } catch (error) {
-      console.error("Lỗi khi lấy vị trí:", error);
-    } finally {
-      setLoading(false);
+      console.error("Lỗi khi lấy địa chỉ:", error);
+    }
+  };
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Vị trí hiện tại:", latitude, longitude);
+          getAddress(latitude, longitude);
+        },
+        (error) => {
+          console.error("Lỗi khi lấy vị trí:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation không được hỗ trợ bởi trình duyệt này.");
     }
   };
 
@@ -166,8 +176,8 @@ const Profile = () => {
       {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">
-
-        <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-y-auto ">
+  <div className="relative w-96 bg-white rounded-3xl shadow-lg p-6 max-h-[90vh] overflow-hidden">
+    <div className="scroll-container">
           {/* ảnh đại diện */}
           <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
             <img
@@ -289,13 +299,10 @@ const Profile = () => {
               onChange={(e) => setEditData({ ...editData, criteria: e.target.value })}
             />
 
-            <div className="flex  flex-col mx-2">
-              <span className="font-bold mr-2 mb-2">Vị trí hiện tại: </span>
-              <p>{data.address}</p>
-              {isUserLogin && <button onClick={getLocation} className="p-2 bg-green-300 hover:bg-green-200 rounded-2xl mt-2">
-                {!loading ? "Cập nhật vị trí" : "Đang cập nhật..."}
-                <FontAwesomeIcon icon={faLocationDot} className="hover:text-blue-400 cursor-pointer text-xl ml-2" />
-              </button>}
+            <div className="flex items-center mt-2">
+              <span className="font-bold mr-2">Vị trí hiện tại: {data.address}</span>
+              <FontAwesomeIcon onClick={() => { getLocation(); }}
+                icon={faLocationDot} className="hover:text-blue-400 cursor-pointer text-2xl" />
             </div>
 
           </div>
@@ -362,6 +369,7 @@ const Profile = () => {
           }
         </div>
       </div>
+    </div>
     </>
   );
 };
