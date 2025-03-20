@@ -1,181 +1,146 @@
-import React, { useState, useRef } from "react";
-import TinderCard from "react-tinder-card";
-import { IoClose, IoHeart, IoStar, IoArrowRedo, IoRefresh } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
-import { axiosService } from '../../service/axiosService'; 
-
-
-// Danh sách hồ sơ mẫu
-const profiles = [
-  { id: 1, name: "Vie, 19", distance: "Cách xa 8 km", image: "/hinh1.png" },
-  { id: 2, name: "Anna, 21", distance: "Cách xa 5 km", image: "/hinh2.png" },
-  { id: 3, name: "Linh, 22", distance: "Cách xa 3 km", image: "/hinh3.png" },
-];
-
-// Đảm bảo đường dẫn hình ảnh của bạn chính xác
-const currentUser = { id: 0, name: "Bạn", image: "/your_image.png" };
+import React, { useState, useEffect } from "react";
+import { IoClose, IoHeart, IoRefresh } from "react-icons/io5";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFaceGrin } from "@fortawesome/free-solid-svg-icons";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { getAllPosts } from "../../service/postService";
 
 const TinderSwipe = () => {
-  const navigate = useNavigate();
-  // State để theo dõi chỉ số hồ sơ hiện tại (bắt đầu từ hồ sơ cuối cùng)
-  const [currentIndex, setCurrentIndex] = useState(profiles.length - 1);
-  const [likeVisible, setLikeVisible] = useState(false);
-  const [superLikeVisible, setSuperLikeVisible] = useState(false);
-  const [match, setMatch] = useState(false);
-  const [matchedProfile, setMatchedProfile] = useState(null);
-  const [superLikedProfile, setSuperLikedProfile] = useState(null);
+  const [groupedPosts, setGroupedPosts] = useState([]);
+  const [currentUserIndex, setCurrentUserIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState({});
+
+  const handleMatch = (userId) => {
+    console.log("Liked user:", userId);
+    try {
+      
+    } catch (error) {
+      console.error("API Error:", error);
+      
+    }
+  };
   
-  // useRef để lưu trữ tham chiếu đến các thẻ TinderCard
-  const cardRefs = useRef([]);
 
-  // Hàm xử lý khi người dùng vuốt (hiển thị trong console)
-  const swiped = (direction, index) => {
-    console.log(`Đã vuốt ${direction} vào ${profiles[index].name}`);
-  };
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await getAllPosts();
 
-  // Hàm xử lý khi nhấn nút thao tác (trái/phải)
-  const handleSwipe = (direction) => {
-    if (direction === "right") {
-      setLikeVisible(true);
-      setTimeout(() => setLikeVisible(false), 1000);
-      setMatch(true);
-      setMatchedProfile(profiles[currentIndex]);
-      if (currentIndex < profiles.length - 1) {
-        setCurrentIndex(currentIndex + 1);
+        // Gộp các bài đăng theo user_id
+        const grouped = Object.values(
+          res.data.reduce((acc, post) => {
+            if (!acc[post.user_id]) {
+              acc[post.user_id] = { user_id: post.user_id, full_name: post.full_name, images: [] };
+            }
+            acc[post.user_id].images.push(post.image_url);
+            return acc;
+          }, {})
+        );
+
+        setGroupedPosts(grouped);
+
+        // Khởi tạo state currentIndex cho từng user
+        const initialIndex = grouped.reduce((acc, user) => {
+          acc[user.user_id] = 0;
+          return acc;
+        }, {});
+        setCurrentIndex(initialIndex);
+      } catch (error) {
+        console.error("API Error:", error);
       }
-    } else if (direction === "left") {
-      if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleButton = (userId, direction) => {
+    setCurrentIndex((prev) => {
+      const totalImages = groupedPosts.find((user) => user.user_id === userId)?.images.length || 0;
+      let newIndex = prev[userId];
+
+      if (direction === "prev") {
+        newIndex = newIndex > 0 ? newIndex - 1 : totalImages - 1;
+      } else if (direction === "next") {
+        newIndex = newIndex < totalImages - 1 ? newIndex + 1 : 0;
       }
-    } else if (direction === "up") {
-      setSuperLikeVisible(true);
-      setSuperLikedProfile(profiles[currentIndex]);
-      setTimeout(() => setSuperLikeVisible(false), 2000);
-      // Xử lý logic Super Like tại đây
-    } else if (direction === "down") {
-      navigate('/chat'); // Chuyển hướng đến trang chat
-    }
+
+      return { ...prev, [userId]: newIndex };
+    });
   };
 
-  // Hàm xử lý khi nhấn nút làm mới (nút refresh)
-  const handleRefresh = () => {
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentIndex(0); // Quay lại hồ sơ đầu tiên nếu đã đến cuối danh sách
-    }
+  // Chuyển sang người tiếp theo
+  const handleNextUser = () => {
+    setCurrentUserIndex((prev) => (prev < groupedPosts.length - 1 ? prev + 1 : 0));
   };
+
+  if (groupedPosts.length === 0) {
+    return <div className="text-white text-center">Đang tải...</div>;
+  }
+
+  const profile = groupedPosts[currentUserIndex];
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="relative w-[400px] h-[600px]">  
-        {/* Hiển thị danh sách hồ sơ */}
-        {profiles.map((profile, index) => (
-          <TinderCard
-            key={profile.id}
-            ref={(el) => (cardRefs.current[index] = el)} // Lưu tham chiếu vào useRef
-            onSwipe={(dir) => swiped(dir, index)} // Gọi hàm khi vuốt
-            preventSwipe={["down"]} // Chặn vuốt xuống
-            className={`absolute w-full h-full ${index === currentIndex ? "" : "hidden"}`} // Chỉ hiển thị hồ sơ hiện tại
-          >
-            <div className="relative w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl">
-              {/* Hình ảnh hồ sơ */}
-              <img
-                src={profile.image}
-                alt="Hồ sơ"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              
-              {/* Thông tin hồ sơ */}
-              <div className="absolute bottom-[80px] left-4 bg-transparent bg-opacity-50 p-4 rounded-lg">
-                <span className="bg-green-500 px-2 py-1 rounded-full text-xs">Gần xung quanh</span>
-                <h1 className="text-4xl font-bold">{profile.name}</h1>
-                <p className="text-sm">{profile.distance}</p>
-              </div>
+      <div className="relative w-[400px] h-[600px]">
+        <div key={profile.user_id} className="relative group w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl">
+          {/* Hiển thị ảnh theo `currentIndex[user_id]` */}
+          <img
+            src={profile.images[currentIndex[profile.user_id]]}
+            alt="Hồ sơ"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
 
-              {/* Các nút thao tác */}
-              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4">
-                {/* Nút từ chối */}
+          {/* Thanh điều hướng ảnh */}
+          {profile.images.length > 1 &&
+            <div className="mt-2 flex justify-center w-full h-2 bg-[#434B54] rounded-3xl px-2 absolute top-2">
+              {profile.images.map((_, index) => (
                 <button
-                  onClick={() => handleSwipe("left")}
-                  className="p-3 bg-gray-700 rounded-full"
-                >
-                  <IoClose className="text-red-500" size={28} />
-                </button>
-                {/* Nút thích */}
-                <button
-                  onClick={() => handleSwipe("right")}
-                  className="p-3 bg-gray-700 rounded-full"
-                >
-                  <IoHeart className="text-green-500" size={28} />
-                </button>
-                {/* Nút ưu tiên (siêu thích) */}
-                <button
-                  onClick={() => handleSwipe("up")}
-                  className="p-3 bg-gray-700 rounded-full"
-                >
-                  <IoStar className="text-blue-500" size={28} />
-                </button>
-                {/* Nút chia sẻ */}
-                <button
-                  onClick={() => handleSwipe("down")}
-                  className="p-3 bg-gray-700 rounded-full"
-                >
-                  <IoArrowRedo className="text-blue-400" size={28} /> 
-                </button>
-                {/* Nút làm mới */}
-                <button
-                  onClick={handleRefresh}
-                  className="p-3 bg-gray-700 rounded-full"
-                >
-                  <IoRefresh className="text-yellow-500" size={28} />
-                </button>
-              </div>
+                  key={index}
+                  onClick={() => setCurrentIndex((prev) => ({ ...prev, [profile.user_id]: index }))}
+                  className={`w-full h-2 border rounded-3xl mx-1 transition ${currentIndex[profile.user_id] === index ? "bg-white" : "bg-gray-500 hover:bg-white"}`}
+                />
+              ))}
             </div>
-          </TinderCard>
-        ))}
+          }
+
+          {/* Nút điều hướng ảnh */}
+          {profile.images.length > 1 && (
+            <div className="absolute top-1/2 left-0 right-0 flex justify-between px-4 group-hover:flex">
+              <button onClick={() => handleButton(profile.user_id, "prev")}>
+                <FaArrowLeft className="text-3xl text-white hover:text-gray-200" />
+              </button>
+              <button onClick={() => handleButton(profile.user_id, "next")}>
+                <FaArrowRight className="text-3xl text-white hover:text-gray-200" />
+              </button>
+            </div>
+          )}
+
+          {/* Thông tin hồ sơ */}
+          <div className="absolute bottom-[80px] left-4 bg-transparent bg-opacity-50 p-4 rounded-lg">
+            <span className="bg-green-500 px-2 py-1 rounded-full text-xs">Gần xung quanh</span>
+            <Link to={`/profile/${profile.user_id}`}>
+              <h1 className="text-4xl font-bold">{profile.full_name}</h1>
+            </Link>
+          </div>
+
+          {/* Các nút thao tác */}
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4">
+            <button className="p-3 bg-gray-700 rounded-full">
+              <IoRefresh className="text-yellow-500" size={28} />
+            </button>
+            <button className="p-3 bg-gray-700 rounded-full">
+              <IoHeart onClick={() => handleMatch(profile.user_id)} className="text-green-500" size={28} />
+            </button>
+            <button className="p-3 bg-gray-700 rounded-full">
+              <FontAwesomeIcon icon={faFaceGrin} className="text-blue-500 w-8 h-8 text-2xl" />
+            </button>
+            <button onClick={handleNextUser} className="p-3 bg-gray-700 rounded-full">
+              <IoClose className="text-red-500" size={28} />
+            </button>
+          </div>
+        </div>
       </div>
-
-      {/* Hiển thị thông báo Super Like */}
-      {superLikeVisible && superLikedProfile && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center relative">
-            <h2 className="text-4xl font-bold mb-4 text-blue-500">Super Like!</h2>
-            <div className="flex justify-center items-center mb-4">
-              <img
-                src={superLikedProfile.image}
-                alt="Hồ sơ"
-                className="w-48 h-48 rounded-full border-4 border-blue-500"
-              />
-            </div>
-            <p className="text-lg">{superLikedProfile.name}, {superLikedProfile.distance}</p>
-            <button
-              onClick={() => setSuperLikeVisible(false)}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Hiển thị thông báo trùng khớp (Match) */}
-      {match && matchedProfile && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-            <h2 className="text-2xl font-bold mb-4">Bạn đã ghép đôi!</h2>
-            <div className="flex justify-center items-center mb-4">
-              <img src={currentUser.image} alt="Hồ sơ của bạn" className="w-24 h-24 rounded-full border-4 border-green-500" />
-              <span className="mx-4 text-4xl font-bold text-green-500">❤️</span>
-              <img src={matchedProfile.image} alt="Hồ sơ ghép đôi" className="w-24 h-24 rounded-full border-4 border-green-500" />
-            </div>
-            <p className="text-lg">Bạn và {matchedProfile.name} đã thích nhau.</p>
-            <button onClick={() => setMatch(false)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

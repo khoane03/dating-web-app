@@ -1,54 +1,75 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaPlus } from "react-icons/fa";
 import { getUserLogin } from "../../service/userService";
 import { IoClose } from "react-icons/io5";
 import { Accept } from "../popup/Accept";
+import { deletePostById, getPostByUserId } from "../../service/postService";
+import Alert from "../alert/Alert";
+import FormAdd from "./formAdd";
 
 
 const AddImages = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [infoUser, setInfoUser] = useState([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const avatar_url = ['hinh1.png', 'hinh2.png', 'avatar.png', 'default.jpg'];
     const [isAccept, setIsAccept] = useState(false);
-
-    const getUser = async () => {
-        try {
-            const response = await getUserLogin();
-            setInfoUser(response.data);
-        } catch (error) {
-
-        }
-    };
+    const [posts, setPosts] = useState([]);
+    const idPost = useRef(null);
+    const [isHidden, setIsHidden] = useState(false);
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
 
     const handleButton = (action) => {
         if (action === "preview") {
-            if (selectedIndex === 0) return setSelectedIndex(avatar_url.length - 1);
+            if (selectedIndex === 0) return setSelectedIndex(posts.length - 1);
             setSelectedIndex(selectedIndex - 1);
 
         } else {
-            if (selectedIndex === avatar_url.length - 1) return setSelectedIndex(0);
+            if (selectedIndex === posts.length - 1) return setSelectedIndex(0);
             setSelectedIndex(selectedIndex + 1);
         }
     };
 
     const handleDeleteImageById = async () => {
-        console.log("Xoá ảnh có id");
-        setTimeout(() => {
-            setIsAccept(false);
+        try {
+            const res = await deletePostById(idPost.current);
+            if (res.code === 200) {
+                setSuccess('Xoá ảnh thành công!');
+                const newPosts = posts.filter(post => post.id !== idPost.current);
+                setPosts(newPosts);
+            }
+            setTimeout(() => {
+
+                setIsAccept(false);
+            }
+                , 1000);
+        } catch (error) {
+            setError('Xoá ảnh thất bại!');
         }
-            , 1000);
     }
 
     useEffect(() => {
-        getUser();
-    }
-        , []);
+        const fetchUser = async () => {
+            try {
+                const response = await getUserLogin();
+                setInfoUser(response.data);
 
+                const res = await getPostByUserId(response.data.id);
+                setPosts(res.data);
+            } catch (error) {
+                console.error("Lỗi khi lấy user:", error);
+            }
+        };
+
+        fetchUser();
+    }, []);
     return (
         <div className="flex flex-col w-99 h-160 bg-transparent rounded-xl shadow-lg border border-black">
+            {success && <Alert type={'success'} message={success} onClose={() => { setSuccess('') }} />}
+            {error && <Alert type={'error'} message={error} onClose={() => { setError('') }} />}
             {isAccept && <Accept action={"xoá"} isAccept={handleDeleteImageById} isReject={() => setIsAccept(false)} />}
+            {isHidden && <FormAdd onClose={() => { setIsHidden(false) }} />}
             {!isEdit ? <>
                 <div className="w-full pl-6 py-4 flex bg-[#21272b] items-center rounded-tr-xl rounded-tl-xl">
                     <p className="text-2xl font-bold text-pink-500 mr-3">{infoUser.full_name}</p>
@@ -56,10 +77,10 @@ const AddImages = () => {
                     <FaCheckCircle className="text-gray-500" />
                 </div>
                 <div className="w-full h-140 bg-cover bg-center flex flex-col items-center group/button"
-                    style={{ backgroundImage: `url(${avatar_url[selectedIndex]})` }}>
+                    style={{ backgroundImage: `url(${posts[selectedIndex]?.image_url || ""})` }}>
 
                     <div className="mt-2 flex justify-around w-full h-2 bg-[#434B54] rounded-3xl pl-2">
-                        {avatar_url.map((_, index) => (
+                        {posts.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setSelectedIndex(index)}
@@ -69,53 +90,46 @@ const AddImages = () => {
                         ))}
 
                     </div>
-                    <div className=" justify-between w-full p-2 mt-10 hidden group-hover/button:flex">
-                        <button onClick={() => handleButton('preview')}>
-                            <FaArrowLeft className="text-2xl text-black hover:text-gray-200" />
-                        </button>
-                        <button onClick={() => handleButton('next')}>
-                            <FaArrowRight className="text-2xl text-black hover:text-gray-200" />
-                        </button>
-                    </div>
+                    {posts.length &&
+                        <div className=" justify-between w-full p-2 mt-10 hidden group-hover/button:flex">
+                            <button onClick={() => handleButton('preview')}>
+                                <FaArrowLeft className="text-2xl text-white hover:text-gray-200" />
+                            </button>
+                            <button onClick={() => handleButton('next')}>
+                                <FaArrowRight className="text-2xl text-black hover:text-gray-200" />
+                            </button>
+                        </div>
+                    }
                 </div>
-
-
-            </> :
+            </>
+                :
                 <>
                     <div className="w-full pl-6 py-4 flex justify-center bg-[#21272b] items-center rounded-tr-xl rounded-tl-xl">
                         <p className="text-2xl font-bold text-pink-500 mr-3">Ảnh hồ sơ</p>
 
                     </div>
                     <div className="grid grid-cols-3 gap-4 flex-[8] bg-[#21272b]">
-                        <div className="w-28 h-32 mx-auto rounded-xl relative">
-                            <img
-                                src={infoUser.avatar_url || "/default.jpg"}
-                                alt="Profile"
-                                className="w-full h-full object-cover rounded-xl"
-
-                            />
-                            <div className="absolute top-0 right-0 flex gap-2 p-2">
-                                <IoClose onClick={() => setIsAccept(true)}
-                                    className="text-gray-300 text-2xl cursor-pointer hover:text-red-500" />
+                        {posts.map((post, index) =>
+                        (
+                            <div key={index} className="w-28 h-32 mx-auto rounded-xl relative">
+                                <img
+                                    src={post.image_url || "/default.jpg"}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover rounded-xl"
+                                />
+                                <div className="absolute top-0 right-0 flex gap-2 p-2">
+                                    <IoClose onClick={() => {
+                                        setIsAccept(true);
+                                        idPost.current = post.id;
+                                    }} className="text-gray-300 text-2xl cursor-pointer hover:text-red-500" />
+                                </div>
                             </div>
-                        </div>
-
+                        ))}
                         <div className="w-28 h-32 mx-auto rounded-xl relative bg-gray-600">
                             <div className="absolute top-0 right-0 flex gap-2 p-2">
-                                <label htmlFor="file">
-                                    <FaPlus className="text-red-500 cursor-pointer hover:text-gray-300 text-2xl" />
-                                </label>
-                                <input
-                                    type="file"
-                                    id="file"
-                                    className="hidden"
-
-                                />
-
+                                <FaPlus onClick={() => { setIsHidden(true) }} className="text-red-500 cursor-pointer hover:text-gray-300 text-2xl" />
                             </div>
                         </div>
-
-
                     </div>
                 </>}
             <div className="flex justify-center p-4 bg-[#21272b] rounded-bl-xl rounded-br-xl">
