@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { IoClose, IoHeart, IoRefresh } from "react-icons/io5";
+import { IoArrowBack,
+   IoArrowForward,
+    IoHeart,
+    IoPeople,  } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFaceGrin } from "@fortawesome/free-solid-svg-icons";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { getAllPosts } from "../../service/postService";
+import Reactions from "../reaction/Reactions";
 
 const TinderSwipe = () => {
   const [groupedPosts, setGroupedPosts] = useState([]);
@@ -14,13 +18,13 @@ const TinderSwipe = () => {
   const handleMatch = (userId) => {
     console.log("Liked user:", userId);
     try {
-      
+
     } catch (error) {
       console.error("API Error:", error);
-      
+
     }
   };
-  
+
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -75,14 +79,16 @@ const TinderSwipe = () => {
   };
 
   if (groupedPosts.length === 0) {
-    return <div className="text-white text-center">Đang tải...</div>;
+
+    return <div className="text-white text-center animate-ping">Đang tải...</div>;
+
   }
 
   const profile = groupedPosts[currentUserIndex];
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="relative w-[400px] h-[600px]">
+      <div className="relative w-[400px] h-[90%] border-2 border-gray-800 rounded-2xl overflow-hidden">
         <div key={profile.user_id} className="relative group w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl">
           {/* Hiển thị ảnh theo `currentIndex[user_id]` */}
           <img
@@ -108,36 +114,44 @@ const TinderSwipe = () => {
           {profile.images.length > 1 && (
             <div className="absolute top-1/2 left-0 right-0 flex justify-between px-4 group-hover:flex">
               <button onClick={() => handleButton(profile.user_id, "prev")}>
-                <FaArrowLeft className="text-3xl text-white hover:text-gray-200" />
+                <FaArrowLeft className="border-2 text-4xl p-2 bg-gray-700 rounded-full hover:bg-white hover:text-black text-white" />
               </button>
               <button onClick={() => handleButton(profile.user_id, "next")}>
-                <FaArrowRight className="text-3xl text-white hover:text-gray-200" />
+                <FaArrowRight className="border-2 text-4xl p-2 bg-gray-700 rounded-full hover:bg-white hover:text-black text-white" />
               </button>
             </div>
           )}
+          <div className="absolute bottom-0 left-0 right-0 rounded-2xl text-green-600 backdrop-blur-sm z-[1000]">
+            {/* Thông tin hồ sơ */}
+            <div className="p-4 opacity-100">
+              <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs mx-4">Gần xung quanh</span>
+              <Link to={`/profile/${profile.user_id}`}>
+                <h1 className="text-4xl font-bold m-2 hover:text-pink-400 ">{profile.full_name}</h1>
+              </Link>
+            </div>
 
-          {/* Thông tin hồ sơ */}
-          <div className="absolute bottom-[80px] left-4 bg-transparent bg-opacity-50 p-4 rounded-lg">
-            <span className="bg-green-500 px-2 py-1 rounded-full text-xs">Gần xung quanh</span>
-            <Link to={`/profile/${profile.user_id}`}>
-              <h1 className="text-4xl font-bold">{profile.full_name}</h1>
-            </Link>
-          </div>
+            {/* Các nút thao tác */}
+            <div className="flex justify-around py-4">
+              <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform">
+                <IoArrowBack className="text-yellow-500" size={28} />
+              </button>
+              <button className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform transform">
+                <IoHeart onClick={() => handleMatch(profile.user_id)} className="text-green-500" size={28} />
+              </button>
+              <div className="relative group/reactions">
+                <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
+                  10 <FontAwesomeIcon icon={faFaceGrin} className="text-blue-500 w-8 h-8 text-2xl" />
+                </button>
+                <div className='absolute -top-12 transform -translate-x-1/4 hidden group-hover/reactions:flex'>
+                  <Reactions />
+                </div>
 
-          {/* Các nút thao tác */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4">
-            <button className="p-3 bg-gray-700 rounded-full">
-              <IoRefresh className="text-yellow-500" size={28} />
-            </button>
-            <button className="p-3 bg-gray-700 rounded-full">
-              <IoHeart onClick={() => handleMatch(profile.user_id)} className="text-green-500" size={28} />
-            </button>
-            <button className="p-3 bg-gray-700 rounded-full">
-              <FontAwesomeIcon icon={faFaceGrin} className="text-blue-500 w-8 h-8 text-2xl" />
-            </button>
-            <button onClick={handleNextUser} className="p-3 bg-gray-700 rounded-full">
-              <IoClose className="text-red-500" size={28} />
-            </button>
+              </div>
+              <button onClick={handleNextUser} className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform">
+                <IoArrowForward className="text-red-500" size={28} />
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
