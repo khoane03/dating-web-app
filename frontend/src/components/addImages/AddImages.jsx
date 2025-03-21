@@ -93,10 +93,10 @@ const AddImages = () => {
                     {posts.length &&
                         <div className=" justify-between w-full p-2 mt-10 hidden group-hover/button:flex">
                             <button onClick={() => handleButton('preview')}>
-                                <FaArrowLeft className="text-2xl text-white hover:text-gray-200" />
+                                <FaArrowLeft className="border-2 text-4xl p-2 bg-gray-700 rounded-full hover:bg-white hover:text-black text-white" />
                             </button>
                             <button onClick={() => handleButton('next')}>
-                                <FaArrowRight className="text-2xl text-black hover:text-gray-200" />
+                                <FaArrowRight className="border-2 text-4xl p-2 bg-gray-700 rounded-full hover:bg-white hover:text-black text-white" />
                             </button>
                         </div>
                     }
