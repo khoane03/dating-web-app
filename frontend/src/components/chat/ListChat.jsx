@@ -64,9 +64,8 @@ function ListChat() {
     }
   };
 
-  const connectWebSocket = () => {
+  const connectWebSocket = (userId) => {
     console.log("Connecting WebSocket...");
-
     if (wsRef.current) {
       console.log("WebSocket is already connected");
       return;
@@ -100,8 +99,11 @@ function ListChat() {
   };
 
   useEffect(() => {
-    getUser();
-    connectWebSocket();
+    const fetchData = async () => {
+      await getUser();
+      connectWebSocket();
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
