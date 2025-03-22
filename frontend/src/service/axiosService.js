@@ -78,7 +78,7 @@ axiosService.interceptors.response.use(
 
                 default:
                     console.error(`Unhandled status code: ${error.response.status}`);
-                    window.location.href = '/intro';
+                 //   window.location.href = '/intro';
                     break;
             }
         }
