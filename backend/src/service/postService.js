@@ -2,8 +2,7 @@ import pool from "../config/dbConfig.js";
 
 export const getAllPosts = async (id) => {
     try {
-        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
-        const user_id = res.rows[0].id;
+        const user_id = await getUserId(id);
         const { rows } = await pool.query(`
             SELECT 
                 u.full_name,
@@ -39,8 +38,9 @@ export const getImageByUserId = async (id) => {
 };
 
 
-export const saveImage = async (user_id, content, image_url) => {
+export const saveImage = async (id, content, image_url) => {
     try {
+        const user_id = await getUserId(id);
         const { rows } = await pool.query(`INSERT INTO tbl_user_post (user_id, content, image_url)
         VALUES ($1, $2, $3) RETURNING *;`,
             [user_id, content, image_url]);
@@ -65,6 +65,15 @@ export const deleteById = async (id) => {
     }
 };
 
+const getUserId = async (id) => {
+    try {
+        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
+        return res.rows[0].id;
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
 const handleSuccess = (code, message, data) => {
     return {
         code: code,
@@ -72,9 +81,9 @@ const handleSuccess = (code, message, data) => {
         data
     }
 }
-const handleError = (code, error) => {
+const handleError = (error) => {
     return {
-        code: code || 500,
+        code: 500,
         message: error
     }
 }
