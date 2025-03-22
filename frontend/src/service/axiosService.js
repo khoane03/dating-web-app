@@ -28,7 +28,7 @@ axiosService.interceptors.request.use(
       } catch (error) {
         console.error("Refresh token failed:", error);
         removeAccessToken();
-        window.location.href = "/auth";
+        window.location.href = "/intro";
         return Promise.reject(error);
       }
     },
@@ -60,7 +60,7 @@ axiosService.interceptors.response.use(
                         } catch (refreshError) {
                             console.error("Refresh token failed:", refreshError);
                             removeAccessToken();
-                            window.location.href = '/auth';
+                            window.location.href = '/intro';
                             return Promise.reject(refreshError);
                         }
                     }
@@ -73,11 +73,12 @@ axiosService.interceptors.response.use(
 
                 case 404:
                     console.error("Not Found: Redirecting to 404 page");
-                    // window.location.href = '/404';
+                    window.location.href = '/404';
                     break;
 
                 default:
                     console.error(`Unhandled status code: ${error.response.status}`);
+                    window.location.href = '/intro';
                     break;
             }
         }
