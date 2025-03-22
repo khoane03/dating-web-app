@@ -26,6 +26,19 @@ const getLocation = async () => {
     });
 };
 
+const calculationDistance = async (lat1, lon1, lat2, lon2) => {
+    const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+
+    try {
+      const res = await axios.get(url);
+      const distance = res.data.routes[0].distance / 1000; // Chuyển mét sang km
+      return `${distance.toFixed(2)} km`;
+    } catch (error) {
+      console.error("Lỗi khi lấy khoảng cách:", error);
+      return "Không tìm thấy đường đi";
+    } 
+};
+
 
 
 const updateLocationUser = async (address, latitude, longitude) => {
@@ -44,5 +57,6 @@ export {
     updateLocationUser,
     getLocation,
     getAddress,
-    getAddressByUserLogin
+    getAddressByUserLogin,
+    calculationDistance
 };
