@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUserLocation, updateUserLocation } from '../controller/locationController';
+import { getUserLocation, updateUserLocation } from '../controller/locationController.js';
 
 const locationRoute = express.Router();
 

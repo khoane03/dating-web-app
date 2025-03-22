@@ -1,4 +1,4 @@
-import apiResponse from '../utils/apiResponse';
+import apiResponse from '../utils/apiResponse.js';
 import {
     getAllAccounts as getAllAccountsService,
     getAccById as getAccountService,
@@ -7,7 +7,7 @@ import {
     updatStatusAccount as updateAccountService,
     deleteMatchById as deleteMatchService,
     searchAccount as searchAccountService
-} from '../service/adminService';
+} from '../service/adminService.js';
 
 export const getAccount = async (req, res) => {
     try {

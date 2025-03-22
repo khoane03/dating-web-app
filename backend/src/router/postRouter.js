@@ -1,11 +1,11 @@
 import express from "express";
-import { upload } from "../config/cloudinaryConfig";
+import { upload } from "../config/cloudinaryConfig.js";
 import {
     deletePostById,
     getAllPost,
     getPostByUserId,
     savePost
-} from "../controller/postController";
+} from "../controller/postController.js";
 
 
 export const postRouter = express.Router();

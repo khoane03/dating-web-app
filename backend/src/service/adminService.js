@@ -1,6 +1,6 @@
-import pool from "../config/dbConfig";
-import { ROLES } from "../utils/appConstants";
-import { hashPassword } from "../utils/hash";
+import pool from "../config/dbConfig.js";
+import { ROLES } from "../utils/appConstants.js";
+import { hashPassword } from "../utils/hash.js";
 
 export const initAdmin = async () => {
     try {

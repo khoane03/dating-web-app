@@ -51,5 +51,3 @@ const startServer = async () => {
 
 
 startServer();
-
-export const viteNodeApp = app;

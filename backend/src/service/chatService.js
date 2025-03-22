@@ -1,4 +1,4 @@
-import pool from "../config/dbConfig";
+import pool from "../config/dbConfig.js";
 export const saveMess = async (sender_id, receiverId, message) => {
     try {
         const query = `
