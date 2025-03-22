@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { IoArrowBack,
-   IoArrowForward,
-    IoHeart,
-    IoPeople,  } from "react-icons/io5";
+import {
+  IoArrowBack,
+  IoArrowForward,
+  IoHeart,
+  IoPeople,
+} from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFaceGrin } from "@fortawesome/free-solid-svg-icons";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { getAllPosts } from "../../service/postService";
 import Reactions from "../reaction/Reactions";
+import { getUserLogin } from "../../service/userService";
 
 const TinderSwipe = () => {
   const [groupedPosts, setGroupedPosts] = useState([]);
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentIndex, setCurrentIndex] = useState({});
+  const [avatar, setAvatar] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const handleMatch = (userId) => {
     console.log("Liked user:", userId);
@@ -29,6 +34,9 @@ const TinderSwipe = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        const data = await getUserLogin();
+        setAvatar(data.data.avatar_url);
+
         const res = await getAllPosts();
 
         // Gộp các bài đăng theo user_id
@@ -53,6 +61,10 @@ const TinderSwipe = () => {
       } catch (error) {
         console.error("API Error:", error);
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 5000);
     };
 
     fetchPosts();
@@ -78,10 +90,22 @@ const TinderSwipe = () => {
     setCurrentUserIndex((prev) => (prev < groupedPosts.length - 1 ? prev + 1 : 0));
   };
 
+  if (loading) {
+    return (
+      <div className="relative w-28 h-28 flex justify-center items-center">
+        <div className="absolute inset-0 flex justify-center items-center border-2 bg-pink-400 border-pink-600 duration-1000 rounded-full animate-ping w-28 h-28">
+        </div>
+        <img className="rounded-full w-24 h-24 border-2 border-gray-300" src={avatar} alt="" />
+      </div>
+    );
+  }
+
   if (groupedPosts.length === 0) {
-
-    return <div className="text-white text-center animate-ping">Đang tải...</div>;
-
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-white text-center text-2xl">Không có dữ liệu</div>
+      </div>
+    );
   }
 
   const profile = groupedPosts[currentUserIndex];
