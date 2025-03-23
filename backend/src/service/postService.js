@@ -6,6 +6,8 @@ export const getAllPosts = async (id) => {
         const { rows } = await pool.query(`
             SELECT 
                 u.full_name,
+                u.latitude,
+                u.longitude,
                 up.user_id,
                 up.content,
                 up.image_url
@@ -18,12 +20,12 @@ export const getAllPosts = async (id) => {
         if (!rows.length) {
             return handleSuccess(400, "Không có bài viết nào!");
         }
-        return handleSuccess(200, "Thành công!", rows);
+        const data = resultPost(rows);
+        return handleSuccess(200, "Thành công!", data);
     } catch (error) {
         return handleError(error);
     }
 };
-
 
 export const getImageByUserId = async (id) => {
     try {
@@ -73,6 +75,25 @@ const getUserId = async (id) => {
         return handleError(error);
     }
 };
+
+const resultPost = (rows) => {
+    const data = new Map();
+    rows.forEach(async row => {
+        if (!data.has(row.user_id)) {
+            data.set(row.user_id, {
+                user_id: row.user_id,
+                full_name: row.full_name,
+                latitude: row.latitude,
+                longitude: row.longitude,
+                images: [],
+                contents: []
+            });
+        }
+        data.get(row.user_id).images.push(row.image_url);
+        data.get(row.user_id).contents.push(row.content);
+    });
+    return Array.from(data.values());
+}
 
 const handleSuccess = (code, message, data) => {
     return {
