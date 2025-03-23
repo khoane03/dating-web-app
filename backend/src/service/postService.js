@@ -2,11 +2,12 @@ import pool from "../config/dbConfig.js";
 
 export const getAllPosts = async (id) => {
     try {
-        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
-        const user_id = res.rows[0].id;
+        const user_id = await getUserId(id);
         const { rows } = await pool.query(`
             SELECT 
                 u.full_name,
+                u.latitude,
+                u.longitude,
                 up.user_id,
                 up.content,
                 up.image_url
@@ -19,12 +20,12 @@ export const getAllPosts = async (id) => {
         if (!rows.length) {
             return handleSuccess(400, "Không có bài viết nào!");
         }
-        return handleSuccess(200, "Thành công!", rows);
+        const data = resultPost(rows);
+        return handleSuccess(200, "Thành công!", data);
     } catch (error) {
         return handleError(error);
     }
 };
-
 
 export const getImageByUserId = async (id) => {
     try {
@@ -39,8 +40,9 @@ export const getImageByUserId = async (id) => {
 };
 
 
-export const saveImage = async (user_id, content, image_url) => {
+export const saveImage = async (id, content, image_url) => {
     try {
+        const user_id = await getUserId(id);
         const { rows } = await pool.query(`INSERT INTO tbl_user_post (user_id, content, image_url)
         VALUES ($1, $2, $3) RETURNING *;`,
             [user_id, content, image_url]);
@@ -65,6 +67,34 @@ export const deleteById = async (id) => {
     }
 };
 
+const getUserId = async (id) => {
+    try {
+        const res = await pool.query("SELECT id FROM tbl_users WHERE acc_id = $1", [id]);
+        return res.rows[0].id;
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+const resultPost = (rows) => {
+    const data = new Map();
+    rows.forEach(async row => {
+        if (!data.has(row.user_id)) {
+            data.set(row.user_id, {
+                user_id: row.user_id,
+                full_name: row.full_name,
+                latitude: row.latitude,
+                longitude: row.longitude,
+                images: [],
+                contents: []
+            });
+        }
+        data.get(row.user_id).images.push(row.image_url);
+        data.get(row.user_id).contents.push(row.content);
+    });
+    return Array.from(data.values());
+}
+
 const handleSuccess = (code, message, data) => {
     return {
         code: code,
@@ -72,9 +102,9 @@ const handleSuccess = (code, message, data) => {
         data
     }
 }
-const handleError = (code, error) => {
+const handleError = (error) => {
     return {
-        code: code || 500,
+        code: 500,
         message: error
     }
 }
