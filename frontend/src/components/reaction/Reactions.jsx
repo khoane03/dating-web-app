@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { IoThumbsUp, IoHeart, IoHappy, IoSad } from "react-icons/io5";
 
-const Reactions = ({ postId, userId }) => {
+const Reactions = ({ postId }) => {
   const [reaction, setReaction] = useState(null);
 
   const handleReaction = (type) => {
     setReaction(type);
-    console.log(`User ${userId} reacted to post ${postId} with ${type}`);
+    console.log(`User  reacted to post ${postId} with ${type}`);
   };
 
   return (
