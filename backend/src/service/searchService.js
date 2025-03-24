@@ -1,51 +1,86 @@
 import pool from "../config/dbConfig.js";
+import axios from "axios";
 
-export const searchUsers = async ({ age, gender, distance, userLat, userLong}) => {
+export const searchUsers = async (keyword, id) => {
     try {
-        let query = `SELECT * FROM tbl_users WHERE 1=1`;
+        if (keyword.age && !validateNumber(keyword.age)) {
+            return {
+                code: 400,
+                message: "Tuổi phải là số!"
+            };
+        }
+        if (keyword.distance && !validateNumber(keyword.distance)) {
+            return {
+                code: 400,
+                message: "Khoảng cách phải là số!"
+            };
+        }
+        const location = await getLocations(id);
+        if (!location) {
+            return {
+                code: 404,
+                message: "Bạn cần cập nhật vị trí!"
+            };
+        }
 
+        let query = `SELECT id, latitude, longitude FROM tbl_users WHERE 1=1`;
         const queryParams = [];
 
-        if (gender && gender !== "Tất cả") {
-            queryParams.push(gender);
+        if (keyword.gender && keyword.gender !== "Tất cả") {
+            queryParams.push(keyword.gender);
             query += ` AND gender = $${queryParams.length}`;
         }
-        if (age) {
-            queryParams.push(parseInt(age, 10));
+        if (keyword.age) {
+            queryParams.push(parseInt(keyword.age, 10));
             query += ` AND age <= $${queryParams.length}`;
         }
 
-        if (userLat && userLong) {
-            queryParams.push(parseFloat(userLat)); 
-            const latIndex = queryParams.length;
-            queryParams.push(parseFloat(userLong)); 
-            const longIndex = queryParams.length;
-
-            query = query.replace(
-                'SELECT *',
-                `SELECT *, 
-                (6371 * acos(cos(radians($${latIndex})) * cos(radians(latitude)) * 
-                cos(radians(longitude) - radians($${longIndex})) + 
-                sin(radians($${latIndex})) * sin(radians(latitude)))) AS distance`
+        const { rows } = await pool.query(query, queryParams);
+        console.log('row', rows);
+        //tính khoảng cách từ user đến các user khác
+        const filteredUsers = await Promise.all(rows.map(async (user) => {
+            const currentDistance = await calculationDistance(
+                location.latitude, location.longitude, user.latitude, user.longitude
             );
+            return currentDistance <= keyword.distance ? { ...user, distance: currentDistance } : null;
+        }));
 
-            query += ` AND latitude IS NOT NULL AND longitude IS NOT NULL`;
-
-            if (distance) {
-                queryParams.push(parseInt(distance, 10));
-                query += ` AND (6371 * acos(cos(radians($${latIndex})) * cos(radians(latitude)) * 
-                            cos(radians(longitude) - radians($${longIndex})) + 
-                            sin(radians($${latIndex})) * sin(radians(latitude)))) <= $${queryParams.length}`;
-            }
-        }
-
-        console.log("Query:", query, "Params:", queryParams); 
-
-        const result = await pool.query(query, queryParams);
-        return result.rows;
+        return {
+            code: 200,
+            message: "Kết quả tìm kiếm",
+            data: filteredUsers.filter(user => user !== null)
+        };
     } catch (error) {
-        console.error("Lỗi truy vấn:", error);
-        throw error;
+        return {
+            code: 500,
+            message: "Lỗi server! Vui lòng thử lại sau."
+        };
     }
 };
-    
+
+const getLocations = async (id) => {
+    try {
+        const res = await pool.query("SELECT latitude, longitude FROM tbl_users WHERE acc_id = $1", [id]);
+        if (res.rowCount === 0) return null;
+        return res.rows[0];
+    } catch (error) {
+        console.error("Lỗi lấy vị trí:", error);
+        return null;
+    }
+};
+
+const validateNumber = (number) => {
+    return !isNaN(parseFloat(number)) && isFinite(number);
+};
+
+const calculationDistance = async (lat1, lon1, lat2, lon2) => {
+    const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+
+    try {
+        const res = await axios.get(url);
+        return (res.data.routes[0].distance / 1000).toFixed(2); // Đơn vị km
+    } catch (error) {
+        console.error("Lỗi tính khoảng cách:", error);
+        return null;
+    }
+};
