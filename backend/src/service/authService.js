@@ -74,6 +74,12 @@ export const register = async (email, password, phone) => {
       `INSERT INTO tbl_accounts (email, password, phone, status, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [email, hashedPassword, phone, 1, ROLES.USER]
     );
+
+    await pool.query(
+      `INSERT INTO tbl_users (acc_id, full_name) VALUES ($1, $2) RETURNING *`,
+      [rows[0].id, 'User']
+    );
+
     return { code: 201, message: "Tạo người dùng thành công!", data: rows[0] };
   } catch (error) {
     return handleError("Lỗi khi tạo người dùng", error);

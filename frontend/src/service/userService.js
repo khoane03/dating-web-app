@@ -6,7 +6,8 @@ const getUserLogin = async (id) => {
 };
 
 const changePassword = async (data) => {
-    return await axiosService.put("/user/change_password", {
+    console.log(data);
+    return await axiosService.put("/user/change-password", {
         oldPassword: data.oldPassword,
         newPassword: data.newPassword
     });
