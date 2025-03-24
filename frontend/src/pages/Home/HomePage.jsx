@@ -111,9 +111,9 @@ const HomePage = () => {
 
             <div className="m-4">
               {location.pathname.startsWith("/chat") && <Menu />}
+              {location.pathname.startsWith("/search") && <Search />}
               {
-                location.pathname === "/search" ? <Search />
-                  : location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name} /> : <></>
+                location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name} /> : <></>
               }
             </div>
           </div>

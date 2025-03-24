@@ -30,11 +30,23 @@ export const getAllPosts = async (id) => {
 
 export const getImageByUserId = async (id) => {
     try {
-        const { rows } = await pool.query(`SELECT * FROM tbl_user_post WHERE user_id = $1;`, [id]);
+        const { rows } = await pool.query(`SELECT 
+                u.full_name,
+                u.latitude,
+                u.longitude,
+                up.id,
+                up.user_id,
+                up.content,
+                up.image_url
+            FROM
+                tbl_user_post as up
+                JOIN tbl_users as u ON up.user_id = u.id
+            WHERE user_id = $1;`, [id]);
         if (!rows.length) {
-            return handleSuccess(400, "Không tìm thấy bài viết!");
+            return handleSuccess(400, "Không có bài viết nào!");
         }
-        return handleSuccess(200, "Thành công!", rows);
+        const data = resultPost(rows);
+        return handleSuccess(200, "Thành công!", data);
     } catch (error) {
         return handleError(error);
     }
@@ -79,23 +91,37 @@ const getUserId = async (id) => {
 
 const resultPost = (rows) => {
     const data = new Map();
-    rows.forEach(async row => {
+
+    rows.forEach(row => {
         if (!data.has(row.user_id)) {
             data.set(row.user_id, {
-                post_id: row.id,
                 user_id: row.user_id,
                 full_name: row.full_name,
                 latitude: row.latitude,
                 longitude: row.longitude,
-                images: [],
-                contents: []
+                posts: new Map(),
             });
         }
-        data.get(row.user_id).images.push(row.image_url);
-        data.get(row.user_id).contents.push(row.content);
+        const userData = data.get(row.user_id);
+
+        if (!userData.posts.has(row.id)) {
+            userData.posts.set(row.id, {
+                id: row.id,
+                images: null,
+                contents: null,
+            });
+        }
+
+        const post = userData.posts.get(row.id);
+        if (row.image_url) post.images = row.image_url;
+        if (row.content) post.contents = row.content;
     });
-    return Array.from(data.values());
-}
+    return Array.from(data.values()).map(user => ({
+        ...user,
+        posts: Array.from(user.posts.values()),
+    }));
+};
+
 
 const handleSuccess = (code, message, data) => {
     return {

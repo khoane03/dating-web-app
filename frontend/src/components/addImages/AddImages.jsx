@@ -56,9 +56,9 @@ const AddImages = () => {
                 setInfoUser(response.data);
 
                 const res = await getPostByUserId(response.data.id);
-                setPosts(res.data);
+                setPosts(res.data[0].posts || []);
             } catch (error) {
-                console.error("Lỗi khi lấy user:", error);
+                setError('Lỗi lấy thông tin người dùng!');
             }
         };
 
@@ -77,7 +77,7 @@ const AddImages = () => {
                     <FaCheckCircle className="text-gray-500" />
                 </div>
                 <div className="w-full h-140 bg-cover bg-center flex flex-col items-center group/button"
-                    style={{ backgroundImage: `url(${posts[selectedIndex]?.image_url || ""})` }}>
+                    style={{ backgroundImage: `url(${posts[selectedIndex]?.images || ""})` }}>
 
                     <div className="mt-2 flex justify-around w-full h-2 bg-[#434B54] rounded-3xl pl-2">
                         {posts.map((_, index) => (
@@ -113,7 +113,7 @@ const AddImages = () => {
                         (
                             <div key={index} className="w-28 h-32 mx-auto rounded-xl relative">
                                 <img
-                                    src={post.image_url || "/default.jpg"}
+                                    src={post.images || "/default.jpg"}
                                     alt="Profile"
                                     className="w-full h-full object-cover rounded-xl"
                                 />
