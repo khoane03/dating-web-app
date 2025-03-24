@@ -23,7 +23,7 @@ export const searchUsers = async (keyword, id) => {
             };
         }
 
-        let query = `SELECT id, latitude, longitude FROM tbl_users WHERE 1=1`;
+        let query = `SELECT id, full_name, avatar_url, latitude, longitude FROM tbl_users WHERE 1=1`;
         const queryParams = [];
 
         if (keyword.gender && keyword.gender !== "Tất cả") {
@@ -36,7 +36,7 @@ export const searchUsers = async (keyword, id) => {
         }
 
         const { rows } = await pool.query(query, queryParams);
-        console.log('row', rows);
+       
         //tính khoảng cách từ user đến các user khác
         const filteredUsers = await Promise.all(rows.map(async (user) => {
             const currentDistance = await calculationDistance(
