@@ -8,6 +8,7 @@ export const getAllPosts = async (id) => {
                 u.full_name,
                 u.latitude,
                 u.longitude,
+                up.id,
                 up.user_id,
                 up.content,
                 up.image_url
@@ -81,6 +82,7 @@ const resultPost = (rows) => {
     rows.forEach(async row => {
         if (!data.has(row.user_id)) {
             data.set(row.user_id, {
+                post_id: row.id,
                 user_id: row.user_id,
                 full_name: row.full_name,
                 latitude: row.latitude,
