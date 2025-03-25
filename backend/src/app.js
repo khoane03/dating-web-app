@@ -13,6 +13,7 @@ import http from 'http';
 import { setupWebSocket } from './config/websocketConfig.js';
 import locationRoute from './router/locationRouter.js';
 import { postRouter } from './router/postRouter.js';
+import { reactionRouter } from './router/reactionRouter.js';
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api',authMiddleware, searchRouter);
 app.use('/chat', authMiddleware, chatRouter);
 app.use('/location', authMiddleware, locationRoute);
 app.use('/post', authMiddleware, postRouter);
+app.use('/reaction', authMiddleware, reactionRouter);
 
 const PORT = process.env.PORT || 3000;
 
