@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { IoThumbsUp, IoHeart, IoHappy, IoSad } from "react-icons/io5";
+import { saveReaction } from "../../service/reactionService";
 
-const Reactions = ({ postId }) => {
-  const [reaction, setReaction] = useState(null);
-
-  const handleReaction = (type) => {
-    setReaction(type);
-    console.log(`User  reacted to post ${postId} with ${type}`);
+const Reactions = ({ postId, callTotal }) => {
+  const handleReaction = async (type) => {
+    try {
+      await saveReaction(type, postId);
+      // Gọi callback từ parent để cập nhật total
+      if (callTotal) {
+        await callTotal(postId);
+      }
+    } catch (error) {
+      console.error("Lỗi lưu reaction:", error);
+    }
   };
+
+  useEffect(() => {
+    const fetchReactions = async () => {
+      await callTotal(postId);
+    }
+    if (postId) {
+      fetchReactions();
+    }
+  }, [postId]);
 
   return (
     <div className="flex justify-around p-2 space-x-2 bg-gray-800 rounded-full">

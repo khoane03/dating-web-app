@@ -1,4 +1,4 @@
-import { addReaction, countReaction } from "../service/reactionService.js";
+import { addReaction, checkExistingReaction, countReaction } from "../service/reactionService.js";
 import apiResponse from "../utils/apiResponse.js";
 
 export const addReactions = async (req, res) => {
@@ -12,4 +12,10 @@ export const countReactions = async (req, res) => {
     const {post_id} = req.query;
     const result = await countReaction(post_id);
     apiResponse(res, result.status, result.message, result.data);
+};
+
+export const getReactions = async (req, res) => {
+    const {post_id} = req.query;
+    const result = await checkExistingReaction(req.user.id, post_id);
+    apiResponse(res, 200, 'Thành công!', result);
 };
