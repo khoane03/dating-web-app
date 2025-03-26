@@ -23,6 +23,7 @@ import AdminLogin from "../components/admin/login/AdminLogin";
 import Info from "../components/admin/manager/Info";
 import NoPermission from "../components/permission/NoPermission";
 import AddImages from "../components/addImages/AddImages";
+import Notifi from "../components/notification/Notifi";
 
 
 
@@ -51,6 +52,7 @@ function AppRouter() {
                     <Route path="chat/:id" element={<ListChat />} />
                     <Route path="chat" element={<ListChat />} />
                     <Route path="add" element={<AddImages/>} />
+                    <Route path="notification" element={<Notifi/>}/>
                 </Route>
 
 

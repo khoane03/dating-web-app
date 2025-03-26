@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { getUserLogin } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
 import ListMatched from "../../components/matched/ListMatched";
+import { getListMatch } from "../../service/matchServie";
 
 const HomePage = () => {
   const location = useLocation();
@@ -28,13 +29,7 @@ const HomePage = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [matched, setMatched] = useState(
-    {
-      id: "1",
-      avatar_url: "hinh1.png",
-      full_name: "Dev"
-    }
-  );
+  const [listMatch, setListMatch] = useState([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -52,6 +47,20 @@ const HomePage = () => {
     };
 
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchMatched = async () => {
+      try {
+        const res = await getListMatch();
+        console.log(res);
+        setListMatch(res);
+      } catch (error) {
+        setError(error.response.data.message);
+      }
+    };
+
+    fetchMatched();
   }, []);
 
 
@@ -113,7 +122,7 @@ const HomePage = () => {
               {location.pathname.startsWith("/chat") && <Menu />}
               {location.pathname.startsWith("/search") && <Search />}
               {
-                location.pathname === "/" ? <ListMatched id={matched.id} avatar_url={matched.avatar_url} full_name={matched.full_name} /> : <></>
+                location.pathname === "/" ? <ListMatched data={listMatch} /> : <></>
               }
             </div>
           </div>
