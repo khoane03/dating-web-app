@@ -42,12 +42,21 @@ export const countReaction = async (post_id) => {
 
 
 // Kiểm tra xem user đã reaction bài post chưa
-const checkExistingReaction = async (user_id, post_id) => {
-    const { rows } = await pool.query(
-        `SELECT * FROM tbl_reaction WHERE user_id = $1 AND post_id = $2`,
-        [user_id, post_id]
-    );
-    return rows[0] || null;
+export const checkExistingReaction = async (id, post_id) => {
+    try {
+        const user_id = await getUserIdByAccId(id);
+        const { rows } = await pool.query(
+            `SELECT * FROM tbl_reaction WHERE user_id = $1 AND post_id = $2`,
+            [user_id, post_id]
+        );
+        return rows[0] || null;
+    } catch (error) {
+        return {
+            status: 500,
+            message: "Lỗi",
+            data: error,
+        }
+    }
 };
 
 // Xóa reaction nếu user nhấn lại vào reaction cũ

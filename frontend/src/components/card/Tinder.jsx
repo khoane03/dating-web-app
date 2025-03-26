@@ -11,8 +11,24 @@ import { getAllPosts, getPostByUserId } from "../../service/postService";
 import { getUserLogin } from "../../service/userService";
 import { calculationDistance } from "../../service/location";
 import Reactions from "../reaction/Reactions";
+import { checkReaction, countReactions } from "../../service/reactionService";
 
-const TinderSwipe = ({posts_id}) => {
+const icons = (type) => {
+  switch (type) {
+    case "like":
+      return <IoThumbsUp size={29} className="text-blue-500 ml-1" />;
+    case "love":
+      return <IoHeart size={29} className="text-pink-500 ml-1" />;
+    case "happy":
+      return <IoHappy size={29} className="text-orange-500 ml-1" />;
+    case "sad":
+      return <IoSad size={29} className="text-red-500 ml-1" />;
+    default:
+      return <IoThumbsUp size={29} className="text-gray-500 ml-1" />;
+  }
+};
+
+const TinderSwipe = ({ posts_id }) => {
   const [profile, setProfile] = useState([]);
   const [currentProfile, setCurrentProfile] = useState(0);
   const [currentPost, setCurrentPost] = useState(0);
@@ -20,7 +36,7 @@ const TinderSwipe = ({posts_id}) => {
   const [distance, setDistance] = useState(new Map());
   const [loading, setLoading] = useState(false);
   const [totalReaction, setTotalReaction] = useState(0);
-  const [iconReaction, setIconReaction] = useState(null);
+  const [reactionType, setReactionType] = useState('');
 
   const handleMatch = async (user_id) => {
     try {
@@ -31,13 +47,14 @@ const TinderSwipe = ({posts_id}) => {
     }
   };
 
-  const handleReaction = (type) => {
+  const updateTotalReaction = async (postId) => {
     try {
-      //call api total reaction
-
-
+      const res = await countReactions(postId);
+      setTotalReaction(res.data.count);
+      const checkRes = await checkReaction(postId);
+      setReactionType(checkRes.data?.reaction_type || '');
     } catch (error) {
-
+      console.error("Lỗi cập nhật reaction:", error);
     }
   };
 
@@ -187,16 +204,13 @@ const TinderSwipe = ({posts_id}) => {
                     className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
                     <FontAwesomeIcon icon={faHeart} className="text-green-500 w-8 h-8 text-2xl" />
                   </button>
-                  <div className="relative group/reactions">
+                  <div className="relative group/reactions flex items-center justify-between">
                     <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
                       {totalReaction}
-                      <FontAwesomeIcon
-                        icon={faFaceGrin}
-                        className="text-gray-500 w-8 h-8 text-2xl"
-                      />
+                      {icons(reactionType)}
                     </button>
                     <div className="absolute -top-12 transform -translate-x-1/4 hidden group-hover/reactions:flex">
-                      <Reactions postId={currentPostData.id} />
+                      <Reactions postId={currentPostData.id} callTotal={updateTotalReaction} />
                     </div>
                   </div>
                   <button onClick={() => handleNavigation("next", profile, setCurrentProfile, setCurrentPost)}
