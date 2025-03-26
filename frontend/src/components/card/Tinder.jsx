@@ -12,6 +12,7 @@ import { getUserLogin } from "../../service/userService";
 import { calculationDistance } from "../../service/location";
 import Reactions from "../reaction/Reactions";
 import { checkReaction, countReactions } from "../../service/reactionService";
+import { addMatch, checkMatch } from "../../service/matchServie";
 
 const icons = (type) => {
   switch (type) {
@@ -37,13 +38,13 @@ const TinderSwipe = ({ posts_id }) => {
   const [loading, setLoading] = useState(false);
   const [totalReaction, setTotalReaction] = useState(0);
   const [reactionType, setReactionType] = useState('');
+  const [matched, setMatched] = useState(new Map());
 
   const handleMatch = async (user_id) => {
     try {
-      console.log("Matched!");
-      console.log("User ID:", user_id);
+      await addMatch(user_id);
     } catch (error) {
-
+      console.error(error);
     }
   };
 
@@ -58,6 +59,21 @@ const TinderSwipe = ({ posts_id }) => {
     }
   };
 
+  //danh sách match
+  useEffect(() => {
+    const getListMatch = async () => {
+      const listMatchs = new Map();
+      for (const user of profile) {
+        const res = await checkMatch(user.user_id);
+        if (res) listMatchs.set(user.user_id, res.status);
+        else listMatchs.set(user.user_id, 0);
+      }
+      setMatched(listMatchs);
+    };
+    if (profile.length > 0) getListMatch();
+  }, [profile, userLocation]);
+
+  //lấy danh sách bài post
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -76,6 +92,7 @@ const TinderSwipe = ({ posts_id }) => {
     fetchPosts();
   }, [posts_id]);
 
+  //lấy khoảng cách giữa người dùng và người khác
   useEffect(() => {
     const calculateDistances = async () => {
       const distanceMap = new Map();
@@ -200,10 +217,17 @@ const TinderSwipe = ({ posts_id }) => {
                     className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
                     <FontAwesomeIcon icon={faArrowLeft} className="text-yellow-500 w-8 h-8 text-2xl" />
                   </button>
-                  <button onClick={() => handleMatch(profile[currentProfile]?.user_id)}
-                    className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
-                    <FontAwesomeIcon icon={faHeart} className="text-green-500 w-8 h-8 text-2xl" />
-                  </button>
+                  {(matched.get(profile[currentProfile]?.user_id) === 2) ?
+                    <button onClick={() => handleMatch(profile[currentProfile]?.user_id)}
+                      className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
+                      <FontAwesomeIcon icon={faHeart} className="text-pink-500 w-8 h-8 text-2xl" />
+                    </button> :
+                    <button onClick={() => handleMatch(profile[currentProfile]?.user_id)}
+                      className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
+                      <FontAwesomeIcon icon={faHeart} className="text-green-500 w-8 h-8 text-2xl" />
+                    </button>
+
+                  }
                   <div className="relative group/reactions flex items-center justify-between">
                     <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
                       {totalReaction}
