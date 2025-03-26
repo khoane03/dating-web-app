@@ -14,6 +14,7 @@ import { setupWebSocket } from './config/websocketConfig.js';
 import locationRoute from './router/locationRouter.js';
 import { postRouter } from './router/postRouter.js';
 import { reactionRouter } from './router/reactionRouter.js';
+import { matchRoute } from './router/matchRouter.js';
 
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/chat', authMiddleware, chatRouter);
 app.use('/location', authMiddleware, locationRoute);
 app.use('/post', authMiddleware, postRouter);
 app.use('/reaction', authMiddleware, reactionRouter);
+app.use('/match', authMiddleware, matchRoute);
 
 const PORT = process.env.PORT || 3000;
 
