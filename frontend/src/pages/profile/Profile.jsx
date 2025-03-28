@@ -11,7 +11,7 @@ import { getAddress, getLocation, updateLocationUser } from "../../service/locat
 
 const Profile = () => {
 
-  const [isUserLogin, setIsUserLogin] = useState(false);
+  const [isUserLogin, setIsUserLogin] = useState(false); 
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [dataUpdate, setDataUpdate] = useState({
@@ -63,7 +63,7 @@ const Profile = () => {
     }
   };
 
-  // Fetch user info from API
+  // Lấy thông tin người dùng từ API
   const getInfo = async () => {
     try {
       checkUserLogin();
