@@ -5,10 +5,10 @@ import { saveReaction } from "../../service/reactionService";
 const Reactions = ({ postId, callTotal }) => {
   const handleReaction = async (type) => {
     try {
-      await saveReaction(type, postId);
+      await saveReaction(type, postId); // Lưu phản ứng lên server
       // Gọi callback từ parent để cập nhật total
       if (callTotal) {
-        await callTotal(postId);
+        await callTotal(postId); 
       }
     } catch (error) {
       console.error("Lỗi lưu reaction:", error);
@@ -17,7 +17,7 @@ const Reactions = ({ postId, callTotal }) => {
 
   useEffect(() => {
     const fetchReactions = async () => {
-      await callTotal(postId);
+      await callTotal(postId); // Lấy tổng số phản ứng khi bài đăng thay đổi
     }
     if (postId) {
       fetchReactions();

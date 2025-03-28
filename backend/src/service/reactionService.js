@@ -4,8 +4,7 @@ import pool from '../config/dbConfig.js';
 export const addReaction = async (id, reaction_type, post_id) => {
     try {
         const user_id = await getUserIdByAccId(id);
-        const existingReaction = await checkExistingReaction(user_id, post_id);
-
+        const existingReaction = await checkExistingReaction(id, post_id);
         if (existingReaction) {
             if (existingReaction.reaction_type === reaction_type) {
                 await deleteReaction(user_id, post_id);
@@ -45,11 +44,12 @@ export const countReaction = async (post_id) => {
 export const checkExistingReaction = async (id, post_id) => {
     try {
         const user_id = await getUserIdByAccId(id);
-        const { rows } = await pool.query(
+        const res = await pool.query(
             `SELECT * FROM tbl_reaction WHERE user_id = $1 AND post_id = $2`,
             [user_id, post_id]
         );
-        return rows[0] || null;
+        const result = res.rows[0];
+        return result;
     } catch (error) {
         return {
             status: 500,
