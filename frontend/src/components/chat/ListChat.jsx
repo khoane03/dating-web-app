@@ -14,7 +14,35 @@ function ListChat() {
   const receiverId = useParams().id;
   const [infoUser, setInfoUser] = useState({});
 
+  const handleTime = (sent_at) => {
+    const date = new Date(sent_at);
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
 
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} phút trước`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} giờ trước`;
+    } else {
+      const optionsDate = {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      };
+      const optionsTime = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      };
+      const formattedDate = date.toLocaleDateString("en-US", optionsDate);
+      const formattedTime = date.toLocaleTimeString("en-US", optionsTime);
+      return `${formattedDate} ${formattedTime}`;
+    }
+  };
+
+  // Các hàm khác giữ nguyên
   const getUser = async () => {
     try {
       const response = await getUserLogin();
@@ -24,7 +52,6 @@ function ListChat() {
     }
   };
 
-  // Hàm để tải lịch sử tin nhắn từ API
   const getHistory = async () => {
     try {
       const response = await getChat(receiverId);
@@ -37,14 +64,12 @@ function ListChat() {
   const getInfoUser = async () => {
     try {
       const response = await getInfoUserChat(receiverId);
-      console.log(response);
       setInfoUser(response.data);
     } catch (error) {
       console.error("Error fetching user info:", error);
     }
   };
 
-  // Hàm để gửi tin nhắn qua WebSocket
   const sendMessage = () => {
     if (input.trim() === "") return;
 
@@ -59,23 +84,15 @@ function ListChat() {
       };
       wsRef.current.send(JSON.stringify(newMessage));
       setInput("");
-    } else {
-      console.error("WebSocket is not connected");
     }
   };
 
   const connectWebSocket = () => {
-    console.log("Connecting WebSocket...");
-    if (wsRef.current) {
-      console.log("WebSocket is already connected");
-      return;
-    }
+    if (wsRef.current) return;
     const wss = new WebSocket("ws://localhost:3000");
 
-    //kết nối websocket
     wss.onopen = () => {
       wsRef.current = wss;
-      console.log("Connected");
       const joinMessage = {
         type: "join",
         userId: currentUserId.current,
@@ -83,7 +100,6 @@ function ListChat() {
       wss.send(JSON.stringify(joinMessage));
     };
 
-    //nhận tin nhắn từ server
     wss.onmessage = (msg) => {
       try {
         const data = JSON.parse(msg.data);
@@ -95,7 +111,6 @@ function ListChat() {
 
     wss.onerror = (err) => console.error("Error:", err);
     wss.onclose = () => console.log("Disconnected");
-
   };
 
   useEffect(() => {
@@ -112,7 +127,7 @@ function ListChat() {
       getInfoUser();
     }
   }, [receiverId]);
-  // Cuộn xuống cuối danh sách tin nhắn khi có tin nhắn mới
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -121,52 +136,81 @@ function ListChat() {
 
   return (
     <>
-      {receiverId ? <div className="mx-auto bg-[#101417] overflow-hidden flex flex-col w-full h-full">
-        <div className="bg-[#101417] border border-[#3C444F] text-white text-lg font-semibold p-4 flex items-center gap-2">
-          <Link to={"/profile"} className="flex items-center p-1">
-            <img className="w-10 h-10 rounded-full" src={infoUser.avatar_url} alt="" />
-            <span className="font-bold ml-2">{infoUser.full_name}</span>
-          </Link>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2 border-l border-l-[#3C444F]">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`p-3 max-w-xs rounded-lg ${msg.sender_id === currentUserId.current
-                ? "bg-[#101417] text-white self-end ml-auto border"
-                : "bg-gray-200 text-gray-800"
-                }`}
-            >
-              {msg.message}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="p-4 flex items-center gap-2 border-t border-[#3C444F]">
-          <input
-            type="text"
-            className="flex-1 py-2 px-4 focus:outline-none bg-[#101417] text-white"
-            placeholder="Nhập tin nhắn..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
-          <button
-            className="bg-dark text-white p-2 rounded-lg hover:text-[#FD2B75]"
-            onClick={sendMessage}
-          >
-            <FontAwesomeIcon
-              className="bg-gray-500 p-4 rounded-2xl"
-              icon={faPaperPlane}
+      {receiverId ? (
+        <div className="mx-auto bg-[#101417] overflow-hidden flex flex-col w-full h-full">
+          {/* Header */}
+          <div className="bg-[#101417] border-b border-[#3C444F] text-white text-lg font-semibold p-4 flex items-center gap-2">
+            <Link to={`/profile/${infoUser.id}`} className="flex items-center">
+              <img className="w-10 h-10 rounded-full" src={infoUser.avatar_url} alt="" />
+              <span className="font-bold ml-2">{infoUser.full_name}</span>
+            </Link>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg, index) => (
+              <div key={index}
+                className={`flex items-end gap-2 ${msg.sender_id === currentUserId.current ? "justify-end" : ""}`}>
+                {msg.sender_id !== currentUserId.current && (
+                  <Link to={`/profile/${infoUser.id}`}>
+                    <img className="border border-pink-400 w-10 h-10 rounded-full" src={infoUser.avatar_url} alt="" />
+                  </Link>
+                )}
+
+                <div className="group relative max-w-xs">
+                  <div
+                    className={`p-3 rounded-xl shadow-md ${msg.sender_id === currentUserId.current
+                      ? "bg-[#FD2B75] text-white"
+                      : "bg-gray-200 text-black"
+                      }`}>
+                    <span className="break-words whitespace-pre-wrap">
+                      {msg.message}
+                    </span>
+                  </div>
+
+                  {/* Tooltip thời gian với hiệu ứng đẹp hơn */}
+                  <div className={` absolute ${msg.sender_id === currentUserId.current ? "right-0" : "left-0"}
+                     bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none`}>
+                    <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded-lg shadow-lg whitespace-nowrap ">
+                      {handleTime(msg.sent_at)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+
+            {messages.length > 0 && (
+              <div className={`text-gray-500 text-xs mb-3 ${messages[messages.length - 1].sender_id === currentUserId.current ? "text-end" : "text-start"}`}>
+                {(messages[messages.length - 1].sender_id === currentUserId.current ? "Bạn" : infoUser.full_name) + " đã gửi: "}
+                {handleTime(messages[messages.length - 1].sent_at)}
+              </div>
+            )}
+          </div>
+          {/* Input message */}
+          <div className="p-4 flex items-center gap-3 border-t border-[#3C444F] bg-[#101417]">
+            <input
+              type="text"
+              className="flex-1 py-2 px-4 bg-gray-700 text-white rounded-lg focus:outline-none"
+              placeholder="Nhập tin nhắn..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
-          </button>
+            <button
+              className="bg-[#FD2B75] text-white p-3 rounded-full hover:bg-[#e22665] transition-all duration-200"
+              onClick={sendMessage}
+            >
+              <FontAwesomeIcon icon={faPaperPlane} />
+            </button>
+          </div>
         </div>
-      </div>
-        :
+      ) : (
         <div className="text-white flex flex-col items-center justify-center h-full">
-          <FontAwesomeIcon className="text-4xl" icon={faMessage} />
+          <FontAwesomeIcon className="text-4xl mb-4" icon={faMessage} />
           <p className="text-center text-white">Chọn một cuộc trò chuyện</p>
-        </div>}
+        </div>
+      )}
     </>
   );
 }
