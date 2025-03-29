@@ -30,7 +30,7 @@ export const searchUsers = async (keyword, id) => {
             queryParams.push(keyword.gender);
             query += ` AND gender = $${queryParams.length}`;
         }
-        if (keyword.age) {
+        if (keyword.age) {1
             queryParams.push(parseInt(keyword.age, 10));
             query += ` AND age <= $${queryParams.length}`;
         }
@@ -42,7 +42,7 @@ export const searchUsers = async (keyword, id) => {
             const currentDistance = await calculationDistance(
                 location.latitude, location.longitude, user.latitude, user.longitude
             );
-            return currentDistance <= keyword.distance ? { ...user, distance: currentDistance } : null;
+            return Number(currentDistance) <= Number(keyword.distance) ? { ...user, distance: currentDistance } : null;
         }));
 
         return {

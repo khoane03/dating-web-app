@@ -6,8 +6,8 @@ const Search = () => {
     const [loading, setLoading] = useState(false);
     const [keyword, setKeyword] = useState({
         gender: "Tất cả",
-        age: 1,
-        distance: 1,
+        age: 18,
+        distance: 5,
     });
     const [result, setResult] = useState([]);
 
@@ -15,9 +15,13 @@ const Search = () => {
         try {
             setLoading(true);
             setResult([]);
-            const res = await search(keyword);
-            console.log("Kết quả tìm kiếm:", res.data);
-            setResult(res.data);
+            if(keyword &&  keyword.age  && keyword.age <18){
+                alert("Khong tim kiem nguoi duoi 18 tuoi");
+            }else{
+                const res = await search(keyword);
+                console.log("Kết quả tìm kiếm:", res.data);
+                setResult(res.data);
+            }
         } catch (error) {
             console.error("Lỗi tìm kiếm:", error);
         } finally {
@@ -49,8 +53,8 @@ const Search = () => {
                     <label className="font-semibold text-gray-700">Độ tuổi: {keyword.age}+</label>
                     <input
                         type="range"
-                        min="1"
-                        max="100"
+                        min="18"
+                        max="40"
                         value={keyword.age}
                         onChange={(e) => setKeyword({ ...keyword, age: parseInt(e.target.value) })}
                         className="w-full accent-pink-500"
@@ -63,7 +67,7 @@ const Search = () => {
                     <input
                         type="range"
                         min="1"
-                        max="20"
+                        max="30"
                         value={keyword.distance}
                         onChange={(e) => setKeyword({ ...keyword, distance: parseInt(e.target.value) })}
                         className="w-full accent-pink-500"

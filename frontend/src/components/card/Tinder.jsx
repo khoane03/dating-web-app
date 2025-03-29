@@ -176,7 +176,7 @@ const TinderSwipe = ({ posts_id }) => {
             <div className="relative group w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl">
               {/* Hiển thị ảnh bài post */}
               <img
-                src={currentPostData.images}
+                src={currentPostData.images} 
                 alt="Hồ sơ"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -188,7 +188,7 @@ const TinderSwipe = ({ posts_id }) => {
               <ButtonImage />
 
               {/* Thông tin hồ sơ */}
-              <div className="absolute bottom-0 left-0 right-0 rounded-2xl backdrop-blur-sm z-[1000]">
+              <div className="absolute bottom-0 left-0 right-0 rounded-2xl backdrop-blur-sm z-[1000]" >
                 <div className="p-4">
                   {/* Hiển thị khoảng cách */}
                   <div className="flex items-center bg-green-300 p-2 rounded-lg w-1/3">
@@ -198,7 +198,7 @@ const TinderSwipe = ({ posts_id }) => {
 
                   {/* Tên và link profile */}
                   <Link to={`/profile/${profile[currentProfile]?.user_id}`}>
-                    <h1 className="text-4xl font-bold m-2 hover:text-pink-400">
+                    <h1 className="text-4xl text-black font-bold m-2 hover:text-pink-400">
                       {profile[currentProfile]?.full_name}
                     </h1>
                   </Link>
