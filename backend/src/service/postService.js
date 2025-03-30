@@ -8,6 +8,7 @@ export const getAllPosts = async (id) => {
                 u.full_name,
                 u.latitude,
                 u.longitude,
+                u.avatar_url,
                 up.id,
                 up.user_id,
                 up.content,
@@ -34,6 +35,7 @@ export const getImageByUserId = async (id) => {
                 u.full_name,
                 u.latitude,
                 u.longitude,
+                u.avatar_url,
                 up.id,
                 up.user_id,
                 up.content,
@@ -95,6 +97,7 @@ const resultPost = (rows) => {
     rows.forEach(row => {
         if (!data.has(row.user_id)) {
             data.set(row.user_id, {
+                avatar_url: row.avatar_url,
                 user_id: row.user_id,
                 full_name: row.full_name,
                 latitude: row.latitude,

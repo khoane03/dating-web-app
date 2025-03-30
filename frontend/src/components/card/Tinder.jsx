@@ -13,6 +13,7 @@ import { calculationDistance } from "../../service/location";
 import Reactions from "../reaction/Reactions";
 import { checkReaction, countReactions } from "../../service/reactionService";
 import { addMatch, checkMatch } from "../../service/matchServie";
+import Match from "./Match";
 
 const icons = (type) => {
   switch (type) {
@@ -39,10 +40,12 @@ const TinderSwipe = ({ posts_id }) => {
   const [totalReaction, setTotalReaction] = useState(0);
   const [reactionType, setReactionType] = useState('');
   const [matched, setMatched] = useState(new Map());
+  const [showMatch, setShowMatch] = useState(false);
 
   const handleMatch = async (user_id) => {
     try {
       await addMatch(user_id);
+      setShowMatch(false);
     } catch (error) {
       console.error(error);
     }
@@ -63,28 +66,38 @@ const TinderSwipe = ({ posts_id }) => {
   useEffect(() => {
     const getListMatch = async () => {
       const listMatchs = new Map();
-      for (const user of profile) {
+      const matchPromises = profile.map(async (user) => {
         const res = await checkMatch(user.user_id);
-        if (res) listMatchs.set(user.user_id, res.status);
-        else listMatchs.set(user.user_id, 0);
-      }
+        listMatchs.set(user.user_id, res ? res.status : 0);
+      });
+      await Promise.all(matchPromises);
       setMatched(listMatchs);
     };
+
     if (profile.length > 0) getListMatch();
-  }, [profile, userLocation]);
+  }, [profile, userLocation, showMatch]);
+
 
   //lấy danh sách bài post
   useEffect(() => {
     const fetchPosts = async () => {
+      let res = [];
       try {
         setLoading(true);
         const user = await getUserLogin();
         setUserLocation({ latitude: user.data.latitude, longitude: user.data.longitude, avatar_url: user.data.avatar_url });
-
-        const res = (posts_id || location.pathname === "/search") ? await getPostByUserId(posts_id) : await getAllPosts();
+        if (location.pathname === "/search") {
+          if (!posts_id) {
+            setProfile([]);
+            return;
+          }
+          res = await getPostByUserId(posts_id)
+        } else {
+          res = await getAllPosts();
+        }
         setProfile(res.data);
       } catch (error) {
-        console.error("Lỗi lấy bài post:", error);
+        console.error("Lỗi lấy danh sách bài post:", error);
       } finally {
         setTimeout(() => setLoading(false), 3000);
       }
@@ -96,21 +109,36 @@ const TinderSwipe = ({ posts_id }) => {
   useEffect(() => {
     const calculateDistances = async () => {
       const distanceMap = new Map();
-      for (const user of profile) {
+      const distancePromises = profile.map(async (user) => {
         const res = await calculationDistance(
           user.latitude, user.longitude, userLocation.latitude, userLocation.longitude
         );
         distanceMap.set(user.user_id, res);
-      }
+      });
+      await Promise.all(distancePromises);
       setDistance(distanceMap);
     };
+
     if (profile.length > 0) calculateDistances();
   }, [profile, userLocation]);
+
 
   if (profile.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-white text-center text-2xl">Không có dữ liệu</div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="relative w-28 h-28 flex justify-center items-center">
+          <div className="absolute inset-0 flex justify-center items-center border-2 bg-pink-400 border-pink-600 rounded-full animate-ping w-28 h-28">
+          </div>
+          <img className="rounded-full w-24 h-24 border-2 border-gray-300" src={userLocation.avatar_url} alt="" />
+        </div>
       </div>
     );
   }
@@ -125,15 +153,6 @@ const TinderSwipe = ({ posts_id }) => {
     });
   };
 
-  const LoadingPost = () => {
-    return (
-      <div className="relative w-28 h-28 flex justify-center items-center">
-        <div className="absolute inset-0 flex justify-center items-center border-2 bg-pink-400 border-pink-600 rounded-full animate-ping w-28 h-28">
-        </div>
-        <img className="rounded-full w-24 h-24 border-2 border-gray-300" src={userLocation.avatar_url} alt="" />
-      </div>
-    );
-  };
 
   const NavImage = () => {
     return (
@@ -166,87 +185,91 @@ const TinderSwipe = ({ posts_id }) => {
     );
   }
 
+  const matchStatus = matched.get(profile[currentProfile]?.user_id);
+  const colorClass = matchStatus === 2 ? "text-pink-500"
+    : matchStatus === 1 ? "text-yellow-500"
+      : "text-green-500";
+
   const currentPostData = profile[currentProfile]?.posts?.[currentPost] || {};
 
   return (
     <>
-      {loading ? <LoadingPost /> :
-        <div className="flex justify-center items-center h-screen">
-          <div className="relative w-[400px] h-[90%] border-2 border-gray-800 rounded-2xl overflow-hidden">
-            <div className="relative group w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl">
-              {/* Hiển thị ảnh bài post */}
-              <img
-                src={currentPostData.images}
-                alt="Hồ sơ"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+      <div className={`flex justify-center items-center h-screen`}>
+        <div className="relative w-[400px] h-[90%] border-2 border-gray-800 rounded-2xl overflow-hidden">
+          {showMatch && <Match className='transition-transform duration-1000 ease-in-out'
+            user1Image={userLocation.avatar_url}
+            user2Image={profile[currentProfile]?.avatar_url || 'default.jpg'}
+            matchedUserName={profile[currentProfile]?.full_name}
+            status={matched.get(profile[currentProfile]?.user_id)}
+            isAccept={() => { handleMatch(profile[currentProfile]?.user_id) }}
+            isReject={() => { setShowMatch(false) }}
+          />}
+          <div className={`${showMatch ? 'hidden' : 'block'} relative group w-full h-full bg-black text-white rounded-2xl overflow-hidden shadow-2xl`}>
+            {/* Hiển thị ảnh bài post */}
+            <img
+              src={currentPostData.images}
+              alt="Hồ sơ"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
 
-              {/* Thanh điều hướng ảnh */}
-              <NavImage />
+            {/* Thanh điều hướng ảnh */}
+            <NavImage />
 
-              {/* Nút điều hướng ảnh */}
-              <ButtonImage />
+            {/* Nút điều hướng ảnh */}
+            <ButtonImage />
 
-              {/* Thông tin hồ sơ */}
-              <div className="absolute bottom-0 left-0 right-0 rounded-2xl backdrop-blur-sm z-[1000]">
-                <div className="p-4">
-                  {/* Hiển thị khoảng cách */}
-                  <div className="flex items-center bg-green-300 p-2 rounded-lg w-1/3">
-                    <FontAwesomeIcon icon={faLocationDot} className="text-yellow-700" />
-                    <span className="ml-2 text-black">{distance.get(profile[currentProfile]?.user_id) || "N/A"}</span>
-                  </div>
-
-                  {/* Tên và link profile */}
-                  <Link to={`/profile/${profile[currentProfile]?.user_id}`}>
-                    <h1 className="text-4xl font-bold m-2 hover:text-pink-400">
-                      {profile[currentProfile]?.full_name}
-                    </h1>
-                  </Link>
-
-                  {/* Nội dung bài post */}
-                  <span className="ml-2 text-white bg-gray-700 p-2 rounded-lg inline-flex items-center">
-                    <FontAwesomeIcon icon={faQuoteLeft} className="mr-2" />
-                    <span className="font-semibold">{currentPostData.contents}</span>
-                    <FontAwesomeIcon icon={faQuoteRight} className="ml-2" />
-                  </span>
+            {/* Thông tin hồ sơ */}
+            <div className="absolute bottom-0 left-0 right-0 rounded-2xl backdrop-blur-sm z-[1000]">
+              <div className="p-4">
+                {/* Hiển thị khoảng cách */}
+                <div className="flex items-center bg-green-300 p-2 rounded-lg w-1/3">
+                  <FontAwesomeIcon icon={faLocationDot} className="text-yellow-700" />
+                  <span className="ml-2 text-black">{distance.get(profile[currentProfile]?.user_id) || "N/A"}</span>
                 </div>
 
-                {/* Nút thao tác */}
-                <div className="flex justify-around py-4">
-                  <button onClick={() => handleNavigation("prev", profile, setCurrentProfile, setCurrentPost)}
-                    className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
-                    <FontAwesomeIcon icon={faArrowLeft} className="text-yellow-500 w-8 h-8 text-2xl" />
-                  </button>
-                  {(matched.get(profile[currentProfile]?.user_id) === 2) ?
-                    <button onClick={() => handleMatch(profile[currentProfile]?.user_id)}
-                      className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
-                      <FontAwesomeIcon icon={faHeart} className="text-pink-500 w-8 h-8 text-2xl" />
-                    </button> :
-                    <button onClick={() => handleMatch(profile[currentProfile]?.user_id)}
-                      className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
-                      <FontAwesomeIcon icon={faHeart} className="text-green-500 w-8 h-8 text-2xl" />
-                    </button>
+                {/* Tên và link profile */}
+                <Link to={`/profile/${profile[currentProfile]?.user_id}`}>
+                  <h1 className="text-4xl font-bold m-2 hover:text-pink-400">
+                    {profile[currentProfile]?.full_name}
+                  </h1>
+                </Link>
 
-                  }
-                  <div className="relative group/reactions flex items-center justify-between">
-                    <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
-                      {totalReaction}
-                      {icons(reactionType)}
-                    </button>
-                    <div className="absolute -top-12 transform -translate-x-1/4 hidden group-hover/reactions:flex">
-                      <Reactions postId={currentPostData.id} callTotal={updateTotalReaction} />
-                    </div>
-                  </div>
-                  <button onClick={() => handleNavigation("next", profile, setCurrentProfile, setCurrentPost)}
-                    className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
-                    <FontAwesomeIcon icon={faArrowRight} className="text-red-500 w-8 h-8 text-2xl" />
+                {/* Nội dung bài post */}
+                <span className="ml-2 text-white bg-gray-700 p-2 rounded-lg inline-flex items-center">
+                  <FontAwesomeIcon icon={faQuoteLeft} className="mr-2" />
+                  <span className="font-semibold">{currentPostData.contents}</span>
+                  <FontAwesomeIcon icon={faQuoteRight} className="ml-2" />
+                </span>
+              </div>
+
+              {/* Nút thao tác */}
+              <div className="flex justify-around py-4">
+                <button onClick={() => handleNavigation("prev", profile, setCurrentProfile, setCurrentPost)}
+                  className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
+                  <FontAwesomeIcon icon={faArrowLeft} className="text-yellow-500 w-8 h-8 text-2xl" />
+                </button>
+                <button onClick={() => setShowMatch(true)}
+                  className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
+                  <FontAwesomeIcon icon={faHeart} className={`w-8 h-8 text-2xl ${colorClass}`} />
+                </button>
+                <div className="relative group/reactions flex items-center justify-between">
+                  <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
+                    {totalReaction}
+                    {icons(reactionType)}
                   </button>
+                  <div className="absolute -top-12 transform -translate-x-1/4 hidden group-hover/reactions:flex">
+                    <Reactions postId={currentPostData.id} callTotal={updateTotalReaction} />
+                  </div>
                 </div>
+                <button onClick={() => handleNavigation("next", profile, setCurrentProfile, setCurrentPost)}
+                  className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
+                  <FontAwesomeIcon icon={faArrowRight} className="text-red-500 w-8 h-8 text-2xl" />
+                </button>
               </div>
             </div>
           </div>
         </div>
-      }
+      </div>
     </>
   );
 };
