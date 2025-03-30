@@ -11,7 +11,6 @@ const Notifi = () => {
         try {
             setLoading(true);
             const response = await getMatchById();
-            console.log(response);
             setRequests(response);
         } catch (err) {
             setError(err.message);
@@ -28,10 +27,10 @@ const Notifi = () => {
 
     const handleAccept = async (matchId) => {
         try {
-           const res = await updateMatchRequestStatus(matchId, 2);
-           console.log(res);
+            const res = await updateMatchRequestStatus(matchId, 2);
+            console.log(res);
             fetchMatchRequests(); // Cập nhật lại danh sách
-           
+
         } catch (err) {
             setError(err.message);
         }
@@ -39,8 +38,8 @@ const Notifi = () => {
 
     const handleReject = async (matchId) => {
         try {
-           const res = await updateMatchRequestStatus(matchId, 0);
-           console.log(res);
+            const res = await updateMatchRequestStatus(matchId, 0);
+            console.log(res);
             fetchMatchRequests(); // Cập nhật lại danh sách
         } catch (err) {
             setError(err.message);
@@ -57,36 +56,42 @@ const Notifi = () => {
 
     return (
         <div className="flex justify-center items-center h-screen">
-            <div className="relative w-[400px] h-[90%] border-2 bg-white rounded-2xl overflow-hidden">
+            <div className="relative w-[400px] h-[90%] border-2 bg-white rounded-2xl overflow-hidden p-4">
+                <h2 className="text-2xl text-center font-bold text-gray-800 mb-4">
+                    Yêu cầu ghép đôi
+                </h2>
 
-                <h2 className="text-2xl text-center font-bold text-black mb-4">Yêu cầu ghép đôi</h2>
                 {requests.length === 0 ? (
-                    <p className="text-black text-center">Không có yêu cầu ghép đôi nào.</p>
+                    <p className="text-gray-600 text-center">
+                        Không có yêu cầu ghép đôi nào.
+                    </p>
                 ) : (
                     <ul className="space-y-4">
                         {requests.map((request) => (
                             <li
                                 key={request.id}
-                                className="flex items-center justify-between p-4 bg-gray-800 rounded-lg"
+                                className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
                             >
                                 <div className="flex items-center">
                                     <img
                                         src={request.avatar_url || "/default.jpg"}
                                         alt={request.full_name}
-                                        className="w-12 h-12 rounded-full mr-4"
+                                        className="w-14 h-14 rounded-full border-2 border-gray-300 shadow-sm mr-1"
                                     />
-                                    <span className="text-black font-semibold">{request.full_name}</span>
+                                    <span className="text-gray-800 font-semibold text-lg">
+                                        {request.full_name}
+                                    </span>
                                 </div>
                                 <div className="flex space-x-2">
                                     <button
                                         onClick={() => handleAccept(request.id)}
-                                        className="px-4 py-2 bg-green-500 text-black rounded hover:bg-green-600"
+                                        className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg shadow-md hover:bg-green-600 transition duration-300"
                                     >
                                         Chấp nhận
                                     </button>
                                     <button
                                         onClick={() => handleReject(request.id)}
-                                        className="px-4 py-2 bg-red-500 text-black rounded hover:bg-red-600"
+                                        className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow-md hover:bg-red-600 transition duration-300"
                                     >
                                         Từ chối
                                     </button>

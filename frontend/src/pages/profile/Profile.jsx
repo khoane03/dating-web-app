@@ -12,7 +12,7 @@ import { Accept } from "../../components/popup/Accept";
 
 const Profile = () => {
 
-  const [isUserLogin, setIsUserLogin] = useState(false);
+  const [isUserLogin, setIsUserLogin] = useState(false); 
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [dataUpdate, setDataUpdate] = useState({
@@ -90,6 +90,7 @@ const Profile = () => {
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
       setIsAccept(false); // Đóng popup xác nhận
     } catch (error) {
+      console.error(error);
       setError("Lỗi khi cập nhật hồ sơ: " + error.response?.data?.message || error.message);
     }
   };
@@ -148,6 +149,7 @@ const Profile = () => {
       setEditData({ ...editData, address });
       setSuccess("Cập nhật vị trí thành công!");
     } catch (error) {
+      console.error(error);
       setError("Lỗi khi cập nhật vị trí: " + error.response?.data?.message || error.message);
     } finally {
       setLoading(false);

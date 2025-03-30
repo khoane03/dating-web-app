@@ -34,20 +34,20 @@ export const handleGoogleCallback = async (account) => {
     if (existingUsers.length > 0) {
       await client.query("COMMIT");
       return { code: 200, message: "Đăng nhập thành công!", data: generateAuthTokens(existingUsers[0]) };
+    }else{
+      const { rows } = await client.query(
+        `INSERT INTO tbl_accounts (email, status, social_id, role) VALUES ($1, $2, $3, $4) RETURNING id, email, role`,
+        [account.email, 1, account.sub, ROLES.USER]
+      );
+  
+      await client.query(
+        `INSERT INTO tbl_users (acc_id, full_name, avatar_url) VALUES ($1, $2, $3)`,
+        [rows[0].id, account.name, account.picture]
+      );
+  
+      await client.query("COMMIT");
+      return { code: 200, message: "Đăng ký thành công!", data: generateAuthTokens(rows[0]) };
     }
-
-    const { rows } = await client.query(
-      `INSERT INTO tbl_accounts (email, status, social_id, role) VALUES ($1, $2, $3, $4) RETURNING id, email, role`,
-      [account.email, 1, account.sub, ROLES.USER]
-    );
-
-    await client.query(
-      `INSERT INTO tbl_users (acc_id, full_name, avatar_url) VALUES ($1, $2, $3)`,
-      [rows[0].id, account.name, account.picture]
-    );
-
-    await client.query("COMMIT");
-    return { code: 200, message: "Đăng ký thành công!", data: generateAuthTokens(rows[0]) };
   } catch (error) {
     await client.query("ROLLBACK");
     return handleError("Có lỗi xảy ra trong quá trình xử lý!", error);

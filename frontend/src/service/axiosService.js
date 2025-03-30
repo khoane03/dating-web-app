@@ -11,30 +11,31 @@ const noAuthUrls = ["/auth/"];
 
 axiosService.interceptors.request.use(
     async (config) => {
-      if (noAuthUrls.some((url) => config.url?.includes(url))) return config;
-  
-      const token = getAccessToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        return config;
-      }
-  
-      try {
-        const response = await refreshToken();
-        const newAccessToken = response.data.accessToken;
-        setAccessToken(newAccessToken);
-        config.headers.Authorization = `Bearer ${newAccessToken}`;
-        return config;
-      } catch (error) {
-        console.error("Refresh token failed:", error);
-        removeAccessToken();
-        window.location.href = "/intro";
-        return Promise.reject(error);
-      }
+        if (noAuthUrls.some((url) => config.url?.includes(url))) return config;
+
+        const token = getAccessToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            return config;
+        } else {
+            try {
+                const response = await refreshToken();
+                const newAccessToken = response.data.accessToken;
+                setAccessToken(newAccessToken);
+                config.headers.Authorization = `Bearer ${newAccessToken}`;
+                return config;
+            } catch (error) {
+                console.error("Refresh token failed:", error);
+                removeAccessToken();
+                window.location.href = "/intro";
+                return Promise.reject(error);
+            }
+        }
+
     },
     (error) => Promise.reject(error)
-  );
-  
+);
+
 
 axiosService.interceptors.response.use(
     (response) => {
@@ -78,7 +79,7 @@ axiosService.interceptors.response.use(
 
                 default:
                     console.error(`Unhandled status code: ${error.response.status}`);
-                 //   window.location.href = '/intro';
+                    //   window.location.href = '/intro';
                     break;
             }
         }
