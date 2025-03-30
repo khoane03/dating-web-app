@@ -42,7 +42,7 @@ export const searchUsers = async (keyword, id) => {
             const currentDistance = await calculationDistance(
                 location.latitude, location.longitude, user.latitude, user.longitude
             );
-            return currentDistance <= keyword.distance ? { ...user, distance: currentDistance } : null;
+            return Number(currentDistance) <= Number(keyword.distance) ? { ...user, distance: currentDistance } : null;
         }));
 
         return {
