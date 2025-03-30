@@ -15,9 +15,9 @@ export const getMatchById = async (id) => {
         `;
         const { rows } = await pool.query(query, [user_id_b]);
         return rows;
-      } catch (error) {
+    } catch (error) {
         throw new Error("Lỗi khi lấy danh sách yêu cầu match: " + error.message);
-      }
+    }
 
 };
 
@@ -30,15 +30,12 @@ export const createMatch = async (id, user_id_b) => {
         let message = '';
         const value = [user_id_a, user_id_b];
         const check = await checkMatch(id, user_id_b);
-        if (check) {
-            if (check.status === 1) {
-                query = 'DELETE FROM tbl_matches WHERE ((user_id_a = $1 AND user_id_b = $2) OR (user_id_a = $2 AND user_id_b = $1))';
-                message = 'Huỷ kết nối thành công!';
-            } else {
-                query = 'UPDATE tbl_matches SET status = 1 WHERE ((user_id_a = $1 AND user_id_b = $2) OR (user_id_a = $2 AND user_id_b = $1)) RETURNING *';
-                message = 'Gửi lời mời kết nối thành công!'; 
-            }
+        if (check && check.status) {
+
+            query = 'DELETE FROM tbl_matches WHERE ((user_id_a = $1 AND user_id_b = $2) OR (user_id_a = $2 AND user_id_b = $1))';
+            message = 'Huỷ kết nối thành công!';
         } else {
+
             query = "INSERT INTO tbl_matches (user_id_a, user_id_b, status) VALUES ($1, $2, 1) RETURNING *";
             message = 'Gửi lời mời kết nối thành công!';
         }
@@ -51,7 +48,9 @@ export const createMatch = async (id, user_id_b) => {
 
 export const updateMatch = async (id, status) => {
     try {
-        if (status === '0') {
+
+
+        if (status === 0) {
             const { rows } = await pool.query(
                 "DELETE FROM tbl_matches WHERE id = $1 RETURNING *",
                 [id]
@@ -84,7 +83,7 @@ export const getListMatch = async (id) => {
         const { rows } = await pool.query(query, [user_id_a]);
         return rows;
     } catch (error) {
-        console.error("Lỗi getListMatch:", error);
+
         return error;
     }
 };
