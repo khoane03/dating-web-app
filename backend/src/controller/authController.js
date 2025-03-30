@@ -42,6 +42,7 @@ export const googleCallback = async (req, res) => {
       return res.redirect(process.env.CLIENT_URL + "/login");
     }
     const result = await googleLoginCallbackService(user.user);
+    console.log(result);
     const { refreshToken } = result.data;
     setCookie(res, "refreshToken", refreshToken);
     setTimeout(() => {
