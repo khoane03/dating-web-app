@@ -12,7 +12,7 @@ import { Accept } from "../../components/popup/Accept";
 
 const Profile = () => {
 
-  const [isUserLogin, setIsUserLogin] = useState(false); 
+  const [isUserLogin, setIsUserLogin] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [dataUpdate, setDataUpdate] = useState({
@@ -83,6 +83,11 @@ const Profile = () => {
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
+      if(validateAge(editData.dob) === false){
+        setIsAccept(false);
+        setError("Bạn phải từ 18 tuổi trở lên để sử dụng ứng dụng này!");
+        return;
+      }
       await updateUserProfile(editData);
       if (avatar) await handleUploadImage();
       setSuccess("Hồ sơ đã được cập nhật!");
@@ -169,7 +174,7 @@ const Profile = () => {
       age--;
     }
 
-    return age >= 21;
+    return age >= 18;
   };
 
 
@@ -289,11 +294,7 @@ const Profile = () => {
                 disabled={!isUpdate}
                 value={formatDate(editData.dob) || ""}
                 onChange={(e) => {
-                  if (validateAge(e.target.value)) {
-                    setEditData({ ...editData, dob: e.target.value });
-                  } else {
-                    alert("Bạn phải ít nhất 21 tuổi!");
-                  }
+                  setEditData({ ...editData, dob: e.target.value });
                 }}
               />
 
