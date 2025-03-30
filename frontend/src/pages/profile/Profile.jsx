@@ -8,10 +8,11 @@ import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { getAddress, getLocation, updateLocationUser } from "../../service/location";
+import { Accept } from "../../components/popup/Accept";
 
 const Profile = () => {
 
-  const [isUserLogin, setIsUserLogin] = useState(false); 
+  const [isUserLogin, setIsUserLogin] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [dataUpdate, setDataUpdate] = useState({
@@ -37,6 +38,7 @@ const Profile = () => {
   const [avatar, setAvatar] = useState(null);
   const userId = useParams().id;
   const [loading, setLoading] = useState(false);
+  const [isAccept, setIsAccept] = useState(false);
 
 
 
@@ -81,11 +83,17 @@ const Profile = () => {
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
     try {
+      if(validateAge(editData.dob) === false){
+        setIsAccept(false);
+        setError("Bạn phải từ 18 tuổi trở lên để sử dụng ứng dụng này!");
+        return;
+      }
       await updateUserProfile(editData);
       if (avatar) await handleUploadImage();
       setSuccess("Hồ sơ đã được cập nhật!");
       setData(editData); //cập nhật lại data sau khi lưu
       setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
+      setIsAccept(false); // Đóng popup xác nhận
     } catch (error) {
       console.error(error);
       setError("Lỗi khi cập nhật hồ sơ: " + error.response?.data?.message || error.message);
@@ -153,6 +161,22 @@ const Profile = () => {
     }
   };
 
+  const validateAge = (birthDateString) => {
+    const [year, month, day] = birthDateString.split("-").map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    if (
+      today.getMonth() < birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age >= 18;
+  };
+
 
 
   useEffect(() => {
@@ -161,6 +185,7 @@ const Profile = () => {
 
   return (
     <>
+      {isAccept && <Accept action={"lưu"} isReject={() => { setIsAccept(false) }} isAccept={() => { handleUpdateProfile() }} />}
       {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">
@@ -268,8 +293,11 @@ const Profile = () => {
                 className="outline p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
                 disabled={!isUpdate}
                 value={formatDate(editData.dob) || ""}
-                onChange={(e) => setEditData({ ...editData, dob: e.target.value })}
+                onChange={(e) => {
+                  setEditData({ ...editData, dob: e.target.value });
+                }}
               />
+
 
               <p className="mb-1"><strong>Mô tả bản thân:</strong></p>
               <textarea
@@ -349,7 +377,7 @@ const Profile = () => {
                     {isChangePassword ? "Cập nhật" : "Đổi mật khẩu"}
                   </button>
                   <button onClick={() => {
-                    if (isUpdate) handleUpdateProfile(); // Lưu thông tin khi bấm Lưu
+                    if (isUpdate) setIsAccept(true); // Lưu thông tin khi bấm Lưu
                     setIsUpdate(!isUpdate);
                   }}
                     className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold">
