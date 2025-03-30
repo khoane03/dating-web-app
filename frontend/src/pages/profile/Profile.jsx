@@ -3,15 +3,11 @@ import { FaCheckCircle } from "react-icons/fa";
 import { changePassword, getUserLogin, updateUserProfile, avatarUpdate } from "../../service/userService";
 import Alert from "../../components/alert/Alert";
 import { isMatch, validatePassword } from "../../validator/appValidate";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { useParams } from "react-router-dom";
 import { getAddress, getLocation, updateLocationUser } from "../../service/location";
 import { Accept } from "../../components/popup/Accept";
 
 const Profile = () => {
-
   const [isUserLogin, setIsUserLogin] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
@@ -32,24 +28,34 @@ const Profile = () => {
     bio: "",
     criteria: "",
     avatar_url: "",
+    address: "",
   });
-  // Thêm state để lưu dữ liệu chỉnh sửa
-  const [editData, setEditData] = useState({ ...data });
+  const [editData, setEditData] = useState({
+    full_name: "",
+    dob: "",
+    age: "",
+    gender: "",
+    occupation: "",
+    hobbies: "",
+    bio: "",
+    criteria: "",
+    avatar_url: "",
+    address: "",
+  });
   const [avatar, setAvatar] = useState(null);
   const userId = useParams().id;
   const [loading, setLoading] = useState(false);
   const [isAccept, setIsAccept] = useState(false);
 
-
-
   const formatDate = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${year}-${month}-${day}`;
   };
-
 
   const checkUserLogin = async () => {
     try {
@@ -71,14 +77,14 @@ const Profile = () => {
       checkUserLogin();
       const res = await getUserLogin(userId);
       if (res?.message !== "Không tìm thấy người dùng!") {
-        setData(res.data);
-        setEditData(res.data);
+        const userData = res.data;
+        setData(userData);
+        setEditData({...userData});
       }
     } catch (error) {
       setError("Lỗi khi lấy thông tin người dùng: " + error.response?.data?.message || error.message);
     }
   };
-
 
   // Hàm xử lý cập nhật thông tin
   const handleUpdateProfile = async () => {
@@ -90,10 +96,11 @@ const Profile = () => {
       }
       await updateUserProfile(editData);
       if (avatar) await handleUploadImage();
+      
       setSuccess("Hồ sơ đã được cập nhật!");
-      setData(editData); //cập nhật lại data sau khi lưu
-      setIsUpdate(false); // Tắt chế độ chỉnh sửa sau khi lưu thành công
-      setIsAccept(false); // Đóng popup xác nhận
+      setData({...editData});
+      setIsUpdate(false);
+      setIsAccept(false);
     } catch (error) {
       console.error(error);
       setError("Lỗi khi cập nhật hồ sơ: " + error.response?.data?.message || error.message);
@@ -105,7 +112,10 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setAvatar(file);
-      setEditData({ ...editData, avatar_url: URL.createObjectURL(file) }); // Hiển thị ảnh đã chọn
+      setEditData((prevData) => ({ 
+        ...prevData, 
+        avatar_url: URL.createObjectURL(file) 
+      }));
     }
   };
 
@@ -116,10 +126,9 @@ const Profile = () => {
       return;
     }
     const formData = new FormData();
-    formData.append("id", data.id); // Thêm id vào form data
-    formData.append("avatar", avatar); //  Thêm ảnh vào form data
+    formData.append("id", data.id);
+    formData.append("avatar", avatar);
     try {
-
       const res = await avatarUpdate(formData);
       setSuccess("Tải ảnh lên thành công!");
     } catch (error) {
@@ -140,6 +149,11 @@ const Profile = () => {
       const res = await changePassword(dataUpdate);
       setIsChangePassword(false);
       setSuccess(res.message);
+      setDataUpdate({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -151,8 +165,14 @@ const Profile = () => {
       const { latitude, longitude } = await getLocation();
       const address = await getAddress(latitude, longitude);
       await updateLocationUser(address, latitude, longitude);
-      setEditData({ ...editData, address });
+      
+      setEditData((prevData) => ({
+        ...prevData,
+        address: address
+      }));
+      
       setSuccess("Cập nhật vị trí thành công!");
+      setIsUpdate(false);
     } catch (error) {
       console.error(error);
       setError("Lỗi khi cập nhật vị trí: " + error.response?.data?.message || error.message);
@@ -162,26 +182,51 @@ const Profile = () => {
   };
 
   const validateAge = (birthDateString) => {
-    const [year, month, day] = birthDateString.split("-").map(Number);
-    const birthDate = new Date(year, month - 1, day);
+    if (!birthDateString) {
+      setError("Dữ liệu ngày sinh không hợp lệ");
+      return false;
+    }
+    
+    const birthDate = new Date(birthDateString); 
+    if (isNaN(birthDate.getTime())) {
+      setError("Dữ liệu ngày sinh không hợp lệ");
+      return false;
+    }
+    
     const today = new Date();
-
     let age = today.getFullYear() - birthDate.getFullYear();
+  
+    // Kiểm tra nếu sinh nhật chưa đến trong năm nay
     if (
       today.getMonth() < birthDate.getMonth() ||
       (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
     ) {
       age--;
     }
-
+    
+    
     return age >= 18;
   };
 
-
-
   useEffect(() => {
     getInfo();
-  }, [isUpdate, userId]);
+  }, [userId]);
+
+  // Reset editData khi bắt đầu chỉnh sửa
+  useEffect(() => {
+    if (isUpdate) {
+      setEditData({...data});
+    }
+  }, [isUpdate]);
+
+  // Xử ly cho các trường input
+  const handleInputChange = (field, value) => {
+    
+    setEditData(prevData => ({
+      ...prevData,
+      [field]: value
+    }));
+  };
 
   return (
     <>
@@ -194,41 +239,44 @@ const Profile = () => {
             {/* ảnh đại diện */}
             <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
               <img
-                src={data.avatar_url || "/default.jpg"}
+                src={editData.avatar_url || "/default.jpg"}
                 alt="Profile"
                 className="w-full h-full object-cover"
                 onError={(e) => { e.target.src = "/default.jpg"; }}
               />
             </div>
             {/* Thêm nút chọn ảnh */}
-            {
-              isUpdate && (
-                <div className="mt-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    id="avatar"
-                    onChange={handleImageChange}
-                  />
-                  <label
-                    htmlFor="avatar"
-                    className="block text-center bg-blue-500 text-white p-2 rounded-lg cursor-pointer hover:bg-blue-400"
-                  >
-                    Chọn ảnh
-                  </label>
-                </div>
-              )
-            }
+            {isUpdate && (
+              <div className="mt-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="avatar"
+                  onChange={handleImageChange}
+                />
+                <label
+                  htmlFor="avatar"
+                  className="block text-center bg-blue-500 text-white p-2 rounded-lg cursor-pointer hover:bg-blue-400"
+                >
+                  Chọn ảnh
+                </label>
+              </div>
+            )}
+            
             {/* Thông tin cá nhân */}
             <div className="text-center mt-4 text-gray-800">
               <div className="flex items-center justify-center">
-                {isUpdate ? <input
-                  type="text"
-                  className="font-semibold text-center focus:ring focus:ring-blue-300"
-                  value={editData.full_name || ""}
-                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                /> : <span className="text-3xl font-semibold">{data.full_name}</span>}
+                {isUpdate ? (
+                  <input
+                    type="text"
+                    className="font-semibold text-center focus:ring focus:ring-blue-300"
+                    value={editData.full_name || ""}
+                    onChange={(e) => handleInputChange('full_name', e.target.value)}
+                  />
+                ) : (
+                  <span className="text-3xl font-semibold">{data.full_name}</span>
+                )}
                 <div className="flex items-center">
                   <span className="mr-2 text-2xl font-bold">, {data.age}</span>
                   <FaCheckCircle className="text-green-500 text-2xl" />
@@ -241,8 +289,8 @@ const Profile = () => {
                   {isUpdate ? (
                     <select
                       className="border p-1 rounded focus:ring focus:ring-blue-300"
-                      value={editData.gender}
-                      onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+                      value={editData.gender || ""}
+                      onChange={(e) => handleInputChange('gender', e.target.value)}
                     >
                       <option value="Nam">Nam</option>
                       <option value="Nữ">Nữ</option>
@@ -259,8 +307,8 @@ const Profile = () => {
                     <input
                       type="text"
                       className="border p-1 rounded w-full focus:ring focus:ring-blue-300"
-                      value={editData.occupation}
-                      onChange={(e) => setEditData({ ...editData, occupation: e.target.value })}
+                      value={editData.occupation || ""}
+                      onChange={(e) => handleInputChange('occupation', e.target.value)}
                     />
                   ) : (
                     <span>{data.occupation}</span>
@@ -273,8 +321,8 @@ const Profile = () => {
                     <input
                       type="text"
                       className="border p-1 rounded w-full focus:ring focus:ring-blue-300"
-                      value={editData.hobbies}
-                      onChange={(e) => setEditData({ ...editData, hobbies: e.target.value })}
+                      value={editData.hobbies || ""}
+                      onChange={(e) => handleInputChange('hobbies', e.target.value)}
                     />
                   ) : (
                     <span>{data.hobbies}</span>
@@ -294,17 +342,17 @@ const Profile = () => {
                 disabled={!isUpdate}
                 value={formatDate(editData.dob) || ""}
                 onChange={(e) => {
-                  setEditData({ ...editData, dob: e.target.value });
+                  
+                  handleInputChange('dob', e.target.value);
                 }}
               />
-
 
               <p className="mb-1"><strong>Mô tả bản thân:</strong></p>
               <textarea
                 className="outline resize-none p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
                 disabled={!isUpdate}
                 value={editData.bio || ""}
-                onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                onChange={(e) => handleInputChange('bio', e.target.value)}
               />
 
               <p className="mt-2 mb-1"><strong>Tiêu chuẩn tìm kiếm:</strong></p>
@@ -312,29 +360,35 @@ const Profile = () => {
                 className="outline resize-none p-2 border border-gray-300 rounded-lg w-full focus:ring focus:ring-blue-300"
                 disabled={!isUpdate}
                 value={editData.criteria || ""}
-                onChange={(e) => setEditData({ ...editData, criteria: e.target.value })}
+                onChange={(e) => handleInputChange('criteria', e.target.value)}
               />
 
               <div className="flex flex-col items-start mt-2">
                 <label htmlFor="add" className="font-bold">Địa chỉ</label>
-                <textarea readOnly className="resize-none  outline-none w-full overflow-hidden" value={editData.address} />
-                {isUpdate &&
-                  <button onClick={handleUpdateAddress}
-                    className="mt-2 p-2 bg-green-400 hover:bg-green-600 hover:text-white rounded-2xl border hover:border-black m-auto">
+                <textarea 
+                  readOnly 
+                  className="resize-none outline-none w-full overflow-hidden" 
+                  value={editData.address || ""} 
+                />
+                {isUpdate && (
+                  <button 
+                    onClick={handleUpdateAddress}
+                    className="mt-2 p-2 bg-green-400 hover:bg-green-600 hover:text-white rounded-2xl border hover:border-black m-auto"
+                  >
                     {loading ? "Đang tải..." : "Cập nhật vị trí"}
-                  </button>}
+                  </button>
+                )}
               </div>
-
             </div>
-
 
             {/* Xác minh tài khoản */}
             <div className="mt-4 text-gray-800 mb-4">
               <h2 className="text-lg font-semibold">Xác minh tài khoản</h2>
               <p>Trạng thái xác minh: <span className="text-green-500">Đã xác minh</span></p>
             </div>
+            
             {/*Cài đặt hồ sơ*/}
-            {isUserLogin &&
+            {isUserLogin && (
               <div className="mt-4 text-gray-800">
                 <h2 className="text-lg font-semibold pb-2 border-b border-gray-200">Cài đặt hồ sơ</h2>
                 {isChangePassword && (
@@ -342,8 +396,9 @@ const Profile = () => {
                     <div className="mt-2 mb-6 border-gray-200">
                       <label className="block text-gray-700 font-semibold mb-1">Mật khẩu cũ</label>
                       <input
-                        type="text"
+                        type="password"
                         onChange={(e) => setDataUpdate({ ...dataUpdate, oldPassword: e.target.value })}
+                        value={dataUpdate.oldPassword}
                         placeholder={'Nhập mật khẩu cũ'}
                         className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
                       />
@@ -351,8 +406,9 @@ const Profile = () => {
                     <div className="mb-6 border-gray-200">
                       <label className="block text-gray-700 font-semibold mb-1">Mật khẩu mới</label>
                       <input
-                        type="text"
+                        type="password"
                         onChange={(e) => setDataUpdate({ ...dataUpdate, newPassword: e.target.value })}
+                        value={dataUpdate.newPassword}
                         placeholder={'Nhập mật khẩu mới'}
                         className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
                       />
@@ -360,8 +416,9 @@ const Profile = () => {
                     <div className="mb-6 border-gray-200">
                       <label className="block text-gray-700 font-semibold mb-1">Xác nhận mật khẩu</label>
                       <input
-                        type="text"
+                        type="password"
                         onChange={(e) => setDataUpdate({ ...dataUpdate, confirmPassword: e.target.value })}
+                        value={dataUpdate.confirmPassword}
                         placeholder={'Nhập lại mật khẩu mới'}
                         className="w-full p-3 border rounded-md bg-gray-100 text-gray-700 focus:outline-none"
                       />
@@ -370,23 +427,33 @@ const Profile = () => {
                 )}
 
                 <div className="flex justify-between border-t pt-4 border-gray-200 mb-4">
-                  <button onClick={() => {
-                    isChangePassword ? handleChangePassword() : setIsChangePassword(true);
-                  }}
-                    className="p-2 bg-red-300 hover:bg-red-200 rounded-xl font-semibold" >
+                  <button 
+                    onClick={() => {
+                      if (isChangePassword) {
+                        handleChangePassword();
+                      } else {
+                        setIsChangePassword(true);
+                      }
+                    }}
+                    className="p-2 bg-red-300 hover:bg-red-200 rounded-xl font-semibold"
+                  >
                     {isChangePassword ? "Cập nhật" : "Đổi mật khẩu"}
                   </button>
-                  <button onClick={() => {
-                    if (isUpdate) setIsAccept(true); // Lưu thông tin khi bấm Lưu
-                    setIsUpdate(!isUpdate);
-                  }}
-                    className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold">
+                  <button 
+                    onClick={() => {
+                      if (isUpdate) {
+                        setIsAccept(true);
+                      } else {
+                        setIsUpdate(true);
+                      }
+                    }}
+                    className="p-2 bg-amber-300 hover:bg-amber-200 rounded-xl font-semibold"
+                  >
                     {isUpdate ? "Lưu" : "Chỉnh sửa"}
                   </button>
-
                 </div>
               </div>
-            }
+            )}
           </div>
         </div>
       </div>
