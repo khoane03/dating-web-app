@@ -181,7 +181,7 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
+// Hàm kiểm tra độ tuổi
   const validateAge = (birthDateString) => {
     if (!birthDateString) {
       setError("Dữ liệu ngày sinh không hợp lệ");
@@ -237,6 +237,7 @@ const Profile = () => {
       <div className="flex justify-center items-center min-h-screen bg-transparent">
         <div className="relative w-96 bg-white rounded-3xl shadow-lg py-6 px-2 max-h-[90vh] overflow-hidden">
           <div className="scroll-container">
+
             {/* ảnh đại diện */}
             <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300">
               <img
@@ -246,6 +247,7 @@ const Profile = () => {
                 onError={(e) => { e.target.src = "/default.jpg"; }}
               />
             </div>
+
             {/* Thêm nút chọn ảnh */}
             {isUpdate && (
               <div className="mt-2">
