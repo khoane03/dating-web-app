@@ -81,20 +81,15 @@ const TinderSwipe = ({ posts_id }) => {
   //lấy danh sách bài post
   useEffect(() => {
     const fetchPosts = async () => {
-      let res = [];
       try {
         setLoading(true);
         const user = await getUserLogin();
         setUserLocation({ latitude: user.data.latitude, longitude: user.data.longitude, avatar_url: user.data.avatar_url });
-        if (location.pathname === "/search") {
-          if (!posts_id) {
-            setProfile([]);
-            return;
-          }
-          res = await getPostByUserId(posts_id)
-        } else {
-          res = await getAllPosts();
+        if (location.pathname === "/search" && !posts_id) {
+          setProfile([]);
+          return;
         }
+        const res = posts_id ? await getPostByUserId(posts_id) : await getAllPosts();
         setProfile(res.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách bài post:", error);
