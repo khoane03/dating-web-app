@@ -105,10 +105,17 @@ export const searchAccount = async (keyword) => {
                             OR role LIKE $1 `;
         const values = [`%${keyword}%`];
 
-        if (!isNaN(keyword)) {
-            query += ` OR status = $2 `;
-            values.push(parseInt(keyword, 10));
+        if (!isNaN(keyword) || ["active", "Active", "blocked", "Blocked"].includes(keyword)) {
+            let statusValue;
+            if (!isNaN(keyword)) {
+                statusValue = parseInt(keyword, 10) === 1 ? 1 : 0;
+            } else {
+                statusValue = ["active", "Active"].includes(keyword) ? 1 : 0;
+            }
+            query += ` OR status = $${values.length + 1} `;
+            values.push(statusValue);
         }
+        
         const { rows } = await pool.query(query, values);
         return handleSuccess(200, 'Danh sách tài khoản', rows);
     } catch (error) {
