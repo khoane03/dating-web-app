@@ -163,9 +163,10 @@ const Profile = () => {
     try {
       setLoading(true);
       const { latitude, longitude } = await getLocation();
+      console.log(latitude, longitude);
       const address = await getAddress(latitude, longitude);
       await updateLocationUser(address, latitude, longitude);
-      
+      console.log(address);
       setEditData((prevData) => ({
         ...prevData,
         address: address
@@ -230,7 +231,7 @@ const Profile = () => {
 
   return (
     <>
-      {isAccept && <Accept action={"lưu"} isReject={() => { setIsAccept(false) }} isAccept={() => { handleUpdateProfile() }} />}
+      {isAccept && <Accept action={"lưu"} isReject={() => { setIsAccept(false); setIsUpdate(false) }} isAccept={() => { handleUpdateProfile() }} />}
       {error && <Alert type={'error'} message={error} onClose={() => setError('')} />}
       {success && <Alert type={"success"} message={success} onClose={() => setSuccess("")} />}
       <div className="flex justify-center items-center min-h-screen bg-transparent">

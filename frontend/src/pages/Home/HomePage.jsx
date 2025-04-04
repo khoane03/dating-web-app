@@ -53,8 +53,9 @@ const HomePage = () => {
     const fetchMatched = async () => {
       try {
         const res = await getListMatch();
-        console.log(res);
-        setListMatch(res);
+        if (res.length) {
+          setListMatch(res);
+        }
       } catch (error) {
         setError(error.response.data.message);
       }

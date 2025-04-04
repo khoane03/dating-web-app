@@ -49,19 +49,23 @@ const AddImages = () => {
         }
     }
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await getUserLogin();
-                setInfoUser(response.data);
+    const fetchUser = async () => {
+        try {
+            const response = await getUserLogin();
+            setInfoUser(response.data);
 
-                const res = await getPostByUserId(response.data.id);
-                setPosts(res.data[0].posts || []);
-            } catch (error) {
-                setError('Lỗi lấy thông tin người dùng!');
+            const res = await getPostByUserId(response.data.id);
+            if (res.message === "Không có bài viết nào!") {
+                setPosts([]);
+                return;
             }
-        };
+            setPosts(res.data[0].posts || []);
+        } catch (error) {
+            setError('Lỗi lấy bài viết!');
+        }
+    }
 
+    useEffect(() => {
         fetchUser();
     }, []);
     return (
@@ -69,7 +73,7 @@ const AddImages = () => {
             {success && <Alert type={'success'} message={success} onClose={() => { setSuccess('') }} />}
             {error && <Alert type={'error'} message={error} onClose={() => { setError('') }} />}
             {isAccept && <Accept action={"xoá"} isAccept={handleDeleteImageById} isReject={() => setIsAccept(false)} />}
-            {isHidden && <FormAdd onClose={() => { setIsHidden(false) }} />}
+            {isHidden && <FormAdd onClose={() => { setIsHidden(false) }} callback={fetchUser} />}
             {!isEdit ? <>
                 <div className="w-full pl-6 py-4 flex bg-[#21272b] items-center rounded-tr-xl rounded-tl-xl">
                     <p className="text-2xl font-bold text-pink-500 mr-3">{infoUser.full_name}</p>

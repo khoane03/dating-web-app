@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faBug, faInfo } from "@fortawesome/free-solid-svg-icons";
 
-const Alert = ({ type, message, duration = 5000, onClose }) => {
+const Alert = ({ type, message, duration = 3000, onClose }) => {
 
     const [visible, setVisible] = useState(true);
     

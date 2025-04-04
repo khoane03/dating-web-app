@@ -84,12 +84,18 @@ const TinderSwipe = ({ posts_id }) => {
       try {
         setLoading(true);
         const user = await getUserLogin();
-        setUserLocation({ latitude: user.data.latitude, longitude: user.data.longitude, avatar_url: user.data.avatar_url });
+        if (user.message !== "Không tìm thấy người dùng!") {
+          setUserLocation({ latitude: user.data.latitude, longitude: user.data.longitude, avatar_url: user.data.avatar_url });
+        }
         if (location.pathname === "/search" && !posts_id) {
           setProfile([]);
           return;
         }
         const res = posts_id ? await getPostByUserId(posts_id) : await getAllPosts();
+        if (res.message === "Không có bài viết nào!") {
+          setProfile([]);
+          return;
+        }
         setProfile(res.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách bài post:", error);
@@ -102,15 +108,17 @@ const TinderSwipe = ({ posts_id }) => {
 
   //lấy khoảng cách giữa người dùng và người khác
   useEffect(() => {
+    let res = 0;
     const calculateDistances = async () => {
       const distanceMap = new Map();
-      const distancePromises = profile.map(async (user) => {
-        const res = await calculationDistance(
-          user.latitude, user.longitude, userLocation.latitude, userLocation.longitude
-        );
+      profile.map((user) => {
+        if(userLocation.latitude && userLocation.longitude && user.latitude && user.longitude) { 
+          res = calculationDistance(
+            user.latitude, user.longitude, userLocation.latitude, userLocation.longitude
+          );
+        } 
         distanceMap.set(user.user_id, res);
       });
-      await Promise.all(distancePromises);
       setDistance(distanceMap);
     };
 

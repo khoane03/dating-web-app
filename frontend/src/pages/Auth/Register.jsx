@@ -34,6 +34,7 @@ const Register = () => {
     });
     const timeout = 3000;
     const navigate = useNavigate();
+    const [success, setSuccess] = useState("");
 
     const handleRegister = async () => {
         try {
@@ -54,10 +55,10 @@ const Register = () => {
     const handleSendOtp = async () => {
         try {
             setLoading(true);
+            setReSend(false);
             await sendOtp(dataInput.email);
             setShowOtp(true);
             setTimeLeft(60);
-            setReSend(false);
         } catch (error) {
             setError(error.response?.data?.message);
         } finally {
@@ -67,11 +68,16 @@ const Register = () => {
 
     const handleVerifyOtp = async () => {
         try {
-            await verifyOtp(dataInput.email, dataInput.otp);
-            await register(dataInput);
-            setTimeout(() => {
-                navigate("/auth");
-            }, timeout);
+            const res = await verifyOtp(dataInput.email, dataInput.otp);
+            if (res.code === 200) {
+                const registerRes = await register(dataInput);
+                if (registerRes.code === 201) {
+                    setSuccess(res.message + "-" + registerRes.message);
+                    setTimeout(() => {
+                        navigate("/auth");
+                    }, timeout);
+                }
+            }
         } catch (error) {
             setError(error.response?.data?.message);
         }
@@ -95,26 +101,46 @@ const Register = () => {
     return (
         <>
             {error && <Alert type="error" message={error} onClose={() => setError("")} />}
+            {success && <Alert type="success" message={success} onClose={() => setSuccess("")} />}
             {showOtp && <>
                 <div className="w-screen h-screen fixed z-10 bg-gray-200 opacity-50"></div>
+
                 <div className="fixed z-20 flex items-center justify-center w-screen h-screen">
-                    <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-xl">
-                        <p className="text-center font-bold">Xác thực OTP</p>
-                        <input value={dataInput.otp}
+                    <div className="relative bg-white p-6 border border-gray-200 rounded-xl shadow-xl w-[90%] max-w-md">
+
+                        {/* Nút đóng */}
+                        <button
+                            onClick={() => { setShowOtp(false); setTimeLeft(60); setDataInput({ ...dataInput, otp: "" }) }}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-black text-xl font-bold"
+                        >
+                            &times;
+                        </button>
+
+                        <p className="text-center font-bold mb-4">Xác thực OTP</p>
+
+                        <input
+                            value={dataInput.otp}
                             onChange={(e) => setDataInput({ ...dataInput, otp: e.target.value })}
                             onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
-                            className="bg-gray-200 rounded-xl px-4 py-2 my-2 w-full outline-none" type="text" />
+                            className="bg-gray-200 rounded-xl px-4 py-2 mb-3 w-full outline-none"
+                            type="text"
+                        />
+
                         {reSend ? (
-                            <button onClick={handleSendOtp}
-                                className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
+                            <button
+                                onClick={()=>{handleSendOtp; setDataInput({ ...dataInput, otp: "" })}}
+                                className="w-full mb-4 font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center"
+                            >
                                 Gửi lại
                             </button>
                         ) : (
-                            <p className="text-center text-gray-500">Gửi lại sau {timeLeft}s</p>
+                            <p className="text-center text-gray-500 mb-4">Gửi lại sau {timeLeft}s</p>
                         )}
-                        
-                        <button onClick={handleVerifyOtp}
-                            className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center">
+
+                        <button
+                            onClick={handleVerifyOtp}
+                            className="w-full font-bold text-dark px-4 py-2 rounded-full bg-[#53CCEC] hover:bg-[#53CCCC] flex items-center justify-center"
+                        >
                             Xác thực
                         </button>
                     </div>
