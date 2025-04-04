@@ -34,17 +34,17 @@ export const handleGoogleCallback = async (account) => {
     if (existingUsers.length > 0) {
       await client.query("COMMIT");
       return { code: 200, message: "Đăng nhập thành công!", data: generateAuthTokens(existingUsers[0]) };
-    }else{
+    } else {
       const { rows } = await client.query(
         `INSERT INTO tbl_accounts (email, status, social_id, role) VALUES ($1, $2, $3, $4) RETURNING id, email, role`,
         [account.email, 1, account.sub, ROLES.USER]
       );
-  
+
       await client.query(
         `INSERT INTO tbl_users (acc_id, full_name, avatar_url) VALUES ($1, $2, $3)`,
         [rows[0].id, account.name, account.picture]
       );
-  
+
       await client.query("COMMIT");
       return { code: 200, message: "Đăng ký thành công!", data: generateAuthTokens(rows[0]) };
     }
@@ -149,6 +149,9 @@ export const verifyOtp = (email, otp) => {
 
 const generateOtp = (email) => {
   const otp = Math.floor(100000 + Math.random() * 900000);
+  if (otpStorage.has(email)) {
+    otpStorage.delete(email);
+  }
   otpStorage.set(email, { otp, expireTime: Date.now() + 60 * 1000 });
   return otp;
 };

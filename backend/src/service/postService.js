@@ -20,7 +20,7 @@ export const getAllPosts = async (id) => {
                 up.user_id != $1
             ORDER BY up.created_at DESC;`, [user_id]);
         if (!rows.length) {
-            return handleSuccess(400, "Không có bài viết nào!");
+            return handleSuccess(200, "Không có bài viết nào!");
         }
         const data = resultPost(rows);
         return handleSuccess(200, "Thành công!", data);
@@ -45,7 +45,7 @@ export const getImageByUserId = async (id) => {
                 JOIN tbl_users as u ON up.user_id = u.id
             WHERE user_id = $1;`, [id]);
         if (!rows.length) {
-            return handleSuccess(400, "Không có bài viết nào!");
+            return handleSuccess(200, "Không có bài viết nào!");
         }
         const data = resultPost(rows);
         return handleSuccess(200, "Thành công!", data);
