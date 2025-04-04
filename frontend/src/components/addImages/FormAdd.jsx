@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { savePost } from '../../service/postService';
 import Alert from '../alert/Alert';
 
-function FormAdd({ onClose }) {
+function FormAdd({ onClose, callback }) {
     const [image, setImage] = useState(null);
     const [file, setFile] = useState(null);
     const [content, setContent] = useState('');
@@ -44,7 +44,8 @@ function FormAdd({ onClose }) {
                     setImage(null);
                     setFile(null);
                     onClose();
-                }, 3000);
+                    callback();
+                }, 1000);
             }
         } catch (error) {
             console.error(error);
