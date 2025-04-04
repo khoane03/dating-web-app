@@ -51,6 +51,7 @@ const TinderSwipe = ({ posts_id }) => {
     }
   };
 
+/// cập nhật tổng số reaction
   const updateTotalReaction = async (postId) => {
     try {
       const res = await countReactions(postId);
@@ -255,15 +256,20 @@ const TinderSwipe = ({ posts_id }) => {
                   className="p-3 bg-gray-700 rounded-full hover:scale-125 transition-transform">
                   <FontAwesomeIcon icon={faHeart} className={`w-8 h-8 text-2xl ${colorClass}`} />
                 </button>
-                <div className="relative group/reactions flex items-center justify-between">
-                  <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center">
-                    {totalReaction}
+
+                {/* Nút hiển thị reaction và tổng số reaction */}
+                <div className="relative group/reactions flex items-center justify-between"> 
+                  <button className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform transform flex items-center"> 
+                    {totalReaction} 
                     {icons(reactionType)}
                   </button>
+
+                  {/* Hiển thị danh sách reaction khi hover */}
                   <div className="absolute -top-12 transform -translate-x-1/4 hidden group-hover/reactions:flex">
                     <Reactions postId={currentPostData.id} callTotal={updateTotalReaction} />
-                  </div>
+                  </div> 
                 </div>
+
                 <button onClick={() => handleNavigation("next", profile, setCurrentProfile, setCurrentPost)}
                   className="p-3 bg-gray-700 rounded-full hover:scale-110 transition-transform">
                   <FontAwesomeIcon icon={faArrowRight} className="text-red-500 w-8 h-8 text-2xl" />
