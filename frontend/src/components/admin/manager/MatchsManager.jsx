@@ -87,7 +87,7 @@ function MatchesManager() {
                     <td className="border p-3">{row.id}</td>
                     <td className="border p-3">{row.user_a}</td>
                     <td className="border p-3">{row.user_b}</td>
-                    <td className="border p-3">{row.status === 1 ? "matched" : "Pending"}</td>
+                    <td className="border p-3">{row.status === 2 ? "matched" : "Pending"}</td>
                     <td className="border p-3">{formatDate(row.matched_at)}</td>
                     <td className="border p-3">{formatDate(row.updated_at)}</td>
                     <td className="border p-3">

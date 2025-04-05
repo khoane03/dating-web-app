@@ -54,7 +54,7 @@ const Overview = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center bg-white shadow-xl h-16 px-4 rounded-3xl">
+      <div className="flex justify-between items-center bg-white shadow-xl h-16 mx-4 px-4 mt-2 rounded-3xl">
         <div className="bg-gray-100 flex items-center rounded-full cursor-pointer">
           <input
             type="text"

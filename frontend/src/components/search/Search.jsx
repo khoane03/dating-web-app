@@ -75,7 +75,7 @@ const Search = () => {
                         <input
                             type="range"
                             min="1"
-                            max="20"
+                            max="100"
                             value={keyword.distance}
                             onChange={(e) => setKeyword({ ...keyword, distance: parseInt(e.target.value) })}
                             className="w-full accent-pink-500"
